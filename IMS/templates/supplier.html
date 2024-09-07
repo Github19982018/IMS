@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <nav style="--bs-breadcrumb-divider: '>';">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="purchase.html"><b>Suppliers</b></a></li>
+          <li class="active breadcrumb-item"><b>{Wells & Wade}</b></li>
+        </ol>
+      </nav>
+
+      <div class="row">
+          <div class="col-lg-6">
+              <h5><b>About Supplier</b></h5>
+            <div class="card p-3">
+                <h5 class="card-title"><b>Wells & wade</b></h5>
+
+                  <div class="row">
+                    <div class="col-4 label ">Address:</div>
+                    <div class="col-8"><b>Ohio,Delaware, 435 Park Ave</b></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-4 label ">Phone:</div>
+                    <div class="col-8"><b>Ohio,Delaware, 435 Park Ave</b></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-4 label ">Contact person:</div>
+                    <div class="col-8"><b>Ohio,Delaware, 435 Park Ave</b></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-4 label ">Partners since:</div>
+                    <div class="col-8"><b>August 2017</b></div>
+                  </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="row">
+                <h5 class="col-8"><b>Recent Deals</b></h5>
+                <p class="col-4"><a href="" class="text-success">More Deals</a></p>
+            </div>
+            <div class="card">
+                    <table class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Created at</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+      </div>
+
+          <section>
+            <h5><b>Supplier Evaluation</b></h5>
+            <div class="card p-2">
+                <form action="" method="post">
+    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <td></td>
+                                <td>1 = Poor</td>
+                                <td>2 = Fair</td>
+                                <td>3 = Satisfactory</td>
+                                <td>4 = Good</td>
+                                <td>5 = Excellent</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>competency</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="competency"></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="competency"></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="competency"></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="competency"></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="competency"></td>
+                            </tr>
+                            <tr>
+                                <td>capacity</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="capacity"></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="capacity"></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="capacity"></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="capacity"></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="capacity"></td>
+                            </tr>
+                            <tr>
+                                <td>commitment</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="commitment"></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="commitment"></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="commitment"></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="commitment"></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="commitment"></td>
+                            </tr>
+                            <tr>
+                                <td>control</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="control"></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="control"></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="control"></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="control"></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="control"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h5>Overall rating: {}</h5>
+                    <input class="btn btn-success" type="submit" value="save">
+                </form>
+            </div>
+          </section>
+  {% endblock %}

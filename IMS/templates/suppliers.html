@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <div class="pagetitle">
+      <h1>Suppliers</h1>
+    </div><!-- End Page Title -->
+    <div class="card">
+      <table class="table table-borderless datatable">
+          <thead>
+            <tr>
+              <th>
+                <b>N</b>ame
+              </th>
+              <th>Address</th>
+              <th>Since</th>
+              <th>Phone</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for i in data %}
+          <tr> 
+          <td><a href={{i.id}}>{{i.name}}</a></td>
+          <td>{{i.address}}</td>
+          <td>{{i.since}}</td>
+          <td>{{i.phone}}</td>
+          <td>{{i.rating.rating}}</td>
+        </tr>
+          {% endfor %}
+              <tr> 
+              <td><a href="#">Wells & Wade</a></td>
+              <td>Ohio, Delaware, 435 Park ave</td>
+              <td>August 2017</td>
+              <td>614-205-9702</td>
+              <td>4.75</td>
+            </tr>
+              <tr> 
+              <td><a href="#">Wells & Wade</a></td>
+              <td>Ohio, Delaware, 435 Park ave</td>
+              <td>August 2017</td>
+              <td>614-205-9702</td>
+              <td>4.75</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  {% endblock %}
