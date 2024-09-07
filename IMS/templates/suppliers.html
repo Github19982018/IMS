@@ -9,7 +9,7 @@
           <thead>
             <tr>
               <th>
-                <b>N</b>ame
+                Name
               </th>
               <th>Address</th>
               <th>Since</th>
@@ -18,7 +18,7 @@
             </tr>
           </thead>
           <tbody>
-          {% for i in data %}
+          {% for i in suppliers %}
           <tr> 
           <td><a href={{i.id}}>{{i.name}}</a></td>
           <td>{{i.address}}</td>
@@ -27,20 +27,6 @@
           <td>{{i.rating.rating}}</td>
         </tr>
           {% endfor %}
-              <tr> 
-              <td><a href="#">Wells & Wade</a></td>
-              <td>Ohio, Delaware, 435 Park ave</td>
-              <td>August 2017</td>
-              <td>614-205-9702</td>
-              <td>4.75</td>
-            </tr>
-              <tr> 
-              <td><a href="#">Wells & Wade</a></td>
-              <td>Ohio, Delaware, 435 Park ave</td>
-              <td>August 2017</td>
-              <td>614-205-9702</td>
-              <td>4.75</td>
-            </tr>
           </tbody>
         </table>
       </div>

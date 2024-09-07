@@ -3,8 +3,8 @@
 {% block main %}
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="purchase.html"><b>Suppliers</b></a></li>
-          <li class="active breadcrumb-item"><b>{Wells & Wade}</b></li>
+          <li class="breadcrumb-item"><a href="{% url 'suppliers'%}"><b>Suppliers</b></a></li>
+          <li class="active breadcrumb-item"><b>{{supplier.name}}</b></li>
         </ol>
       </nav>
 
@@ -12,23 +12,23 @@
           <div class="col-lg-6">
               <h5><b>About Supplier</b></h5>
             <div class="card p-3">
-                <h5 class="card-title"><b>Wells & wade</b></h5>
+                <h5 class="card-title"><b>{{supplier.name}}</b></h5>
 
                   <div class="row">
                     <div class="col-4 label ">Address:</div>
-                    <div class="col-8"><b>Ohio,Delaware, 435 Park Ave</b></div>
+                    <div class="col-8"><b>{{supplier.address}}</b></div>
                   </div>
                   <div class="row">
                     <div class="col-4 label ">Phone:</div>
-                    <div class="col-8"><b>Ohio,Delaware, 435 Park Ave</b></div>
+                    <div class="col-8"><b>{{supplier.phone}}</b></div>
                   </div>
                   <div class="row">
                     <div class="col-4 label ">Contact person:</div>
-                    <div class="col-8"><b>Ohio,Delaware, 435 Park Ave</b></div>
+                    <div class="col-8"><b>{{supplier.contact_person}}</b></div>
                   </div>
                   <div class="row">
                     <div class="col-4 label ">Partners since:</div>
-                    <div class="col-8"><b>August 2017</b></div>
+                    <div class="col-8"><b>{{supplier.since}}</b></div>
                   </div>
             </div>
           </div>
@@ -46,6 +46,15 @@
                                 <th>Amount</th>
                             </tr>
                         </thead>
+                        <tbody>
+                          {% for i in orders %}
+                          <tr>
+                            <td><a href="#">i.id</a></td>
+                            <td>i.created_date</td>
+                            <td>i.total_amount</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -54,8 +63,8 @@
           <section>
             <h5><b>Supplier Evaluation</b></h5>
             <div class="card p-2">
-                <form action="" method="post">
-    
+                <form method="post">
+                  {% csrf_token %}
                     <table class="table">
                         <thead>
                             <tr>
@@ -70,39 +79,55 @@
                         <tbody>
                             <tr>
                                 <td>competency</td>
-                                <td><input class="form-check-input" type="radio" value="1" id="" name="competency"></td>
-                                <td><input class="form-check-input" type="radio" value="2" id="" name="competency"></td>
-                                <td><input class="form-check-input" type="radio" value="3" id="" name="competency"></td>
-                                <td><input class="form-check-input" type="radio" value="4" id="" name="competency"></td>
-                                <td><input class="form-check-input" type="radio" value="5" id="" name="competency"></td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="competency" {% if supplier.rating.competency == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="competency"{% if supplier.rating.competency == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="competency"{% if supplier.rating.competency == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="competency"{% if supplier.rating.competency == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="competency"{% if supplier.rating.competency == 5 %}checked{% endif %}></td>
                             </tr>
                             <tr>
-                                <td>capacity</td>
-                                <td><input class="form-check-input" type="radio" value="1" id="" name="capacity"></td>
-                                <td><input class="form-check-input" type="radio" value="2" id="" name="capacity"></td>
-                                <td><input class="form-check-input" type="radio" value="3" id="" name="capacity"></td>
-                                <td><input class="form-check-input" type="radio" value="4" id="" name="capacity"></td>
-                                <td><input class="form-check-input" type="radio" value="5" id="" name="capacity"></td>
+                                <td>communication</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="communication"{% if supplier.rating.communication == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="communication"{% if supplier.rating.communication == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="communication"{% if supplier.rating.communication == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="communication"{% if supplier.rating.communication == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="communication"{% if supplier.rating.communication == 5 %}checked{% endif %}></td>
                             </tr>
                             <tr>
                                 <td>commitment</td>
-                                <td><input class="form-check-input" type="radio" value="1" id="" name="commitment"></td>
-                                <td><input class="form-check-input" type="radio" value="2" id="" name="commitment"></td>
-                                <td><input class="form-check-input" type="radio" value="3" id="" name="commitment"></td>
-                                <td><input class="form-check-input" type="radio" value="4" id="" name="commitment"></td>
-                                <td><input class="form-check-input" type="radio" value="5" id="" name="commitment"></td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="commitment"{% if supplier.rating.commitment == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="commitment"{% if supplier.rating.commitment == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="commitment"{% if supplier.rating.commitment == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="commitment"{% if supplier.rating.commitment == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="commitment"{% if supplier.rating.commitment == 5 %}checked{% endif %}></td>
                             </tr>
                             <tr>
-                                <td>control</td>
-                                <td><input class="form-check-input" type="radio" value="1" id="" name="control"></td>
-                                <td><input class="form-check-input" type="radio" value="2" id="" name="control"></td>
-                                <td><input class="form-check-input" type="radio" value="3" id="" name="control"></td>
-                                <td><input class="form-check-input" type="radio" value="4" id="" name="control"></td>
-                                <td><input class="form-check-input" type="radio" value="5" id="" name="control"></td>
+                                <td>transaction</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="transaction"{% if supplier.rating.transaction == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="transaction"{% if supplier.rating.transaction == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="transaction"{% if supplier.rating.transaction == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="transaction"{% if supplier.rating.transaction == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="transaction"{% if supplier.rating.transaction == 5 %}checked{% endif %}></td>
+                            </tr>
+                            <tr>
+                                <td>cost</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="cost"{% if supplier.rating.cost == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="cost"{% if supplier.rating.cost == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="cost"{% if supplier.rating.cost == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="cost"{% if supplier.rating.cost == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="cost"{% if supplier.rating.cost == 5 %}checked{% endif %}></td>
+                            </tr>
+                            <tr>
+                                <td>consistency</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="consistency"{% if supplier.rating.consistency == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="consistency"{% if supplier.rating.consistency == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="consistency"{% if supplier.rating.consistency == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="consistency"{% if supplier.rating.consistency == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="consistency"{% if supplier.rating.consistency == 5 %}checked{% endif %}></td>
                             </tr>
                         </tbody>
                     </table>
-                    <h5>Overall rating: {}</h5>
+                    <h5>Overall rating: {{supplier.rating.rating}}</h5>
                     <input class="btn btn-success" type="submit" value="save">
                 </form>
             </div>
