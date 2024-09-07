@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import date,datetime
+from datetime import datetime
 from supplier.models import Supplier,Supplier_rating
 
 # Create your models here.
@@ -46,22 +46,7 @@ class Inventory(models.Model):
 
 class Ship_method(models.Model):
     method = models.CharField(max_length=50)
-class Purchase_status(models.Model):
-    status = models.CharField(max_length=50)
 
-class Purchase(models.Model):
-    Warehouse = models.ForeignKey(to=Warehouse,on_delete=models.CASCADE)
-    supplier = models.ForeignKey(to=Supplier,on_delete=models.PROTECT)
-    contact_person = models.CharField(max_length=100)
-    bill_address = models.TextField()
-    contact_phone = models.PositiveIntegerField()
-    ship_address = models.TextField()
-    ship_method = models.ForeignKey(to=Ship_method,on_delete=models.PROTECT)
-    preferred_shipping_date = models.DateField()
-    created_by = models.CharField(max_length=100)
-    created_date = models.DateTimeField(default=datetime.now())
-    total_amount = models.DecimalField(decimal_places=2,max_digits=10)
-    status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
 
 class Sales_status(models.Model):
     status = models.CharField(max_length=50)
@@ -108,10 +93,10 @@ class Shipment(models.Model):
     package = models.ForeignKey(to=Package,on_delete=models.CASCADE)
     shipment_date = models.DateTimeField()
     status = models.ForeignKey(to=Ship_status,on_delete=models.PROTECT)
-
-class  Order_items(models.Model):
+    
+class  Sale_items(models.Model):
     type = models.CharField(choices={'P':'Purchase','O':'Order'},max_length=20)
-    order = models.ForeignKey(to=Purchase or Sales,on_delete=models.CASCADE)
+    order = models.ForeignKey(to=Sales,on_delete=models.CASCADE)
     item_id = models.ManyToManyField(to=Inventory)
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()

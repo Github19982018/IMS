@@ -22,7 +22,8 @@ from inventory.views import error_response_handler
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('ims/v1/inventory/',include('inventory.urls')),
-    path('ims/v1/suppliers/',include('supplier.urls'))
+    path('ims/v1/suppliers/',include('supplier.urls')),
+    path('ims/v1/purchases/',include('purchase_orders.urls'))
 ]
 
 handler404 = error_response_handler

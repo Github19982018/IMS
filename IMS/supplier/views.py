@@ -1,6 +1,6 @@
 from django.shortcuts import render,HttpResponse,HttpResponseRedirect
 from supplier.models import Supplier
-from inventory.models import Purchase
+from purchase_orders.models import Purchase
 
 # Create your views here.
 def view_suppliers(request):
