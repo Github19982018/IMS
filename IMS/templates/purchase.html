@@ -13,22 +13,22 @@
       <div class="row">
         <div class="col-lg-12">
 
-        <h2 class="card-title">Item details</h2>
+        <h2 class="card-title"><b>Item details</b></h2>
               
               <!-- Table with stripped rows -->
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Photo</th>
-                    <th>
-                      <b>N</b>ame
-                    </th>
-                    <th>SKU</th>
-                    <th>Price</th>
-                    <th>On-Hand</th>
-                    <th>Units</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
+                    <td>Photo</td>
+                    <td>
+                      Name
+                    </td>
+                    <td>SKU</td>
+                    <td>Price</td>
+                    <td>On-Hand</td>
+                    <td>Units</td>
+                    <td>Quantity</td>
+                    <td>Total</td>
                   </tr>
                 </thead>
                 <tbody>
@@ -49,7 +49,7 @@
         </div>
       </div>
 
-      <h2 class="card-title">Order details</h2>
+      <h2 class="card-title"><b>Order details</b></h2>
       <div class="col-lg-12">
 
         <div class="card">
@@ -57,10 +57,10 @@
 
             <!-- Vertical Form -->
             <form class="row g-3" action="" method="post">
-
-              <div >
+              {% csrf_token %}
+              <div class="col-12">
                 <label class=" col-form-label">Supplier</label>
-                <div class="col-10">
+                <div class="col-lg-6">
                   <select class="form-select" aria-label="Default select example">
                     <option selected>Open this select menu</option>
                     <option value="1">One</option>
@@ -71,7 +71,7 @@
               </div>
               <div class="col-12">
                 <label class="col-form-label">Billing Address</label>
-                <div class="col-10">
+                <div class="col-lg-6">
                   <select class="form-select" aria-label="Default select example">
                     <option selected>Open this select menu</option>
                     <option value="1">One</option>
@@ -81,7 +81,7 @@
                 </div>
               <div class="col-12">
                 <label class=" col-form-label">Shipping Address</label>
-                <div class="col-10">
+                <div class="col-lg-6">
                   <select class="form-select" aria-label="Default select example">
                     <option selected>Open this select menu</option>
                     <option value="1">One</option>
@@ -93,7 +93,7 @@
               </div>
               <div class="col-12">
                 <label class=" col-form-label">Shipping Method</label>
-                <div class="col-10">
+                <div class="col-lg-6">
                   <select class="form-select" aria-label="Default select example">
                     <option selected>Open this select menu</option>
                     <option value="1">One</option>

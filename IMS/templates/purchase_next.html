@@ -12,8 +12,8 @@
 <!-- status -->
  <div class="row">
     <div class="col-4 row">
-        <div class="col-4">Status</div>
-        <div class="col-3 badge bg-secondary rounded-pill">Draft</div>
+        <div class="col w-10" >Status</div>
+        <div class="col w-10 badge bg-secondary rounded-pill">Draft</div>
     </div>
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit order</button>
@@ -49,7 +49,7 @@
  </div>
 <!-- Purchase order card -->
       <div class="card p-4">
-        <h2 class="p-3"><b>PURCHASE ORDER</b></h2>
+        <h2 class="p-3">PURCHASE ORDER</h2>
         <div class="card-body">
             <div class="row">
                 <div class="col-6 ">
@@ -63,58 +63,57 @@
                 <div class="row pt-4">
                     <div class="col-lg-6">
                       <div class="card p-2">
-                        <h6 class="card-title p-1 ">To</h6>
+                        <h6 class="card-title p-1 ">From</h6>
                         <div class="row">
                             <div class="col-4">company: </div>
-                            <div class="col-8"><b>Wells & Wade</b></div>
+                            <div class="col-8">Wells & Wade</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Address: </div>
-                            <div class="col-8"><b>Wells & Wade</b></div>
+                            <div class="col-8">Wells & Wade</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Phone: </div>
-                            <div class="col-8"><b>Wells & Wade</b></div>
+                            <div class="col-8">Wells & Wade</div>
                         </div>
                     </div>
                       </div>
                         
-                    <div class="col-lg-6 p-2">
-                      <div class="card">
+                    <div class="col-lg-6">
+                      <div class="card p-2">
                         <h6 class="card-title p-1">Ship To</h6>
                         <div class="row">
                             <div class="col-4">company: </div>
-                            <div class="col-8"><b>Engineered Wood Construction</b></div>
+                            <div class="col-8"><label>Engineered Wood Construction</label></div>
                         </div>
                         <div class="row">
                             <div class="col-4">Address: </div>
-                            <div class="col-8"><b>Wells & Wade</b></div>
+                            <div class="col-8">Wells & Wade</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Phone: </div>
-                            <div class="col-8"><b>Wells & Wade</b></div>
+                            <div class="col-8">Wells & Wade</div>
                         </div>
                     </div>
                       </div>
                         
                 </div>
                 <!-- item detail table -->
-                <h2 class="card-title">Item details</h2>
-                  
-                  <!-- Table with stripped rows -->
-                  <table class="table">
+                <h5><b>Item details</b></h5>
+                  <div class="card">
+                    <table class="table">
                     <thead>
                       <tr>
-                        <th>Photo</th>
-                        <th>
-                          <b>N</b>ame
-                        </th>
-                        <th>SKU</th>
-                        <th>Price</th>
-                        <th>On-Hand</th>
-                        <th>Units</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
+                        <td>Photo</td>
+                        <td>
+                          Name
+                        </td>
+                        <td>SKU</td>
+                        <td>Price</td>
+                        <td>On-Hand</td>
+                        <td>Units</td>
+                        <td>Quantity</td>
+                        <td>Total</td>
                       </tr>
                     </thead>
                     <tbody>
@@ -131,20 +130,27 @@
                     </tbody>
                   </table>
                   <!-- End Table with stripped rows -->
-        </div>
-            <div class="row">
+                <div class="row">
                 <p class="col-2">Subtotal</p>
                 <p class="col-3">$2354626</p>
-            </div>
-            <div class="row">
+              </div>
+                <div class="row">
                 <p class="col-2">Shipping</p>
                 <p class="col-3">$0.00</p>
-            </div>
-            <div class="row">
+              </div>
+                <div class="row">
                 <h4 class="col-2">Total</h4>
                 <h4 class="col-4">$2425624</h4>
             </div>
+            </div>
+            
+            </div>
+            
+                  </div>
+        </div>
+            
+                  
 
         </div>
       </div>
-{% endblock %}
+{% endblock %}</div>

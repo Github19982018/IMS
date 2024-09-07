@@ -33,6 +33,101 @@
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+  <style>
+    /* status ui */
+    .progress-tracker {
+    margin-bottom: 3vh;
+    overflow: hidden;
+    color: white;
+    padding-left: 0px;
+    margin-top: 3vh
+}
+
+.progress-tracker li {
+    list-style-type: none;
+    font-size: 0.8rem;
+    width: 15%;
+    float: left;
+    position: relative;
+    font-weight: 400;
+    color: rgb(4, 4, 4);
+}
+
+.progress-tracker .progress-step:before {
+    content: "";
+    color: white;
+    width: 20px;
+    height: 20px;
+    margin-left: 0px !important;
+}
+
+.progress-tracker .progress-step:before {
+    content: "";
+    color: #fff;
+    width: 20px;
+    height: 20px;
+    margin-left: 32%;
+}
+
+
+/* .progress-tracker .progress-step:before {
+    content: "";
+    color: rgb(151, 149, 149, 0.651);
+    width: 20px;
+    height: 20px;
+    margin-right: 0px !important;
+} */
+
+.progress-tracker li:before {
+    line-height: 29px;
+    display: block;
+    font-size: 12px;
+    background: rgb(151, 149, 149);
+    border-radius: 50%;
+    margin: auto;
+    z-index: -1;
+    margin-bottom: 1vh;
+}
+
+.progress-tracker li:after {
+    content: '';
+    height: 3px;
+    background: rgb(151, 149, 149, 0.651);
+    position: absolute;
+    left: 0%;
+    right: 0%;
+    margin-bottom: 2vh;
+    top: 8px;
+    z-index: 1;
+}
+.progress-track{
+    padding: 0 8%;
+}
+
+
+/* .progress-tracker li:nth-child(1):after {
+    margin: auto;
+} */
+
+.progress-tracker .is-active:after {
+    float: left;
+    
+} 
+
+.progress-tracker li:last-child:after {
+    margin-left: auto;
+    width: 0;
+} 
+
+.progress-tracker .is-complete:before,
+.progress-tracker .is-complete:after {
+    background: rgb(31, 210, 121);
+}
+.progress-tracker .is-active:before,
+.progress-tracker .is-active:after {
+    background: rgb(31, 210, 121);
+}
+  </style>
 </head>
 
 <body>
