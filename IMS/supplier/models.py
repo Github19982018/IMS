@@ -10,9 +10,9 @@ class Supplier_rating(models.Model):
     transaction = models.SmallIntegerField(choices=CHOICES)
     consistency = models.SmallIntegerField(choices=CHOICES)
     cost = models.SmallIntegerField(choices=CHOICES)
-    @property
     def rating(self):
         return (self.competency + self.commitment + self.communication +self.transaction + self.consistency + self.cost)/6
+    
     
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
@@ -21,6 +21,6 @@ class Supplier(models.Model):
     phone = models.PositiveIntegerField()
     address = models.TextField()
     since = models.DateField()
-    supplier = models.OneToOneField(to=Supplier_rating,null=True, on_delete=models.CASCADE,related_name='rating')
+    rating = models.OneToOneField(to=Supplier_rating,null=True, on_delete=models.CASCADE,related_name='supplier')
     def __str__(self):
         return self.name
