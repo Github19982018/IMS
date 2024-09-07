@@ -36,7 +36,7 @@ class Inventory(models.Model):
     units = models.CharField(max_length=50,blank=True)
     updated = models.DateTimeField(default=datetime.now())
     brand = models.ForeignKey(to=Brand,null=True,on_delete=models.CASCADE)
-    warehouse = models.ManyToManyField(to=Warehouse,null=True,related_name='warehouse')
+    warehouse = models.ManyToManyField(to=Warehouse,related_name='warehouse')
     preferred_supplier = models.ForeignKey(to=Supplier,null=True,on_delete=models.PROTECT)
     reorder_point = models.PositiveIntegerField(null=True)
 

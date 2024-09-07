@@ -8,7 +8,7 @@ def error_response_handler(request, exception=None):
 
 def view_inventory(request):
     inventory = Inventory.objects.all()
-    return HttpResponse(inventory)
+    return render(request,template_name='inventory.html',context={'inventory':inventory})
 
 def get_inventory(request,id):
     inventory = Inventory.objects.get(pk=id)
