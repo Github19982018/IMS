@@ -10,6 +10,11 @@
 # General
 --------------------------------------------------------------*/
 :root {
+  --body-bg:#f6f9ff;
+  --body-text:#444444;
+  --a-text:#4154f1;
+  --page-title-color:#012970;
+
   scroll-behavior: smooth;
 }
 

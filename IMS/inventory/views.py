@@ -56,3 +56,4 @@ def update_inventory(request,id):
     else:
         return HttpResponse(inventory)
     
+    

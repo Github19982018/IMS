@@ -5,7 +5,7 @@
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="purchase_orders.html">Purchase Order</a></li>
-          <li class="active breadcrumb-item">New purcahse Order #{number}</li>
+          <li class="active breadcrumb-item">New purcahse Order #{{number}}</li>
         </ol>
       </nav>
 
@@ -57,8 +57,8 @@
                     <b>614-205-9702</b>
                 </div>
                 <div class="col-6">
-                    Created On Date: <b>08/18/2021, 1:08PM</b>
-                    <br> Preferred Shipping Date: <b>08/18/2021, 2:00PM</b>
+                    Created On Date: <b>{{purchase.created_date}}</b>
+                    <br> Preferred Shipping Date: <b>{{purchase.preferred_shipping_date}}</b>
                 </div>
                 <div class="row pt-4">
                     <div class="col-lg-6">
@@ -66,15 +66,15 @@
                         <h6 class="card-title p-1 ">From</h6>
                         <div class="row">
                             <div class="col-4">company: </div>
-                            <div class="col-8">Wells & Wade</div>
+                            <div class="col-8">{{purchase.supplier}}</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Address: </div>
-                            <div class="col-8">Wells & Wade</div>
+                            <div class="col-8">{{purchase.bill_address}}</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Phone: </div>
-                            <div class="col-8">Wells & Wade</div>
+                            <div class="col-8">{{purchase.contact_phone}}</div>
                         </div>
                     </div>
                       </div>
@@ -88,11 +88,11 @@
                         </div>
                         <div class="row">
                             <div class="col-4">Address: </div>
-                            <div class="col-8">Wells & Wade</div>
+                            <div class="col-8">{{purchase.warehouse.address}}</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Phone: </div>
-                            <div class="col-8">Wells & Wade</div>
+                            <div class="col-8">{{purchase.warehouse.contact_phone}}</div>
                         </div>
                     </div>
                       </div>
@@ -110,23 +110,23 @@
                         </td>
                         <td>SKU</td>
                         <td>Price</td>
-                        <td>On-Hand</td>
                         <td>Units</td>
                         <td>Quantity</td>
                         <td>Total</td>
                       </tr>
                     </thead>
                     <tbody>
-                        <tr> 
-                        <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                        <td>Unity Pugh</td>
-                        <td>9958</td>
-                        <td>Curicó</td>
-                        <td>2005/02/11</td>
-                        <td>1</td>
-                        <td>Curicó</td>
-                        <td>2005/02/11</td>
-                      </tr>
+                      {% for i in items %}
+                      <tr> 
+                      <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
+                      <td>{{i.item_id.name}}</td>
+                      <td>{{i.item_id.sku}}</td>
+                      <td>{{i.price}}</td>
+                      <td>{{i.units}}</td>
+                      <td>{{i.quantity}}</td>
+                      <td>{{i.total_price}}</td>
+                    </tr>
+                      {% endfor %}
                     </tbody>
                   </table>
                   <!-- End Table with stripped rows -->
@@ -140,7 +140,7 @@
               </div>
                 <div class="row">
                 <h4 class="col-2">Total</h4>
-                <h4 class="col-4">$2425624</h4>
+                <h4 class="col-4">{{purchase.total_amount}}</h4>
             </div>
             </div>
             
