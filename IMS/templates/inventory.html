@@ -40,13 +40,16 @@
               </div>
             </div><!-- End Vertically centered Modal-->
       </div>
-          <div class="card">
+      <form action="{% url 'add_purchase' %}">
+        <button type="submit" class="btn btn-primary">Order</button>
+        <div class="card"></div>
             <div class="card-body">
               
               <!-- Table with stripped rows -->
               <table class="table datatable">
                 <thead>
                   <tr>
+                    <th>Select</th>
                     <th>Photo</th>
                     <th>
                       Name
@@ -63,6 +66,7 @@
                 <tbody>
                   {% for i in inventory %}
                   <tr>
+                    <td><input type="checkbox" name="item" id="" value="{{i.id}}"></td>
                     <td>{{i.photo}}</td>
                     <td><a href="#">{{i.name}}</a></td>
                     <td>{{i.sku}}</td>
@@ -572,9 +576,11 @@
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->
+            </div>
+          </div>
+      </form>
+          
 
-            <!-- </div>
-          </div> -->
 
         </div>
       </div>

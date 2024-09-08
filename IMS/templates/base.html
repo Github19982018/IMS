@@ -1,5 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
+<!-- <html lang="en" data-bs-theme="dark"> -->
 <html lang="en">
 
 <head>
@@ -374,21 +375,21 @@
       </li><!-- End Dashboard Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="inventory.html">
+        <a class="nav-link collapsed" href="{% url 'inventories'%}">
           <i class="bi bi-person"></i>
           <span>Inventory</span>
         </a>
       </li><!-- End Inventory Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="purchase.html">
+        <a class="nav-link collapsed" href="{% url 'purchases'%}">
           <i class="bi bi-question-circle"></i>
           <span>Purchase Orders</span>
         </a>
       </li><!-- End Purchase Order Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-contact.html">
+        <a class="nav-link collapsed" href="{% url 'suppliers'%}">
           <i class="bi bi-envelope"></i>
           <span>Suppliers</span>
         </a>
