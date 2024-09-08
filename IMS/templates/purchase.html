@@ -25,7 +25,6 @@
                     </td>
                     <td>SKU</td>
                     <td>Price</td>
-                    <td>On-Hand</td>
                     <td>Units</td>
                     <td>Quantity</td>
                     <td>Total</td>
@@ -34,13 +33,12 @@
                 <tbody>
                     <tr> 
                     <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                    <td>Unity Pugh</td>
-                    <td>9958</td>
-                    <td>Curicó</td>
-                    <td>2005/02/11</td>
-                    <td><input type="number" name="" id="" value="1"></td>
-                    <td>Curicó</td>
-                    <td>2005/02/11</td>
+                    <td>{{item.item_id.name}}</td>
+                      <td>{{item.item_id.sku}}</td>
+                      <td>{{item.price}}</td>
+                      <td>{{item.units}}</td>
+                      <td>{{item.quantity}}</td>
+                      <td>{{item.total_price}}</td>
                   </tr>
                 </tbody>
               </table>

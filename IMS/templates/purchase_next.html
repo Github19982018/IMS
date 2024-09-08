@@ -21,27 +21,27 @@
         <button class="btn btn-sm col btn-success">send for approval</button>
     </div>
     <ul class="progress-tracker">
-        <li class="progress-step is-complete">
-            Draft purchase creation
+        <li class="progress-step {% if purchase.status.id > 1 %}is-complete {% elif purchase.status.id == 1 %}is-active {% endif %}">
+            Draft purchase creation {{purchase.status.id }}
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step is-complete">
+        <li class="progress-step {% if purchase.status.id > 2 %}is-complete {% elif purchase.status.id == 2 %}is-active {% endif %} ">
             Awaiting purchasing team approval
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step is-active">
+        <li class="progress-step {% if purchase.status.id > 3 %}is-complete {% elif purchase.status.id == 3 %}is-active {% endif %}">
             Awaiting Supplier approval
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step">
+        <li class="progress-step {% if purchase.status.id > 4 %}is-complete {% elif purchase.status.id == 4 %}is-active {% endif %}" >
             Order processing
-          <div class="progress-marker"></div>
+          <div class="progress-marker {% if purchase.status.id > 5 %}is-complete {% elif purchase.status.id == 5 %}is-active {% endif %}"></div>
         </li>
-        <li class="progress-step">
+        <li class="progress-step {% if purchase.status.id > 6 %}is-complete {% elif purchase.status.id == 6 %}is-active {% endif %}">
             Awaiting shipment
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step">
+        <li class="progress-step {% if purchase.status.id > 7 %}is-complete {% elif purchase.status.id == 7 %}is-active {% endif %}">
             Order dispatched
           <div class="progress-marker"></div>
         </li>

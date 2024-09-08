@@ -29,20 +29,24 @@
               <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Customer</th>
+                  <th scope="col">Supplier</th>
                   <th scope="col">Product</th>
                   <th scope="col">Price</th>
                   <th scope="col">Status</th>
                 </tr>
               </thead>
               <tbody>
+                {% for i in purchases %}
                 <tr>
-                  <th scope="row"><a href="#">#2457</a></th>
-                  <td>Brandon Jacob</td>
-                  <td><a href="#" class="text-primary">At praesentium minu</a></td>
-                  <td>$64</td>
-                  <td><span class="badge bg-success">Approved</span></td>
+                  <th scope="row"><a href="#">{{i.id}}</a></th>
+                  <td>{{i.id}}</td>
+                  <td><a href="#" class="text-primary">{{i.supplier}}</a></td>
+                  <td>
+                    {{i.total_amount}}
+                  </td>
+                  <td><span class="badge bg-success">{{i.status}}</span></td>
                 </tr>
+                {% endfor %}
                 <tr>
                   <th scope="row"><a href="#">#2147</a></th>
                   <td>Bridie Kessler</td>
