@@ -14,6 +14,7 @@ class  Purchase_items(models.Model):
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
+    supplier = models.ForeignKey(to=Supplier,null=True,on_delete=models.PROTECT)
     @property
     def total_price(self):
         return self.quantity*self.price
@@ -21,7 +22,6 @@ class  Purchase_items(models.Model):
 class Purchase(models.Model):
     id = models.OneToOneField(to=Purchase_items,primary_key=True,on_delete=models.CASCADE)
     warehouse = models.ForeignKey(to=Warehouse,on_delete=models.CASCADE)
-    supplier = models.ForeignKey(to=Supplier,on_delete=models.PROTECT)
     contact_person = models.CharField(max_length=100)
     bill_address = models.TextField()
     contact_phone = models.PositiveIntegerField()

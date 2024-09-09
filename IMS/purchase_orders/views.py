@@ -34,6 +34,7 @@ def draft_purchase(request,id):
         supplier = Supplier.objects.get(id=s)
     else:
         supplier = suppliers.first()
+    draft.supplier = supplier
     return render(request,template_name='purchase.html',context={'number':id,'item':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
 
 def purchase(request,id):
@@ -41,17 +42,12 @@ def purchase(request,id):
     if Purchase.objects.filter(id=draft).exists():
         purchase = Purchase.objects.get(id=draft)
         return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
-
     else:
         item = Inventory.objects.get(id=draft.item_id.id)
         suppliers = Supplier.objects.all()
         ship_method = Ship_method.objects.all()
         if request.method == 'POST':
-            s = request.GET.get('supplier',item.preferred_supplier)
-            if s:
-                supplier = Supplier.objects.get(id=s)
-            else:
-                supplier = suppliers.first()
+            supplier = draft.supplier
             bill = request.POST['bill_address']
             ship = request.POST['ship_address']
             sh= request.POST['ship_method']
