@@ -50,62 +50,34 @@ class Ship_method(models.Model):
     method = models.CharField(max_length=50)
 
 
-class Sales_status(models.Model):
-    status = models.CharField(max_length=50)
-
-class Sales(models.Model):
-    Warehouse = models.ForeignKey(to=Warehouse,on_delete=models.CASCADE)
-    responsible_person = models.CharField(max_length=100)
-    contact_person = models.CharField(max_length=100)
-    customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
-    bill_address = models.TextField()
-    contact_phone = models.PositiveIntegerField()
-    ship_address = models.TextField()
-    ship_method = models.ForeignKey(to=Ship_method,on_delete=models.PROTECT)
-    preferred_shipping_date = models.DateField()
-    created_by = models.CharField(max_length=100)
-    created_date = models.DateTimeField(datetime.now)
-    total_amount = models.DecimalField(decimal_places=2,max_digits=10)
-    status = models.ForeignKey(to=Sales_status,on_delete=models.PROTECT)
-
 class Package_status(models.Model):
     status = models.CharField(max_length=50)
 
-class Package(models.Model):
-    slip = models.PositiveIntegerField(auto_created=True)
-    sales = models.ManyToManyField(to=Sales)
-    created_at = models.DateTimeField()
-    packed_at = models.DateTimeField()
-    shipping_address = models.CharField(max_length=200)
-    customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
-    status = models.ForeignKey(to=Package_status,on_delete=models.PROTECT)
+# class Package(models.Model):
+#     slip = models.PositiveIntegerField(auto_created=True)
+#     sales = models.ManyToManyField(to=Sales)
+#     created_at = models.DateTimeField()
+#     packed_at = models.DateTimeField()
+#     shipping_address = models.CharField(max_length=200)
+#     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
+#     status = models.ForeignKey(to=Package_status,on_delete=models.PROTECT)
 
 class Ship_status(models.Model):
     status = models.CharField(max_length=50)
 
-class Shipment(models.Model):
-    # import random
-    # tracking_number = models.PositiveBigIntegerField()
-    sales = models.ManyToManyField(to=Sales)
-    created_at = models.DateTimeField()
-    sales = models.ForeignKey(to=Sales,on_delete=models.CASCADE)
-    ship_method = models.ForeignKey(to=Ship_method,on_delete=models.PROTECT)
-    customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
-    shipment_address = models.CharField(max_length=200)
-    package = models.ForeignKey(to=Package,on_delete=models.CASCADE)
-    shipment_date = models.DateTimeField()
-    status = models.ForeignKey(to=Ship_status,on_delete=models.PROTECT)
+# class Shipment(models.Model):
+#     # import random
+#     # tracking_number = models.PositiveBigIntegerField()
+#     sales = models.ManyToManyField(to=Sales)
+#     created_at = models.DateTimeField()
+#     sales = models.ForeignKey(to=Sales,on_delete=models.CASCADE)
+#     ship_method = models.ForeignKey(to=Ship_method,on_delete=models.PROTECT)
+#     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
+#     shipment_address = models.CharField(max_length=200)
+#     package = models.ForeignKey(to=Package,on_delete=models.CASCADE)
+#     shipment_date = models.DateTimeField()
+#     status = models.ForeignKey(to=Ship_status,on_delete=models.PROTECT)
     
-class  Sale_items(models.Model):
-    type = models.CharField(choices={'P':'Purchase','O':'Order'},max_length=20)
-    order = models.ForeignKey(to=Sales,on_delete=models.CASCADE)
-    item_id = models.ManyToManyField(to=Inventory)
-    price = models.DecimalField(decimal_places=2,max_digits=10)
-    quantity = models.PositiveIntegerField()
-    units = models.PositiveIntegerField()
-    @property
-    def total_price(self):
-        return self.quantity*self.price
 
 
 

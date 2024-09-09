@@ -23,7 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('ims/v1/inventory/',include('inventory.urls')),
     path('ims/v1/suppliers/',include('supplier.urls')),
-    path('ims/v1/purchases/',include('purchase_orders.urls'))
+    path('ims/v1/purchases/',include('purchase_orders.urls')),
+    path('ims/v1/sales/',include('sales_orders.urls'))
 ]
 
 handler404 = error_response_handler

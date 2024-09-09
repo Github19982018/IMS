@@ -3,7 +3,7 @@
 {% block main %}
 
     <div class="pagetitle">
-        <h1>Purchase Orders</h1>
+        <h1>Sales Orders</h1>
       </div><!-- End Page Title -->
   
     <div class="col-12">
@@ -29,17 +29,17 @@
               <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Supplier</th>
-                  <th scope="col">Product</th>
-                  <th scope="col">Price</th>
+                  <th scope="col">Customer</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Amount</th>
                   <th scope="col">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {% for i in purchases %}
+                {% for i in sales %}
                 <tr>
-                  <th scope="row"><a href="{% url 'purchase' i.id.id %}">#{{i.id.id}}</a></th>
-                  <td>{{i.supplier}}</td>
+                  <th scope="row"><a href="#">#{{i.id.id}}</a></th>
+                  <td>{{i.customer}}</td>
                   <td><a href="#" class="text-primary">{{i.id.item_id.name}}</a></td>
                   <td>
                     {{i.total_amount}}

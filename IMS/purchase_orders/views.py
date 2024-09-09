@@ -11,17 +11,16 @@ import requests
 def view_purchases(request):
     purchases = Purchase.objects.all()
     return render(request,template_name='purchases.html',context={'purchases':purchases})
-def get_purchase(request,id):
-    purchases = Purchase.objects.all()
-    return render(request,template_name='purchase_next.html',context={'purchases':purchases})
+# def get_purchase(request,id):
+#     draft = Purchase_items.objects.get(pk=id)
+#     purchase = Purchase.objects.get(id=draft)
+#     return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
 
 # making purchase from inventory
 def make_purchase(request):
     item_id =  request.GET.get('item')
     item = Inventory.objects.get(id=item_id)
-    print(item)
     draft = Purchase_items.objects.create(item_id=item,price=item.selling_price,quantity=1,units=item.units)
-    print(draft)
     return redirect(draft_purchase,id=draft.pk,permanent=True)
 
 def draft_purchase(request,id):
@@ -43,9 +42,6 @@ def purchase(request,id):
         purchase = Purchase.objects.get(id=draft)
         return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
     else:
-        item = Inventory.objects.get(id=draft.item_id.id)
-        suppliers = Supplier.objects.all()
-        ship_method = Ship_method.objects.all()
         if request.method == 'POST':
             supplier = draft.supplier
             bill = request.POST['bill_address']
