@@ -26,7 +26,7 @@ class Purchase(models.Model):
     contact_phone = models.PositiveIntegerField()
     ship_address = models.TextField()
     ship_method = models.ForeignKey(to=Ship_method,on_delete=models.PROTECT)
-    preferred_shipping_date = models.DateField()
+    preferred_shipping_date = models.DateTimeField()
     created_by = models.CharField(max_length=100)
     created_date = models.DateTimeField(default=datetime.now())
     total_amount = models.DecimalField(decimal_places=2,max_digits=10)

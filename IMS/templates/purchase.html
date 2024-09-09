@@ -70,7 +70,7 @@
                 </form>
               </div>
             </div>
-            <form class="row g-3" action="" method="post">
+            <form class="row g-3" action="{% url 'purchase' number %}" method="post">
               {% csrf_token %}
                   
               <div class="col-12">
@@ -99,7 +99,7 @@
               <div class="col-12">
                 <label class=" col-form-label">Preferred Shipping date</label>
                 <div class="col-lg-6">
-                    <input type="datetime-local" value="{% now 'jS \o\f F' %}" name="preferred_date" id="">
+                    <input type="datetime-local" name="preferred_date" id="">
                   </select>
                 </div>
               </div>

@@ -3,7 +3,9 @@ from purchase_orders.models import Purchase,Purchase_status,Purchase_items
 from inventory.models import Inventory,Ship_method,Warehouse
 from supplier.models import Supplier
 from datetime import datetime, date
-
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+import requests
 
 # Create your views here.
 def view_purchases(request):
@@ -13,38 +15,74 @@ def get_purchase(request,id):
     purchases = Purchase.objects.all()
     return render(request,template_name='purchase_next.html',context={'purchases':purchases})
 
+# making purchase from inventory
 def make_purchase(request):
     item_id =  request.GET.get('item')
     item = Inventory.objects.get(id=item_id)
     draft = Purchase_items.objects.create(item_id=item,price=item.selling_price,quantity=1,units=item.units)
-    return redirect(add_purchase,id=draft.id,permanent=True)
+    return redirect(draft_purchase,id=draft.id,permanent=True)
 
-def add_purchase(request,id):
+def draft_purchase(request,id):
     draft = Purchase_items.objects.get(id=id)
-    item = Inventory.objects.get(id=draft.item_id.id)
     suppliers = Supplier.objects.all()
     ship_method = Ship_method.objects.all()
-    if request.method == 'POST':
-        s = request.GET.get('supplier',item.preferred_supplier)
-        if s:
-            supplier = Supplier.objects.get(id=s)
-        else:
-            supplier = suppliers.first()
-        bill = request.POST['bill_address']
-        ship = request.POST['ship_address']
-        sh= request.POST['ship_method']
-        ship_method = Ship_method.objects.get(id=sh)
-        p_date = request.POST['preferred_date']
-        status = Purchase_status.objects.get(status='draft')
-        purchase = Purchase(id=draft,warehouse=Warehouse.objects.get(id=1),supplier=supplier,bill_address=bill,preferred_shipping_date=p_date,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status)
-        return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
+    s = request.GET.get('supplier',draft.item_id.preferred_supplier)
+    if s:
+        supplier = Supplier.objects.get(id=s)
     else:
-        s = request.GET.get('supplier',item.preferred_supplier)
-        if s:
-            supplier = Supplier.objects.get(id=s)
-        else:
-            supplier = suppliers.first()
-        return render(request,template_name='purchase.html',context={'number':id,'item':item,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':date.today()})
-    
-    # def purchase_status(request,id):
-        
+        supplier = suppliers.first()
+    return render(request,template_name='purchase.html',context={'number':id,'item':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
+    # else:
+    #     return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
+
+def purchase(request,id):
+    draft = Purchase_items.objects.get(id=id)
+    if Purchase.objects.filter(id=draft).exists():
+        purchase = Purchase.objects.get(id=draft)
+        return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
+
+    else:
+        item = Inventory.objects.get(id=draft.item_id.id)
+        suppliers = Supplier.objects.all()
+        ship_method = Ship_method.objects.all()
+        if request.method == 'POST':
+            s = request.GET.get('supplier',item.preferred_supplier)
+            if s:
+                supplier = Supplier.objects.get(id=s)
+            else:
+                supplier = suppliers.first()
+            bill = request.POST['bill_address']
+            ship = request.POST['ship_address']
+            sh= request.POST['ship_method']
+            ship_method = Ship_method.objects.get(id=sh)
+            p_date = request.POST['preferred_date']
+            status = Purchase_status.objects.get(status='draft')
+            purchase = Purchase.objects.create(id=draft,warehouse=Warehouse.objects.get(id=1),supplier=supplier,bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=draft.total_price)
+            return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
+
+
+def purchase_approve(request,id):
+    draft = Purchase_items.objects.get(id=id)
+    status = Purchase_status(id=2)
+    purchase = Purchase.objects.get(id=draft)
+    purchase.status = status
+    purchase.save()
+    url = 'http://localhost:8081/purchases/approve'
+    data = {
+        'ref':purchase.id.id,
+        'supplier':purchase.supplier.name,
+        'contact_person':purchase.supplier.contact_person,
+        'bill_address':purchase.bill_address,
+        'preferred_shipping_date':purchase.preferred_shipping_date.isoformat(),
+        "ship_address":purchase.ship_address,
+        'ship_method':purchase.ship_method.method,
+        'contact_phone':int(purchase.contact_phone),
+        'created_date':purchase.created_date.isoformat(),
+        'total_amount':int(purchase.total_amount),
+        "items":{'item_id':draft.item_id.id,
+                 'price':int(draft.price),
+                 'quantity':int(draft.quantity),
+                 'units':draft.units}
+    }
+    requests.post(url,json=data)
+    return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
