@@ -19,21 +19,22 @@ def get_purchase(request,id):
 def make_purchase(request):
     item_id =  request.GET.get('item')
     item = Inventory.objects.get(id=item_id)
+    print(item)
     draft = Purchase_items.objects.create(item_id=item,price=item.selling_price,quantity=1,units=item.units)
-    return redirect(draft_purchase,id=draft.id,permanent=True)
+    print(draft)
+    return redirect(draft_purchase,id=draft.pk,permanent=True)
 
 def draft_purchase(request,id):
-    draft = Purchase_items.objects.get(id=id)
+    draft = Purchase_items.objects.get(pk=id)
     suppliers = Supplier.objects.all()
     ship_method = Ship_method.objects.all()
+    supplier = ''
     s = request.GET.get('supplier',draft.item_id.preferred_supplier)
     if s:
         supplier = Supplier.objects.get(id=s)
     else:
         supplier = suppliers.first()
     return render(request,template_name='purchase.html',context={'number':id,'item':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
-    # else:
-    #     return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
 
 def purchase(request,id):
     draft = Purchase_items.objects.get(id=id)

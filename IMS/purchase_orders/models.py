@@ -10,7 +10,7 @@ class Purchase_status(models.Model):
 #     item = models.ForeignKey(to=)
 class  Purchase_items(models.Model):
     type = models.CharField(choices={'P':'Purchase','O':'Order'},max_length=20)
-    item_id = models.OneToOneField(to=Inventory,null=True,related_name='items',on_delete=models.CASCADE)
+    item_id = models.ForeignKey(to=Inventory,null=True,related_name='items',on_delete=models.CASCADE)
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
