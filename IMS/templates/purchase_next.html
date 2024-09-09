@@ -18,7 +18,7 @@
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit order</button>
         <button class="btn btn-sm col">Cancel order</button>
-        <a href="{% url 'purchase_approve' number %}" class="btn btn-sm col btn-success">send for approval</a>
+        <a href="#" class="btn btn-sm col btn-success" onclick="fetch('http://127.0.0.1:8000/ims/v1/purchases/purchase_approve/{{number}}/')">send for approval</a>
     </div>
     <ul class="progress-tracker">
         <li class="progress-step {% if purchase.status.id > 1 %}is-complete {% elif purchase.status.id == 1 %}is-active {% endif %}">

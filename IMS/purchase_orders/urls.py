@@ -8,5 +8,6 @@ urlpatterns = [
     path('add/<int:id>/',views.draft_purchase,name='add_purchase'),
     path('save/<int:id>/',views.purchase,name='purchase'),
     path('purchase_approve/<int:id>/',views.purchase_approve,name='purchase_approve'),
+    path('supplier/',views.purchase_api,name='supplier_approve'),
 ]
  

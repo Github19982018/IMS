@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,HttpResponse
 from purchase_orders.models import Purchase,Purchase_status,Purchase_items
 from inventory.models import Inventory,Ship_method,Warehouse
 from supplier.models import Supplier
@@ -64,7 +64,7 @@ def purchase(request,id):
 
 def purchase_approve(request,id):
     draft = Purchase_items.objects.get(id=id)
-    status = Purchase_status(id=2)
+    status = Purchase_status(id=4)
     purchase = Purchase.objects.get(id=draft)
     purchase.status = status
     purchase.save()
@@ -87,3 +87,14 @@ def purchase_approve(request,id):
     }
     requests.post(url,json=data)
     return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
+
+
+def purchase_api(request):
+    id =  request.GET.get('ref')
+    status = request.GET.get('status')
+    draft = Purchase_items.objects.get(id=id)
+    status = Purchase_status(id=status)
+    purchase = Purchase.objects.get(id=draft)
+    purchase.status = status
+    purchase.save()
+    return HttpResponse('success')
