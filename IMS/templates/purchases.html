@@ -39,7 +39,7 @@
                 {% for i in purchases %}
                 <tr>
                   <th scope="row"><a href="{% url 'purchase' i.id.id %}">#{{i.id.id}}</a></th>
-                  <td>{{i.supplier}}</td>
+                  <td>{{i.id.supplier}}</td>
                   <td><a href="#" class="text-primary">{{i.id.item_id.name}}</a></td>
                   <td>
                     {{i.total_amount}}

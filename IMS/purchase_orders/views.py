@@ -1,4 +1,5 @@
-from django.shortcuts import render,redirect,HttpResponse
+from django.template.response import TemplateResponse as render
+from django.shortcuts import redirect,HttpResponse
 from purchase_orders.models import Purchase,Purchase_status,Purchase_items
 from inventory.models import Inventory,Ship_method,Warehouse
 from supplier.models import Supplier
@@ -10,11 +11,11 @@ import requests
 # Create your views here.
 def view_purchases(request):
     purchases = Purchase.objects.all()
-    return render(request,template_name='purchases.html',context={'purchases':purchases})
+    return render(request,'purchases.html',{'purchases':purchases})
 # def get_purchase(request,id):
 #     draft = Purchase_items.objects.get(pk=id)
 #     purchase = Purchase.objects.get(id=draft)
-#     return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
+#     return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
 
 # making purchase from inventory
 def make_purchase(request):
@@ -34,13 +35,14 @@ def draft_purchase(request,id):
     else:
         supplier = suppliers.first()
     draft.supplier = supplier
-    return render(request,template_name='purchase.html',context={'number':id,'item':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
+    draft.save()
+    return render(request,'purchase.html',{'number':id,'item':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
 
 def purchase(request,id):
     draft = Purchase_items.objects.get(id=id)
     if Purchase.objects.filter(id=draft).exists():
         purchase = Purchase.objects.get(id=draft)
-        return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
+        return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
     else:
         if request.method == 'POST':
             supplier = draft.supplier
@@ -51,7 +53,7 @@ def purchase(request,id):
             p_date = request.POST['preferred_date']
             status = Purchase_status.objects.get(status='draft')
             purchase = Purchase.objects.create(id=draft,warehouse=Warehouse.objects.get(id=1),supplier=supplier,bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=draft.total_price)
-            return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
+            return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
 
 
 def purchase_approve(request,id):
@@ -78,7 +80,7 @@ def purchase_approve(request,id):
                  'units':draft.units}
     }
     requests.post(url,json=data)
-    return render(request,template_name='purchase_next.html',context={'number':id,'items':[draft], 'purchase':purchase})
+    return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
 
 
 def purchase_api(request):

@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block main %}
     
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="purchase_orders.html">Purchase Order</a></li>
-          <li class="active breadcrumb-item">New purcahse Order #{{number}}</li>
+          <li class="active breadcrumb-item">New purchase Order #{{number}}</li>
         </ol>
       </nav>
 
@@ -13,13 +14,15 @@
  <div class="row">
     <div class="col-4 row">
         <div class="col w-10" >Status</div>
-        <div class="col w-10 badge bg-secondary rounded-pill">Draft</div>
+        <div class="col w-10 badge rounded-pill " id="status"></div>
     </div>
     <div class="col-8 row">
-        <button class="btn btn-sm col">Edit order</button>
+        <a href="{% url 'add_purchase' number %}" class="btn btn-sm col">Edit order</a>
         <button class="btn btn-sm col">Cancel order</button>
+        {% if purchase.status.id == 1 %}
         <a href="#" class="btn btn-sm col btn-success" onclick="fetch('http://127.0.0.1:8000/ims/v1/purchases/purchase_approve/{{number}}/')">send for approval</a>
-    </div>
+        {% endif %}
+      </div>
     <ul class="progress-tracker">
         <li class="progress-step {% if purchase.status.id > 1 %}is-complete {% elif purchase.status.id == 1 %}is-active {% endif %}">
             Draft purchase creation {{purchase.status.id }}
@@ -66,7 +69,7 @@
                         <h6 class="card-title p-1 ">From</h6>
                         <div class="row">
                             <div class="col-4">company: </div>
-                            <div class="col-8">{{purchase.supplier}}</div>
+                            <div class="col-8">{{purchase.id.supplier}}</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Address: </div>
@@ -132,7 +135,7 @@
                   <!-- End Table with stripped rows -->
                 <div class="row">
                 <p class="col-2">Subtotal</p>
-                <p class="col-3">$2354626</p>
+                <p class="col-3">${{purchase.total_amount}}</p>
               </div>
                 <div class="row">
                 <p class="col-2">Shipping</p>
@@ -153,4 +156,10 @@
 
         </div>
       </div>
+
+      <script src="{% static 'assets/js/sales.js' %}"
+    defer 
+    data-status="{{purchase.status.status}}"
+    data-id="{{purchase.status.id}}">
+  </script>
 {% endblock %}</div>

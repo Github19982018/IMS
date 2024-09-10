@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block main %}
-
     
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="sales_orders.html">sales Order</a></li>
-          <li class="active breadcrumb-item">New sales Order #{{number}}</li>
+          <li class="breadcrumb-item">sales Order #{{number}}</li>
+          <li class="active breadcrumb-item">package #{{pack_number}}</li>
         </ol>
       </nav>
 
@@ -15,7 +14,7 @@
  <div class="row">
     <div class="col-4 row">
         <div class="col w-10" >Status</div>
-        <span class="col w-10 badge rounded-pill" id="status"></span>
+        <div class="col w-10 badge bg-secondary rounded-pill">{{sales.status.status}}</div>
     </div>
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit order</button>
@@ -51,7 +50,7 @@
  </div>
 <!-- sales order card -->
       <div class="card p-4">
-        <h2 class="p-3">SALES ORDER#{{sales.id}}</h2>
+        <h2 class="p-3">sales ORDER</h2>
         <div class="card-body">
             <div class="row">
                 <div class="col-6 ">
@@ -156,9 +155,4 @@
 
         </div>
       </div>
-  <script src="{% static 'assets/js/sales.js' %}"
-      defer 
-      data-status="{{sales.status.status}}"
-      data-id="{{sales.status.id}}">
-    </script>
 {% endblock %}</div>

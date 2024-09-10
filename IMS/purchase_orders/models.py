@@ -20,7 +20,7 @@ class  Purchase_items(models.Model):
         return self.quantity*self.price
     
 class Purchase(models.Model):
-    id = models.OneToOneField(to=Purchase_items,primary_key=True,on_delete=models.CASCADE)
+    id = models.OneToOneField(to=Purchase_items,primary_key=True,on_delete=models.CASCADE,related_name='order')
     warehouse = models.ForeignKey(to=Warehouse,on_delete=models.CASCADE)
     contact_person = models.CharField(max_length=100)
     bill_address = models.TextField()
