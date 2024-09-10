@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block main %}
 
@@ -34,29 +35,32 @@
                     {% for i in items %}
                     <tr> 
                     <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                    <td>{{item.item_id.name}}</td>
-                    <td>{{item.item_id.sku}}</td>
-                    <td>{{item.price}}</td>
-                    <td>{{item.units}}</td>
-                    <td>{{item.quantity}}</td>
-                    <td>{{item.total_price}}</td>
+                    <td>{{i.item_id.name}}</td>
+                    <td>{{i.item_id.sku}}</td>
+                    <td>{{i.price}}</td>
+                    <td>{{i.units}}</td>
+                    <td>{{i.quantity}}</td>
+                    <td>{{i.total_price}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->
+               {% load sum_filter %}
+               
               <div class="row">
                 <p class="col-2">Subtotal</p>
-                <p class="col-3">$2354626</p>
+                <p class="col-3" id="sub">{{items |add_items }}</p>
               </div>
                 <div class="row">
                 <p class="col-2">offer</p>
-                <input type="number" name="dicount" value="0" id="">
+                <input class="col-2" type="number" name="discount" id="discount"  value="0" onchange="sub = document.querySelector('#sub').textContent; total = document.querySelector('#total').textContent = Number(sub)+Number(this.value)">
               </div>
                 <div class="row">
-                <h4 class="col-2">Total</h4>
-                <h4 class="col-4">{{purchase.total_amount}}</h4>
+                <h4 class="col-2" >Total</h4>
+                <h4 class="col-4" id="total" ></h4>
             </div>
+          </form>
         </div>
       </div>
 
@@ -70,9 +74,9 @@
             <div class="col-12">
               <label class=" col-form-label">Customer</label>
               <div class="col-lg-6">
-                <form action="">
+                <form action="" >
                   <select class="form-select" name="supplier" id="supplier"  onchange="this.form.submit();">
-                  {% for i in suppliers %}
+                  {% for i in customers %}
                   <option value="{{i.id}}" {% if supplier.id == i.id %}selected
                   {% endif %}>{{i.name}}</option>
                   {% endfor %}
@@ -83,7 +87,7 @@
                 </form>
               </div>
             </div>
-            <form class="row g-3" action="{% url 'purchase' number %}" method="post">
+            <form class="row g-3 " id="sales_draft" action="{% url 'sale' number %}" method="post">
               {% csrf_token %}
                   
               <div class="col-12">
@@ -112,13 +116,13 @@
               <div class="col-12">
                 <label class=" col-form-label">Preferred Shipping date</label>
                 <div class="col-lg-6">
-                    <input type="datetime-local" name="preferred_date" id="">
+                    <input type="datetime" name="preferred_date" id="datein">
                   </select>
                 </div>
               </div>
               
               <div class="">
-                <button type="submit" class="btn btn-success">Create Purchase Order</button>
+                <button type="submit" class="btn btn-success">Create Sales Order</button>
               </div>
             </form><!-- Vertical Form -->
 
@@ -129,4 +133,7 @@
     </div>
     </section>
 
+    {% endblock %}
+    {% block code %}
+    <script src="{% static 'assets/js/sales_draft.js' %}"></script>
     {% endblock %}

@@ -5,7 +5,11 @@ from datetime import datetime
 
 # Create your models here.
 class Sales_status(models.Model):
+    id = models.SmallIntegerField(primary_key=True)
     status = models.CharField(max_length=50)
+
+    def __str__(self) -> str:
+        return self.status
 
 # class Purchase_draft(models.Model):
 #     item = models.ForeignKey(to=)

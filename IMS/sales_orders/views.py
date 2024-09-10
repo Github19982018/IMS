@@ -31,34 +31,42 @@ def make_sales(request):
             units = i.units
         ))
     draft = Sales_items.objects.bulk_create(sales_list)
-    return redirect(draft_sales,id=sales.id,permanent=True)
+    return redirect(draft_sales,id=sales,permanent=True)
+
+
 
 def draft_sales(request,id):
-    draft = Sales.objects.get(pk=id)
+    draft = Sales_items.objects.filter(sales=id)
     ship_method = Ship_method.objects.all()
+    customers = Customer.objects.all()
     s = request.GET.get('customer')
     customer = ''
     if s:
         customer = Customer.objects.get(id=s)
-        draft.customer = customer
-    return render(request,template_name='sales_draft.html',context={'number':id,'item':draft,'customer':customer,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
+    else:
+        customer = Customer.objects.first()
+    draft.update(customer=customer)
+    return render(request,template_name='sales_draft.html',context={'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
 
 def sales(request,id):
-    draft = Sales_items.objects.get(id=id)
-    if Sales.objects.filter(id=draft).exists():
-        sales = Sales.objects.get(id=draft)
-        return render(request,template_name='sales_next.html',context={'number':id,'items':[draft], 'Sales':sales})
-    else:
-        if request.method == 'POST':
-            supplier = draft.supplier
-            bill = request.POST['bill_address']
-            ship = request.POST['ship_address']
-            sh= request.POST['ship_method']
-            ship_method = Ship_method.objects.get(id=sh)
-            p_date = request.POST['preferred_date']
-            status = Sales_status.objects.get(status='draft')
-            Sales = Sales.objects.create(id=draft,warehouse=Warehouse.objects.get(id=1),supplier=supplier,bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=draft.total_price)
-            return render(request,template_name='sales_next.html',context={'number':id,'items':[draft], 'Sales':Sales})
+    sales = Sales.objects.get(id=id)
+    draft = Sales_items.objects.filter(sales=sales)
+    # if Sales_items.objects.filter(sales=sales).exists():
+    #     return render(request,template_name='sales_next.html',context={'number':id,'items':[draft], 'Sales':sales})
+    # else:
+    if request.method == 'POST':
+        customer = draft.first().customer
+        bill = request.POST['bill_address']
+        ship = request.POST['ship_address']
+        # total_price = request.POST['total_price']
+        sh= request.POST['ship_method']
+        ship_method = Ship_method.objects.get(id=sh)
+        p_date = request.POST['preferred_date']
+        # p_date = date(int(p_date)).strftime('%Y-%m-%d')
+        p_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
+        status = Sales_status.objects.get(status='draft')
+        sales = Sales.objects.update(id=sales.id,warehouse=Warehouse.objects.get(id=1),customer=customer,bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=customer.phone,ship_method=ship_method,status=status)
+        return render(request,template_name='sale.html',context={'number':id,'items':draft, 'Sales':sales})
 
 
 def sales_approve(request,id):
