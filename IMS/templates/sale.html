@@ -4,7 +4,7 @@
     
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="purchase_orders.html">Purchase Order</a></li>
+          <li class="breadcrumb-item"><a href="sales_orders.html">sales Order</a></li>
           <li class="active breadcrumb-item">New purcahse Order #{{number}}</li>
         </ol>
       </nav>
@@ -18,38 +18,38 @@
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit order</button>
         <button class="btn btn-sm col">Cancel order</button>
-        <a href="#" class="btn btn-sm col btn-success" onclick="fetch('http://127.0.0.1:8000/ims/v1/purchases/purchase_approve/{{number}}/')">send for approval</a>
+        <a href="#" class="btn btn-sm col btn-success" onclick="fetch('http://127.0.0.1:8000/ims/v1/saless/sales_approve/{{number}}/')">create package</a>
     </div>
     <ul class="progress-tracker">
-        <li class="progress-step {% if purchase.status.id > 1 %}is-complete {% elif purchase.status.id == 1 %}is-active {% endif %}">
-            Draft purchase creation {{purchase.status.id }}
+        <li class="progress-step {% if sales.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %}">
+            Draft sales creation {{sales.status.id }}
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 2 %}is-complete {% elif purchase.status.id == 2 %}is-active {% endif %} ">
-            Awaiting purchasing team approval
+        <li class="progress-step {% if sales.status.id > 2 %}is-complete {% elif sales.status.id == 2 %}is-active {% endif %} ">
+            Awaiting packing
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 3 %}is-complete {% elif purchase.status.id == 3 %}is-active {% endif %}">
-            Awaiting Supplier approval
-          <div class="progress-marker"></div>
-        </li>
-        <li class="progress-step {% if purchase.status.id > 4 %}is-complete {% elif purchase.status.id == 4 %}is-active {% endif %}" >
-            Order processing
-          <div class="progress-marker {% if purchase.status.id > 5 %}is-complete {% elif purchase.status.id == 5 %}is-active {% endif %}"></div>
-        </li>
-        <li class="progress-step {% if purchase.status.id > 6 %}is-complete {% elif purchase.status.id == 6 %}is-active {% endif %}">
+        <li class="progress-step {% if sales.status.id > 3 %}is-complete {% elif sales.status.id == 3 %}is-active {% endif %}">
             Awaiting shipment
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 7 %}is-complete {% elif purchase.status.id == 7 %}is-active {% endif %}">
-            Order dispatched
+        <li class="progress-step {% if sales.status.id > 4 %}is-complete {% elif sales.status.id == 4 %}is-active {% endif %}" >
+            Received by the customer
+          <div class="progress-marker {% if sales.status.id > 5 %}is-complete {% elif sales.status.id == 5 %}is-active {% endif %}"></div>
+        </li>
+        <li class="progress-step {% if sales.status.id > 6 %}is-complete {% elif sales.status.id == 6 %}is-active {% endif %}">
+            Payed by the customer
           <div class="progress-marker"></div>
         </li>
+        <!-- <li class="progress-step {% if sales.status.id > 7 %}is-complete {% elif sales.status.id == 7 %}is-active {% endif %}">
+            Order dispatched
+          <div class="progress-marker"></div>
+        </li> -->
       </ul>
  </div>
-<!-- Purchase order card -->
+<!-- sales order card -->
       <div class="card p-4">
-        <h2 class="p-3">PURCHASE ORDER</h2>
+        <h2 class="p-3">sales ORDER</h2>
         <div class="card-body">
             <div class="row">
                 <div class="col-6 ">
@@ -57,46 +57,47 @@
                     <b>614-205-9702</b>
                 </div>
                 <div class="col-6">
-                    Created On Date: <b>{{purchase.created_date}}</b>
-                    <br> Preferred Shipping Date: <b>{{purchase.preferred_shipping_date}}</b>
+                    Created On Date: <b>{{sales.created_date}}</b>
+                    <br> Preferred Shipping Date: <b>{{sales.preferred_shipping_date}}</b>
                 </div>
                 <div class="row pt-4">
+
+                  <div class="col-lg-6">
+                    <div class="card p-2">
+                      <h6 class="card-title p-1">From</h6>
+                      <div class="row">
+                          <div class="col-4">company: </div>
+                          <div class="col-8"><label>Engineered Wood Construction</label></div>
+                      </div>
+                      <div class="row">
+                          <div class="col-4">Address: </div>
+                          <div class="col-8">{{sales.warehouse.address}}</div>
+                      </div>
+                      <div class="row">
+                          <div class="col-4">Phone: </div>
+                          <div class="col-8">{{sales.warehouse.contact_phone}}</div>
+                      </div>
+                  </div>
+                    </div>
+                      
                     <div class="col-lg-6">
                       <div class="card p-2">
-                        <h6 class="card-title p-1 ">From</h6>
+                        <h6 class="card-title p-1 ">To</h6>
                         <div class="row">
                             <div class="col-4">company: </div>
-                            <div class="col-8">{{purchase.supplier}}</div>
+                            <div class="col-8">{{sales.customer}}</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Address: </div>
-                            <div class="col-8">{{purchase.bill_address}}</div>
+                            <div class="col-8">{{sales.ship_address}}</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Phone: </div>
-                            <div class="col-8">{{purchase.contact_phone}}</div>
+                            <div class="col-8">{{sales.contact_phone}}</div>
                         </div>
                     </div>
-                      </div>
-                        
-                    <div class="col-lg-6">
-                      <div class="card p-2">
-                        <h6 class="card-title p-1">Ship To</h6>
-                        <div class="row">
-                            <div class="col-4">company: </div>
-                            <div class="col-8"><label>Engineered Wood Construction</label></div>
-                        </div>
-                        <div class="row">
-                            <div class="col-4">Address: </div>
-                            <div class="col-8">{{purchase.warehouse.address}}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-4">Phone: </div>
-                            <div class="col-8">{{purchase.warehouse.contact_phone}}</div>
-                        </div>
-                    </div>
-                      </div>
-                        
+                      </div> 
+                    
                 </div>
                 <!-- item detail table -->
                 <h5><b>Item details</b></h5>
@@ -140,7 +141,7 @@
               </div>
                 <div class="row">
                 <h4 class="col-2">Total</h4>
-                <h4 class="col-4">{{purchase.total_amount}}</h4>
+                <h4 class="col-4">{{sales.total_amount}}</h4>
             </div>
             </div>
             

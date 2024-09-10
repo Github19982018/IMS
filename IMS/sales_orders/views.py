@@ -45,6 +45,7 @@ def draft_sales(request,id):
         customer = Customer.objects.get(id=s)
     else:
         customer = Customer.objects.first()
+    
     draft.update(customer=customer)
     return render(request,template_name='sales_draft.html',context={'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
 
@@ -55,18 +56,19 @@ def sales(request,id):
     #     return render(request,template_name='sales_next.html',context={'number':id,'items':[draft], 'Sales':sales})
     # else:
     if request.method == 'POST':
-        customer = draft.first().customer
-        bill = request.POST['bill_address']
-        ship = request.POST['ship_address']
+        sales.customer = draft.first().customer
+        sales.bill_address = request.POST['bill_address']
+        sales.ship_address = request.POST['ship_address']
         # total_price = request.POST['total_price']
         sh= request.POST['ship_method']
-        ship_method = Ship_method.objects.get(id=sh)
+        sales.ship_method = Ship_method.objects.get(id=sh)
         p_date = request.POST['preferred_date']
         # p_date = date(int(p_date)).strftime('%Y-%m-%d')
-        p_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
-        status = Sales_status.objects.get(status='draft')
-        sales = Sales.objects.update(id=sales.id,warehouse=Warehouse.objects.get(id=1),customer=customer,bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=customer.phone,ship_method=ship_method,status=status)
-        return render(request,template_name='sale.html',context={'number':id,'items':draft, 'Sales':sales})
+        sales.preferred_shipping_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
+        sales.status = Sales_status.objects.get(status='draft')
+        sales.warehouse = Warehouse.objects.get(id=1)
+        sales.save()
+        return render(request,template_name='sale.html',context={'number':id,'items':draft, 'sales':sales})
 
 
 def sales_approve(request,id):
