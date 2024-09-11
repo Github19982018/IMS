@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path,include
 from django.test import override_settings,SimpleTestCase
 from inventory.views import error_response_handler
+from dashboard.views import dashboard
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('ims/v1/',include('dashboard.urls')),
     path('ims/v1/inventory/',include('inventory.urls')),
     path('ims/v1/suppliers/',include('supplier.urls')),
     path('ims/v1/purchases/',include('purchase_orders.urls')),
