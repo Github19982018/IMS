@@ -52,8 +52,8 @@ class Ship_method(models.Model):
 
 
 
-class Ship_status(models.Model):
-    status = models.CharField(max_length=50)
+# class Ship_status(models.Model):
+#     status = models.CharField(max_length=50)
 
 # class Shipment(models.Model):
 #     # import random

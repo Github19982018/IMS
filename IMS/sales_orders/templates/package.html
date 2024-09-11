@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block main %}
     
     <nav style="--bs-breadcrumb-divider: '>';">
@@ -14,12 +14,12 @@
  <div class="row">
     <div class="col-4 row">
         <div class="col w-10" >Status</div>
-        <div class="col w-10 badge bg-secondary rounded-pill">{{sales.status.status}}</div>
+        <div class="col w-10 badge bg-secondary rounded-pill" id="status">{{sales.status.status}}</div>
     </div>
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit package</button>
         <button class="btn btn-sm col">Delete package</button>
-        <a href="#" class="btn btn-sm col btn-success" onclick="fetch('http://127.0.0.1:8000/ims/v1/saless/sales_approve/{{number}}/')">create package</a>
+        <a href="{% url 'ship' sales.id %}" id="btn" class="btn btn-sm col btn-success">ship a package</a>
     </div>
     <ul class="progress-tracker">
         <li class="progress-step {% if sales.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %}">
@@ -116,3 +116,11 @@
         </div>
       </div>
 {% endblock %}</div>
+
+{% block code %}
+<script src="{% static 'assets/js/package.js' %}"
+    defer 
+    data-status="{{sales.status.status}}"
+    data-id="{{sales.status.id}}">
+  </script>
+{% endblock %}

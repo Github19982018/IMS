@@ -1,8 +1,8 @@
 from django.shortcuts import redirect,HttpResponse
 from django.template.response import TemplateResponse as render
-from sales_orders.models import Sales,Sales_status,Sales_items,Sale_items
+from sales_orders.models import Sales,Sales_status,Sales_items,Sale_items,Package,Package_status
 from inventory.models import Inventory,Ship_method,Warehouse,Customer
-from datetime import datetime, date
+from datetime import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
@@ -56,29 +56,43 @@ def draft_sales(request,id):
 def sales(request,id):
     sales = Sales.objects.get(id=id)
     draft = Sales_items.objects.filter(sales=sales)
-    # if Sales_items.objects.filter(sales=sales).exists():
-    #     return render(request,'sales_next.html',{'number':id,'items':[draft], 'Sales':sales})
-    # else:
-    if request.method == 'POST':
-        sales.customer = draft.first().customer
-        sales.bill_address = request.POST['bill_address']
-        sales.ship_address = request.POST['ship_address']
-        # total_price = request.POST['total_price']
-        sh= request.POST['ship_method']
-        sales.ship_method = Ship_method.objects.get(id=sh)
-        p_date = request.POST['preferred_date']
-        # p_date = date(int(p_date)).strftime('%Y-%m-%d')
-        sales.preferred_shipping_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
-        sales.status = Sales_status.objects.get(status='draft')
-        sales.warehouse = Warehouse.objects.get(id=1)
-        sales.save()
-        return render(request,'sale.html',{'number':id,'items':draft, 'sales':sales})
+    if sales.bill_address:
+        return render(request,'sale.html',{'number':id,'items':[draft], 'sales':sales})
     else:
-        return  render(request,'404.html',{})
+        if request.method == 'POST':
+            sales.customer = draft.first().customer
+            sales.bill_address = request.POST['bill_address']
+            sales.ship_address = request.POST['ship_address']
+            # total_price = request.POST['total_price']
+            sh= request.POST['ship_method']
+            sales.ship_method = Ship_method.objects.get(id=sh)
+            p_date = request.POST['preferred_date']
+            # p_date = date(int(p_date)).strftime('%Y-%m-%d')
+            sales.preferred_shipping_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
+            sales.status = Sales_status.objects.get(status='draft')
+            sales.warehouse = Warehouse.objects.get(id=1)
+            sales.save()
+            return render(request,'sale.html',{'number':id,'items':draft, 'sales':sales})
+    # else:
+    #     return  render(request,'404.html',{})
     
-def package(request,id):
-    pass
+def package_draft(request,id):
+    sales = Sales.objects.get(id=id)
+    p = Package.objects.create(sales=sales,created_at=datetime.now(),status=Package_status(id=1),customer=sales.customer,shipping_address=sales.ship_address)
+    items = Sales_items.objects.filter(sales=sales)
+    return render(request,'package_draft.html',{'number':p.id,'items':items, 'sales':sales, 'package' :p})
 
+def package(request,id):
+    sales = Sales.objects.get(id=id)
+    # sales.status = Sales_status(id=2)
+    # sales.save()
+    items = Sales_items.objects.filter(sales=sales)
+    return render(request,'package.html',{'number':id,'items':items, 'sales':sales})
+    
+def ship(request,id):
+    sales = Sales.objects.get(id=id)
+    items = Sale_items.objects.filter(sales=sales)
+    ship = 
 
 def sales_approve(request,id):
     draft = Sales_items.objects.get(id=id)
@@ -108,6 +122,16 @@ def sales_approve(request,id):
 
 
 def sales_api(request):
+    id =  request.GET.get('ref')
+    status = request.GET.get('status')
+    draft = Sales_items.objects.get(id=id)
+    status = Sales_status(id=status)
+    sales = Sales.objects.get(id=draft)
+    sales.status = status
+    sales.save()
+    return HttpResponse('success')
+
+def packagge_api(request):
     id =  request.GET.get('ref')
     status = request.GET.get('status')
     draft = Sales_items.objects.get(id=id)

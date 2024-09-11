@@ -59,10 +59,9 @@ class Package_status(models.Model):
 
 
 class Package(models.Model):
-    slip = models.PositiveIntegerField(auto_created=True)
-    sales = models.ManyToManyField(to=Sales)
+    sales = models.ForeignKey(to=Sales,null=True,on_delete=models.CASCADE,related_name='package')
     created_at = models.DateTimeField()
-    packed_at = models.DateTimeField()
+    packed_at = models.DateTimeField(null=True)
     shipping_address = models.CharField(max_length=200)
     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
     status = models.ForeignKey(to=Package_status,on_delete=models.PROTECT)

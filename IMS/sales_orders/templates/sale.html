@@ -20,7 +20,7 @@
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit order</button>
         <button class="btn btn-sm col">Cancel order</button>
-        <a href="#" class="btn btn-sm col btn-success" onclick="fetch('http://127.0.0.1:8000/ims/v1/saless/package/{{number}}/').then((response)=>window.location.reload(false))">create package</a>
+        <a href="{%url  'package_draft' number %}" class="btn btn-sm col btn-success">create package</a>
     </div>
     <ul class="progress-tracker">
         <li class="progress-step {% if sales.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %}">
