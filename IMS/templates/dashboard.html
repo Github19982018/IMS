@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block main %}
 <div class="pagetitle">
     <h1>Dashboard</h1>
@@ -37,19 +37,20 @@
           <div class="d-flex align-items-center p-2">
            
             <div class="text-center p-2">
-              <h3 class="text-primary">145</h3>
+              <h3 class="text-primary">{{sales_activity.pack}}
+              </h3>
+               <span class="text-muted small pt-2 ps-1">Pkgs</span>
+               <p class="text-muted small pt-2 ps-1">TO BE PACKED</p>
+            </div>
+            <div class="text-center  p-2">
+              <h3 class="text-danger">{{sales_activity.ship}}</h3>
                <span class="text-muted small pt-2 ps-1">Qty</span>
                <p class="text-muted small pt-2 ps-1">TO BE SHIPPED</p>
             </div>
             <div class="text-center  p-2">
-              <h3 class="text-danger">145</h3>
+              <h3 class="text-success">{{sales_activity.deliver}}</h3>
                <span class="text-muted small pt-2 ps-1">Qty</span>
-               <p class="text-muted small pt-2 ps-1">TO BE SHIPPED</p>
-            </div>
-            <div class="text-center  p-2">
-              <h3 class="text-success">145</h3>
-               <span class="text-muted small pt-2 ps-1">Qty</span>
-               <p class="text-muted small pt-2 ps-1">TO BE SHIPPED</p>
+               <p class="text-muted small pt-2 ps-1">TO BE DELIVERED</p>
             </div>
           </div>
         </div>
@@ -64,12 +65,12 @@
           <div class="d-flex flex-column align-items-center ">
            
             <div class="row text-center ">
-              <span class="col-8  small pt-2 ps-1">TO BE SHIPPED</span>
-              <h3 class="col-4">145</h3>
+              <span class="col-6  small p-2">QUANTITY IN HAND</span>
+              <h3 class="col-6 p-2 ">{{inventory.on_hand.on_hand}}</h3>
             </div>
             <div class="row text-center">
-              <span class="col-8  small pt-2 ps-1">TO BE SHIPPED</span>
-              <h3 class="col-4">145</h3>
+              <span class="col-6  small p-2">QUANTITY TO BE RECEIVED</span>
+              <h3 class="col-6 p-2">{{inventory.recieve}}</h3>
             </div>
             
           </div>
@@ -89,8 +90,8 @@
              
               <div class="text-center p-2">
                 <h3>145</h3>
-                 <span class="text-muted small pt-2 ps-1">Qty</span>
-                 <p class="text-muted small pt-2 ps-1">TO BE SHIPPED</p>
+                 <span class="text-muted small pt-2 ps-1">Quantity Orderd</span>
+                 <p class="text-muted small pt-2 ps-1">{{</p>
               </div>
               <div class="text-center  p-2">
                 <h3>145</h3>
@@ -261,7 +262,9 @@
                 <div id="reports" style="min-height: 400px;" class="echart"></div>
 
 
-                <script>
+                <script data-data="{{total_sales}}">
+                  const data = document.currentScript.dataset;
+                  const sales=data.data
                   document.addEventListener("DOMContentLoaded", () => {
                     echarts.init(document.querySelector("#reports")).setOption({
                     
@@ -277,7 +280,7 @@
   
   series: [
     {
-      data: [10, 22, 28, 43, 49],
+      data: sales,
       type: 'line',
       stack: 'x',
       areaStyle: {}
@@ -324,19 +327,22 @@
                     <tr>
                       <th scope="col">#</th>
                       <th scope="col">Customer</th>
-                      <th scope="col">Product</th>
+                      <th scope="col">Created date</th>
                       <th scope="col">Price</th>
                       <th scope="col">Status</th>
                     </tr>
                   </thead>
                   <tbody>
+                    {% for i in recent_sales %}
                     <tr>
-                      <th scope="row"><a href="#">#2457</a></th>
-                      <td>Brandon Jacob</td>
-                      <td><a href="#" class="text-primary">At praesentium minu</a></td>
-                      <td>$64</td>
-                      <td><span class="badge bg-success">Approved</span></td>
+                      <th scope="row"><a href="#">#{{i.id}}</a></th>
+                      <td>{{i.customer}}
+                      </td>
+                      <td><a href="#" class="text-primary">{{i.created_date}}</a></td>
+                      <td>${{i.total_amount}}</td>
+                      <td><span class="badge bg-success">{{i.status}}</span></td>
                     </tr>
+                    {% endfor %}
                     <tr>
                       <th scope="row"><a href="#">#2147</a></th>
                       <td>Bridie Kessler</td>
@@ -398,47 +404,21 @@
                     <tr>
                       <th scope="col">Preview</th>
                       <th scope="col">Product</th>
-                      <th scope="col">Price</th>
-                      <th scope="col">Sold</th>
-                      <th scope="col">Revenue</th>
+                      <th scope="col">Total Price</th>
+                      <th scope="col">Total Quantity</th>
                     </tr>
                   </thead>
                   <tbody>
+                    {% for i in inventory.top_selling %}
                     <tr>
-                      <th scope="row"><a href="#"><img src="assets/img/product-1.jpg" alt=""></a></th>
-                      <td><a href="#" class="text-primary fw-bold">Ut inventore ipsa voluptas nulla</a></td>
-                      <td>$64</td>
-                      <td class="fw-bold">124</td>
-                      <td>$5,828</td>
+                      <th scope="row"><a href="#"><img src="{% static 'assets/img/product-1.jpg' %}" alt=""></a></th>
+                      <td><a href="#" class="text-primary fw-bold">{{i.item_id.name}}</a></td>
+                      <td>${{i.amount}}</td>
+                      <td class="fw-bold ">{{i.total}}
+                      </td>
                     </tr>
-                    <tr>
-                      <th scope="row"><a href="#"><img src="assets/img/product-2.jpg" alt=""></a></th>
-                      <td><a href="#" class="text-primary fw-bold">Exercitationem similique doloremque</a></td>
-                      <td>$46</td>
-                      <td class="fw-bold">98</td>
-                      <td>$4,508</td>
-                    </tr>
-                    <tr>
-                      <th scope="row"><a href="#"><img src="assets/img/product-3.jpg" alt=""></a></th>
-                      <td><a href="#" class="text-primary fw-bold">Doloribus nisi exercitationem</a></td>
-                      <td>$59</td>
-                      <td class="fw-bold">74</td>
-                      <td>$4,366</td>
-                    </tr>
-                    <tr>
-                      <th scope="row"><a href="#"><img src="assets/img/product-4.jpg" alt=""></a></th>
-                      <td><a href="#" class="text-primary fw-bold">Officiis quaerat sint rerum error</a></td>
-                      <td>$32</td>
-                      <td class="fw-bold">63</td>
-                      <td>$2,016</td>
-                    </tr>
-                    <tr>
-                      <th scope="row"><a href="#"><img src="assets/img/product-5.jpg" alt=""></a></th>
-                      <td><a href="#" class="text-primary fw-bold">Sit unde debitis delectus repellendus</a></td>
-                      <td>$79</td>
-                      <td class="fw-bold">41</td>
-                      <td>$3,239</td>
-                    </tr>
+                    {% endfor %}
+                    
                   </tbody>
                 </table>
 
@@ -546,7 +526,16 @@
             <div class="row">
               <div id="inventoryChart" style="min-height: 400px;" class="echart"></div>
 
-              <script>
+              <script data-data="{{stock}}">
+                const d = document.currentScript.dataset
+                const val = JSON.parse(d.data)
+                const m= Object.keys(val)
+                console.log(m)
+                const map = m.map((e) =>{ return {
+                  'name':e,
+                  'value':val[e]
+                }})
+                console.log(map)
                 document.addEventListener("DOMContentLoaded", () => {
                   echarts.init(document.querySelector("#inventoryChart")).setOption({
                     tooltip: {
@@ -573,30 +562,11 @@
                           
                         }
                       },
-                      // labelLine: {
-                      //   show: true
-                      // },
-                      data: [{
-                          value: 1048,
-                          name: 'Search Engine'
-                        },
-                        {
-                          value: 735,
-                          name: 'Direct'
-                        },
-                        {
-                          value: 580,
-                          name: 'Email'
-                        },
-                        {
-                          value: 484,
-                          name: 'Union Ads'
-                        },
-                        {
-                          value: 300,
-                          name: 'Video Ads'
-                        }
-                      ],
+                      labelLine: {
+                        show: true
+                      },
+                      
+                      data:map,
                       
                     }]
                   });
@@ -628,31 +598,31 @@
 
             <div class="news">
               <div class="post-item clearfix">
-                <img src="assets/img/news-1.jpg" alt="">
+                <!-- <img src="{% static 'assets/img/news-1.jpg" alt=""> -->
                 <h4><a href="#">Nihil blanditiis at in nihil autem</a></h4>
                 <p>Sit recusandae non aspernatur laboriosam. Quia enim eligendi sed ut harum...</p>
               </div>
 
               <div class="post-item clearfix">
-                <img src="assets/img/news-2.jpg" alt="">
+                <!-- <img src="{% static 'assets/img/news-2.jpg" alt=""> -->
                 <h4><a href="#">Quidem autem et impedit</a></h4>
                 <p>Illo nemo neque maiores vitae officiis cum eum turos elan dries werona nande...</p>
               </div>
 
               <div class="post-item clearfix">
-                <img src="assets/img/news-3.jpg" alt="">
+                <!-- <img src="{% static 'assets/img/news-3.jpg" alt=""> -->
                 <h4><a href="#">Id quia et et ut maxime similique occaecati ut</a></h4>
                 <p>Fugiat voluptas vero eaque accusantium eos. Consequuntur sed ipsam et totam...</p>
               </div>
 
               <div class="post-item clearfix">
-                <img src="assets/img/news-4.jpg" alt="">
+                <!-- <img src="{% static 'assets/img/news-4.jpg" alt=""> -->
                 <h4><a href="#">Laborum corporis quo dara net para</a></h4>
                 <p>Qui enim quia optio. Eligendi aut asperiores enim repellendusvel rerum cuder...</p>
               </div>
 
               <div class="post-item clearfix">
-                <img src="assets/img/news-5.jpg" alt="">
+                <!-- <img src="{% static 'assets/img/news-5.jpg" alt=""> -->
                 <h4><a href="#">Et dolores corrupti quae illo quod dolor</a></h4>
                 <p>Odit ut eveniet modi reiciendis. Atque cupiditate libero beatae dignissimos eius...</p>
               </div>

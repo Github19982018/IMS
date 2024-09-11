@@ -6,6 +6,9 @@ from datetime import datetime
 class Purchase_status(models.Model):
     status = models.CharField(max_length=50)
 
+    def __str__(self) -> str:
+        return self.status
+
 # class Purchase_draft(models.Model):
 #     item = models.ForeignKey(to=)
 class  Purchase_items(models.Model):
@@ -32,3 +35,5 @@ class Purchase(models.Model):
     created_date = models.DateTimeField(default=datetime.now())
     total_amount = models.DecimalField(decimal_places=2,max_digits=10)
     status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
+
+

@@ -28,6 +28,7 @@ class Sales(models.Model):
     created_date = models.DateTimeField(default=datetime.now())
     total_amount = models.DecimalField(decimal_places=2,max_digits=10,null=True)
     status = models.ForeignKey(to=Sales_status,null=True,on_delete=models.PROTECT)
+    updated = models.DateTimeField(default=datetime.now())
 
 
 class  Sales_items(models.Model):
@@ -58,7 +59,10 @@ class Package_status(models.Model):
         return self.status
 
 class Ship_status(models.Model):
+    id=models.SmallIntegerField(primary_key=True,default=1)
     status = models.CharField(max_length=50)
+    def __str__(self) -> str:
+        return self.status
 class Shipment(models.Model):
     tracking_number = models.PositiveBigIntegerField(editable=False)
     created_at = models.DateTimeField(default=datetime.now())
