@@ -50,17 +50,7 @@ class Ship_method(models.Model):
     method = models.CharField(max_length=50)
 
 
-class Package_status(models.Model):
-    status = models.CharField(max_length=50)
 
-# class Package(models.Model):
-#     slip = models.PositiveIntegerField(auto_created=True)
-#     sales = models.ManyToManyField(to=Sales)
-#     created_at = models.DateTimeField()
-#     packed_at = models.DateTimeField()
-#     shipping_address = models.CharField(max_length=200)
-#     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
-#     status = models.ForeignKey(to=Package_status,on_delete=models.PROTECT)
 
 class Ship_status(models.Model):
     status = models.CharField(max_length=50)

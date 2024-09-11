@@ -7,6 +7,6 @@ urlpatterns = [
     path('make/',views.make_sales,name='make_sales'),
     path('draft/<int:id>',views.draft_sales,name='draft_sales'),
     path('save/<int:id>/',views.sales,name='sale'),
-    # path('sales_approve/<int:id>/',views.approve_sales,name='approve_sales'),
+    path('package/<int:id>/',views.package,name='package'),
     path('supplier/',views.sales_api,name='supplier_approve'),
 ]

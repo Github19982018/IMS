@@ -20,19 +20,22 @@ def get_sales(request,id):
 def make_sales(request):
     id_list =  request.GET.getlist('item') 
     items = Inventory.objects.filter(id__in=id_list)
-    sales_list = []
-    warehouse = Warehouse.objects.get(id=1)
-    sales = Sales.objects.create(warehouse=warehouse)
-    for i in items:
-        sales_list.append(Sale_items(
-            sales = sales,
-            item_id = i,
-            price = i.selling_price,
-            quantity = 1,
-            units = i.units
-        ))
-    draft = Sales_items.objects.bulk_create(sales_list)
-    return redirect(draft_sales,id=sales,permanent=True)
+    if len(items)>1:
+        sales_list = []
+        warehouse = Warehouse.objects.get(id=1)
+        sales = Sales.objects.create(warehouse=warehouse)
+        for i in items:
+            sales_list.append(Sale_items(
+                sales = sales,
+                item_id = i,
+                price = i.selling_price,
+                quantity = 1,
+                units = i.units
+            ))
+        draft = Sales_items.objects.bulk_create(sales_list)
+        return redirect(draft_sales,id=4,permanent=True)
+    else:
+        return render(request,'404.html',{})
 
 
 
@@ -72,6 +75,9 @@ def sales(request,id):
         return render(request,'sale.html',{'number':id,'items':draft, 'sales':sales})
     else:
         return  render(request,'404.html',{})
+    
+def package(request,id):
+    pass
 
 
 def sales_approve(request,id):

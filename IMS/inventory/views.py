@@ -9,8 +9,9 @@ def error_response_handler(request, exception=None):
 
 def view_inventory(request):
     w = request.w
-    warehouse = Warehouse.objects.get(id=w)
-    inventory = Inventory.objects.filter(warehouse=warehouse)
+    # warehouse = Warehouse.objects.get(id=w)
+    inventory = Inventory.objects.all()
+    # inventory = Inventory.objects.filter(warehouse=warehouse)
     return render(request,'inventory.html',{'inventory':inventory})
 
 def get_inventory(request,id):

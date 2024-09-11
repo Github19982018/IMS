@@ -48,3 +48,21 @@ class Sale_items(BulkModel):
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
     customer = models.ForeignKey(to=Customer,null=True,on_delete=models.PROTECT)
+
+
+class Package_status(models.Model):
+    id = models.SmallIntegerField(primary_key=True)
+    status = models.CharField(max_length=50)
+
+    def __str__(self) -> str:
+        return self.status
+
+
+class Package(models.Model):
+    slip = models.PositiveIntegerField(auto_created=True)
+    sales = models.ManyToManyField(to=Sales)
+    created_at = models.DateTimeField()
+    packed_at = models.DateTimeField()
+    shipping_address = models.CharField(max_length=200)
+    customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
+    status = models.ForeignKey(to=Package_status,on_delete=models.PROTECT)
