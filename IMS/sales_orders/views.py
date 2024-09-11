@@ -1,6 +1,6 @@
 from django.shortcuts import redirect,HttpResponse
 from django.template.response import TemplateResponse as render
-from sales_orders.models import Sales,Sales_status,Sales_items,Sale_items,Package,Package_status
+from sales_orders.models import Sales,Sales_status,Sales_items,Sale_items,Package,Package_status,Ship_status,Shipment
 from inventory.models import Inventory,Ship_method,Warehouse,Customer
 from datetime import datetime
 from rest_framework.decorators import api_view
@@ -90,9 +90,15 @@ def package(request,id):
     return render(request,'package.html',{'number':id,'items':items, 'sales':sales})
     
 def ship(request,id):
+    import random
+    track=random.randint(100000000000,9999999999999)
+    pack = request.POST.getlist('package')
     sales = Sales.objects.get(id=id)
-    items = Sale_items.objects.filter(sales=sales)
-    ship = 
+    # items = Sale_items.objects.get(sales=sales)
+    ship = Shipment.objects.create(sales=sales,tracking_number=track,ship_method=sales.ship_method,customer=sales.customer,shipment_address=sales.ship_address)
+    # ship.sales.add(sales)
+    packages = Package.objects.filter(pk__in=pack).update(ship=ship)
+    return render(request,'ship.html',{'number':id, 'sales':sales,'ship':ship, 'packages':packages})
 
 def sales_approve(request,id):
     draft = Sales_items.objects.get(id=id)

@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block main %}
+    
+    <nav style="--bs-breadcrumb-divider: '>';">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="ship_orders.html">ship Order</a></li>
+          <li class="breadcrumb-item">ship Order #{{number}}</li>
+          <li class="active breadcrumb-item">shipment #{{ship_number}}</li>
+        </ol>
+      </nav>
+
+<!-- status -->
+ <div class="row">
+    <div class="col-4 row">
+        <div class="col w-10" >Status</div>
+        <div class="col w-10 badge bg-secondary rounded-pill" id="status">{{ship.status.status}}</div>
+    </div>
+    <div class="col-8 row">
+        <button class="btn btn-sm col">Edit shipment</button>
+        <button class="btn btn-sm col">Cancel ship</button>
+        <a href="{% url 'ship' sales.id %}" id="btn" class="btn btn-sm col btn-success">ship a ship</a>
+    </div>
+    <ul class="progress-tracker">
+        <li class="progress-step {% if ship.status.id > 1 %}is-complete {% elif ship.status.id == 1 %}is-active {% endif %}">
+            Draft ship slip creation {{ship.status.id }}
+          <div class="progress-marker"></div>
+        </li>
+        <li class="progress-step {% if ship.status.id > 2 %}is-complete {% elif ship.status.id == 2 %}is-active {% endif %} ">
+            Awaiting packing
+          <div class="progress-marker"></div>
+        </li>
+        <li class="progress-step {% if ship.status.id > 3 %}is-complete {% elif ship.status.id == 3 %}is-active {% endif %}">
+            Ready for shipping
+          <div class="progress-marker"></div>
+        </li>
+        <li class="progress-step {% if ship.status.id > 4 %}is-complete {% elif ship.status.id == 4 %}is-active {% endif %}" >
+            shipped
+          <div class="progress-marker {% if ship.status.id > 5 %}is-complete {% elif ship.status.id == 5 %}is-active {% endif %}"></div>
+        </li>
+      </ul>
+ </div>
+ <div class="row pt-4">
+    <div class="col-lg-6">
+      <div class="card p-2">
+        <h6 class="card-title p-1 ">From</h6>
+        <div class="row">
+            <div class="col-4">company: </div>
+            <div class="col-8">{{purchase.id.supplier}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Address: </div>
+            <div class="col-8">{{purchase.bill_address}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Phone: </div>
+            <div class="col-8">{{purchase.contact_phone}}</div>
+        </div>
+    </div>
+      </div>
+        
+      <h6 class="card-title p-1">Shipping information</h6>
+    <div class="col-lg-6">
+      <div class="card p-2">
+        <div class="row">
+            <div class="col-4">shipment order: </div>
+            <div class="col-8"><label>#{{ship.id}}</label></div>
+        </div>
+        <div class="row">
+            <div class="col-4">Tracking number: </div>
+            <div class="col-8">{{ship.tracking_number}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Shipping Method: </div>
+            <div class="col-8">{{ship.ship_method}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Customer: </div>
+            <div class="col-8">{{ship.customer}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Shipping Address: </div>
+            <div class="col-8">{{ship.shipment_address}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Associated Package: </div>
+            <div class="col-8">{{ship.pacakge}}</div>
+        </div>
+    </div>
+      </div>
+<!-- ship order card -->
+      <div class="card p-4">
+        <h2 class="p-3">SHIPMENT ORDER #{{ship.id}}</h2>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-6 ">
+                    <b>Ohio, Columbus, 5303 Fisher Rd</b><br>
+                    <b>614-205-9702</b>
+                </div>
+                <div class="col-6">
+                    Created On Date: <b>{{ship.created_date}}</b>
+                    <br>Date of shipment: <b>{{ship.shipment_date}}</b>
+                </div>
+                <div class="row pt-4">
+                      
+                    <div class="col-lg-6">
+                      <div class="card p-2">
+                        <div class="row">
+                            <div class="col-4">company: </div>
+                            <div class="col-8">{{ship.customer}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">Shipping Address: </div>
+                            <div class="col-8">{{ship.ship_address}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">Associated package: </div>
+                            <div class="col-8">{{ship.package}}</div>
+                        </div>
+                    </div>
+                      </div> 
+                    
+                </div>
+                <!-- item detail table -->
+                <h5><b>Item details</b></h5>
+                  <div class="card">
+                    <table class="table">
+                    <thead>
+                      <tr>
+                        <td>Photo</td>
+                        <td>
+                          Name
+                        </td>
+                        <td>SKU</td>
+                        <td>Weight</td>
+                        <td>Shipping Dimensions</td>
+                        <td>Units</td>
+                        <td>Quantity</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for i in items %}
+                      <tr> 
+                      <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
+                      <td>{{i.item_id.name}}</td>
+                      <td>{{i.item_id.sku}}</td>
+                      <td>{{i.weight}}</td>
+                      <td>{{i.dimension}}</td>
+                      <td>{{i.units}}</td>
+                      <td>{{i.quantity}}</td>
+                    </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                  <!-- End Table with stripped rows -->
+            
+            </div>
+            
+                  </div>
+        </div>
+            
+                  
+
+        </div>
+      </div>
+{% endblock %}</div>
+
+{% block code %}
+<script src="{% static 'assets/js/ship.js' %}"
+    defer 
+    data-status="{{ship.status.status}}"
+    data-id="{{ship.status.id}}">
+  </script>
+{% endblock %}

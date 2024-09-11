@@ -52,21 +52,7 @@ class Ship_method(models.Model):
 
 
 
-# class Ship_status(models.Model):
-#     status = models.CharField(max_length=50)
-
-# class Shipment(models.Model):
-#     # import random
-#     # tracking_number = models.PositiveBigIntegerField()
-#     sales = models.ManyToManyField(to=Sales)
-#     created_at = models.DateTimeField()
-#     sales = models.ForeignKey(to=Sales,on_delete=models.CASCADE)
-#     ship_method = models.ForeignKey(to=Ship_method,on_delete=models.PROTECT)
-#     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
-#     shipment_address = models.CharField(max_length=200)
-#     package = models.ForeignKey(to=Package,on_delete=models.CASCADE)
-#     shipment_date = models.DateTimeField()
-#     status = models.ForeignKey(to=Ship_status,on_delete=models.PROTECT)
+# 
     
 
 

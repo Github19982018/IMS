@@ -22,7 +22,7 @@
         <a href="{% url 'ship' sales.id %}" id="btn" class="btn btn-sm col btn-success">ship a package</a>
     </div>
     <ul class="progress-tracker">
-        <li class="progress-step {% if sales.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %}">
+        <li class="progress-step {% if package.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %}">
             Draft package slip creation {{package.status.id }}
           <div class="progress-marker"></div>
         </li>

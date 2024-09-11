@@ -57,6 +57,17 @@ class Package_status(models.Model):
     def __str__(self) -> str:
         return self.status
 
+class Ship_status(models.Model):
+    status = models.CharField(max_length=50)
+class Shipment(models.Model):
+    tracking_number = models.PositiveBigIntegerField(editable=False)
+    created_at = models.DateTimeField(default=datetime.now())
+    sales = models.ForeignKey(null=True,to=Sales,on_delete=models.CASCADE,related_name='shipment')
+    ship_method = models.ForeignKey(to=Ship_method,on_delete=models.PROTECT)
+    customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
+    shipment_address = models.CharField(max_length=200)
+    shipment_date = models.DateTimeField(null=True)
+    status = models.ForeignKey(null=True,to=Ship_status,on_delete=models.PROTECT)
 
 class Package(models.Model):
     sales = models.ForeignKey(to=Sales,null=True,on_delete=models.CASCADE,related_name='package')
@@ -65,3 +76,7 @@ class Package(models.Model):
     shipping_address = models.CharField(max_length=200)
     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
     status = models.ForeignKey(to=Package_status,on_delete=models.PROTECT)
+    ship = models.ForeignKey(to=Shipment,on_delete=models.PROTECT,related_name='package')
+
+
+
