@@ -1,7 +1,7 @@
 from inventory.models import Warehouse
 
 class Warehouse_middleware:
-    warehouse = 2
+    warehouse = 1
     def __init__(self,get_response): 
         self.get_response = get_response
     def __call__(self, request):

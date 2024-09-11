@@ -70,6 +70,8 @@ def sales(request,id):
         sales.warehouse = Warehouse.objects.get(id=1)
         sales.save()
         return render(request,'sale.html',{'number':id,'items':draft, 'sales':sales})
+    else:
+        return  render(request,'404.html',{})
 
 
 def sales_approve(request,id):

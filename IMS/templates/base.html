@@ -415,7 +415,7 @@
         <form action="">
           <select class="form-select" name="warehouse" id="warehouse" onchange="this.form.submit()">
             {% for i in warehouses %}
-            <option class="bi bi-menu-button-wide" value="{{i.id}}" {% if i.id == w %} selected {% else %}  {% endif %}>{{i.name}}</option>
+            <option class="bi bi-menu-button-wide" value="{{i.id}}" {% if i.id == w %} selected {% endif %}>{{i.name}}</option>
             {% endfor %}
             <!-- <option class="bi bi-menu-button-wide"  selected>sf</option>
             <option class="bi bi-menu-button-wide"  >dfsf</option> -->

@@ -1,14 +1,16 @@
 from django.template.response import TemplateResponse as render
 from django.shortcuts import HttpResponse
 from datetime import datetime
-from .models import Inventory,Supplier
+from .models import Inventory,Supplier,Warehouse
 # Create your views here.
 
 def error_response_handler(request, exception=None):
     return HttpResponse('eror', status=404)
 
 def view_inventory(request):
-    inventory = Inventory.objects.all()
+    w = request.w
+    warehouse = Warehouse.objects.get(id=w)
+    inventory = Inventory.objects.filter(warehouse=warehouse)
     return render(request,'inventory.html',{'inventory':inventory})
 
 def get_inventory(request,id):

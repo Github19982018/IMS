@@ -17,40 +17,32 @@
         <div class="col w-10 badge bg-secondary rounded-pill">{{sales.status.status}}</div>
     </div>
     <div class="col-8 row">
-        <button class="btn btn-sm col">Edit order</button>
-        <button class="btn btn-sm col">Cancel order</button>
+        <button class="btn btn-sm col">Edit package</button>
+        <button class="btn btn-sm col">Delete package</button>
         <a href="#" class="btn btn-sm col btn-success" onclick="fetch('http://127.0.0.1:8000/ims/v1/saless/sales_approve/{{number}}/')">create package</a>
     </div>
     <ul class="progress-tracker">
         <li class="progress-step {% if sales.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %}">
-            Draft sales creation {{sales.status.id }}
+            Draft package slip creation {{package.status.id }}
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if sales.status.id > 2 %}is-complete {% elif sales.status.id == 2 %}is-active {% endif %} ">
+        <li class="progress-step {% if package.status.id > 2 %}is-complete {% elif package.status.id == 2 %}is-active {% endif %} ">
             Awaiting packing
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if sales.status.id > 3 %}is-complete {% elif sales.status.id == 3 %}is-active {% endif %}">
-            Awaiting shipment
+        <li class="progress-step {% if package.status.id > 3 %}is-complete {% elif package.status.id == 3 %}is-active {% endif %}">
+            Ready for shipping
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if sales.status.id > 4 %}is-complete {% elif sales.status.id == 4 %}is-active {% endif %}" >
-            Received by the customer
-          <div class="progress-marker {% if sales.status.id > 5 %}is-complete {% elif sales.status.id == 5 %}is-active {% endif %}"></div>
+        <li class="progress-step {% if package.status.id > 4 %}is-complete {% elif package.status.id == 4 %}is-active {% endif %}" >
+            shipped
+          <div class="progress-marker {% if package.status.id > 5 %}is-complete {% elif package.status.id == 5 %}is-active {% endif %}"></div>
         </li>
-        <li class="progress-step {% if sales.status.id > 6 %}is-complete {% elif sales.status.id == 6 %}is-active {% endif %}">
-            Payed by the customer
-          <div class="progress-marker"></div>
-        </li>
-        <!-- <li class="progress-step {% if sales.status.id > 7 %}is-complete {% elif sales.status.id == 7 %}is-active {% endif %}">
-            Order dispatched
-          <div class="progress-marker"></div>
-        </li> -->
       </ul>
  </div>
-<!-- sales order card -->
+<!-- package order card -->
       <div class="card p-4">
-        <h2 class="p-3">sales ORDER</h2>
+        <h2 class="p-3">PACKAGE SLIP #{{package.id}}</h2>
         <div class="card-body">
             <div class="row">
                 <div class="col-6 ">
@@ -58,32 +50,13 @@
                     <b>614-205-9702</b>
                 </div>
                 <div class="col-6">
-                    Created On Date: <b>{{sales.created_date}}</b>
-                    <br> Preferred Shipping Date: <b>{{sales.preferred_shipping_date}}</b>
+                    Created On Date: <b>{{package.created_date}}</b>
+                    <br>Estimated Packing Date: <b>{{package.estimatd_date}}</b>
                 </div>
                 <div class="row pt-4">
-
-                  <div class="col-lg-6">
-                    <div class="card p-2">
-                      <h6 class="card-title p-1">From</h6>
-                      <div class="row">
-                          <div class="col-4">company: </div>
-                          <div class="col-8"><label>Engineered Wood Construction</label></div>
-                      </div>
-                      <div class="row">
-                          <div class="col-4">Address: </div>
-                          <div class="col-8">{{sales.warehouse.address}}</div>
-                      </div>
-                      <div class="row">
-                          <div class="col-4">Phone: </div>
-                          <div class="col-8">{{sales.warehouse.contact_phone}}</div>
-                      </div>
-                  </div>
-                    </div>
                       
                     <div class="col-lg-6">
                       <div class="card p-2">
-                        <h6 class="card-title p-1 ">To</h6>
                         <div class="row">
                             <div class="col-4">company: </div>
                             <div class="col-8">{{sales.customer}}</div>
@@ -93,8 +66,8 @@
                             <div class="col-8">{{sales.ship_address}}</div>
                         </div>
                         <div class="row">
-                            <div class="col-4">Phone: </div>
-                            <div class="col-8">{{sales.contact_phone}}</div>
+                            <div class="col-4">Linked to sales order: </div>
+                            <div class="col-8">{{sales.id}}</div>
                         </div>
                     </div>
                       </div> 
@@ -111,10 +84,10 @@
                           Name
                         </td>
                         <td>SKU</td>
-                        <td>Price</td>
+                        <td>Weight</td>
+                        <td>Shipping Dimensions</td>
                         <td>Units</td>
                         <td>Quantity</td>
-                        <td>Total</td>
                       </tr>
                     </thead>
                     <tbody>
@@ -123,28 +96,15 @@
                       <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
                       <td>{{i.item_id.name}}</td>
                       <td>{{i.item_id.sku}}</td>
-                      <td>{{i.price}}</td>
+                      <td>{{i.weight}}</td>
+                      <td>{{i.dimension}}</td>
                       <td>{{i.units}}</td>
                       <td>{{i.quantity}}</td>
-                      <td>{{i.total_price}}</td>
                     </tr>
                       {% endfor %}
                     </tbody>
                   </table>
                   <!-- End Table with stripped rows -->
-                <div class="row">
-                <p class="col-2">Subtotal</p>
-                <p class="col-3">$2354626</p>
-              </div>
-                <div class="row">
-                <p class="col-2">Shipping</p>
-                <p class="col-3">$0.00</p>
-              </div>
-                <div class="row">
-                <h4 class="col-2">Total</h4>
-                <h4 class="col-4">{{sales.total_amount}}</h4>
-            </div>
-            </div>
             
             </div>
             
