@@ -65,12 +65,12 @@
           <div class="d-flex flex-column align-items-center ">
            
             <div class="row text-center ">
-              <span class="col-6  small p-2">QUANTITY IN HAND</span>
+              <span class="col-6 text-muted small p-2">QUANTITY IN HAND </span>
               <h3 class="col-6 p-2 ">{{inventory.on_hand.on_hand}}</h3>
             </div>
             <div class="row text-center">
-              <span class="col-6  small p-2">QUANTITY TO BE RECEIVED</span>
-              <h3 class="col-6 p-2">{{inventory.recieve}}</h3>
+              <span class="col-6 text-muted small p-2">QUANTITY TO BE RECEIVED</span>
+              <h3 class="col-6 p-2 ">{{inventory.recieve}}</h3>
             </div>
             
           </div>
@@ -89,14 +89,16 @@
             <div class="d-flex flex-column align-items-center ">
              
               <div class="text-center p-2">
-                <h3>145</h3>
-                 <span class="text-muted small pt-2 ps-1">Quantity Orderd</span>
-                 <p class="text-muted small pt-2 ps-1">{{</p>
+                <span class="text-muted small ">Items Orderd</span>
+                <h3 class="p-2 text-primary">{{purchase.items}}</h3>
+              </div>
+              <div class="text-center p-2">
+                <span class="text-muted small ">Quantity Orderd</span>
+                <h3 class="p-2 text-primary">{{purchase.quantity}}</h3>
               </div>
               <div class="text-center  p-2">
-                <h3>145</h3>
-                 <span class="text-muted small pt-2 ps-1">Qty</span>
-                 <p class="text-muted small pt-2 ps-1">TO BE SHIPPED</p>
+                <span class="text-muted small ">Total cost</span>
+                <h3 class="p-2 text-primary">{{purchase.amount}}</h3>
               </div>
               
             </div>
@@ -404,8 +406,9 @@
                     <tr>
                       <th scope="col">Preview</th>
                       <th scope="col">Product</th>
-                      <th scope="col">Total Price</th>
-                      <th scope="col">Total Quantity</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">Revenue</th>
+                      <th scope="col">On Hand</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -413,8 +416,9 @@
                     <tr>
                       <th scope="row"><a href="#"><img src="{% static 'assets/img/product-1.jpg' %}" alt=""></a></th>
                       <td><a href="#" class="text-primary fw-bold">{{i.item_id.name}}</a></td>
-                      <td>${{i.amount}}</td>
-                      <td class="fw-bold ">{{i.total}}
+                      <td class="fw-bold ">{{i.price}}
+                      <td class="fw-bold">${{i.amount}}</td>
+                          <td class="fw-bold ">{{i.item_id.on_hand}}
                       </td>
                     </tr>
                     {% endfor %}
@@ -433,117 +437,54 @@
       <!-- Right side columns -->
       <div class="col-lg-4">
 
-        <!-- Recent Activity -->
+       
+
+        <!-- INventory  -->
         <div class="card">
-          <div class="filter">
-            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              <li class="dropdown-header text-start">
-                <h6>Filter</h6>
-              </li>
-
-              <li><a class="dropdown-item" href="#">Today</a></li>
-              <li><a class="dropdown-item" href="#">This Month</a></li>
-              <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul>
-          </div>
-
-          <div class="card-body">
-            <h5 class="card-title">Recent Activity <span>| Today</span></h5>
-
-            <div class="activity">
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">32 min</div>
-                <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                <div class="activity-content">
-                  Quia quae rerum <a href="#" class="fw-bold text-dark">explicabo officiis</a> beatae
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">56 min</div>
-                <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                <div class="activity-content">
-                  Voluptatem blanditiis blanditiis eveniet
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">2 hrs</div>
-                <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                <div class="activity-content">
-                  Voluptates corrupti molestias voluptatem
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">1 day</div>
-                <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                <div class="activity-content">
-                  Tempore autem saepe <a href="#" class="fw-bold text-dark">occaecati voluptatem</a> tempore
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">2 days</div>
-                <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                <div class="activity-content">
-                  Est sit eum reiciendis exercitationem
-                </div>
-              </div><!-- End activity item-->
-
-              <div class="activity-item d-flex">
-                <div class="activite-label">4 weeks</div>
-                <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                <div class="activity-content">
-                  Dicta dolorem harum nulla eius. Ut quidem quidem sit quas
-                </div>
-              </div><!-- End activity item-->
-
-            </div>
-
-          </div>
-        </div><!-- End Recent Activity -->
-
-        <!-- Website Traffic -->
-        <div class="card">
-          <div class="filter">
-            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              <li class="dropdown-header text-start">
-                <h6>Filter</h6>
-              </li>
-
-              <li><a class="dropdown-item" href="#">Today</a></li>
-              <li><a class="dropdown-item" href="#">This Month</a></li>
-              <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul>
-          </div>
 
           <div class="card-body pb-0">
-            <h5 class="card-title">Inventory <span>| Today</span></h5>
+            <h5 class="card-title">Inventory </h5>
             <div class="row">
               <div id="inventoryChart" style="min-height: 400px;" class="echart"></div>
 
               <script data-data="{{stock}}">
-                const d = document.currentScript.dataset
-                const val = JSON.parse(d.data)
-                const m= Object.keys(val)
-                console.log(m)
-                const map = m.map((e) =>{ return {
+                let d = document.currentScript.dataset
+                let val = JSON.parse(d.data)
+                let m= Object.keys(val).sort((a,b)=>a-b)
+                let map = m.map((e) =>{ return {
                   'name':e,
                   'value':val[e]
                 }})
-                console.log(map)
                 document.addEventListener("DOMContentLoaded", () => {
-                  echarts.init(document.querySelector("#inventoryChart")).setOption({
+                  
+                 var myChart = echarts.init(document.querySelector("#inventoryChart"))
+                 myChart.setOption({
                     tooltip: {
                       trigger: 'item'
-                    },
+                    },color: [
+                      'rgb(200, 56, 50)',
+                      'rgb(242, 56, 66)',
+                      'rgb(24, 202, 238)',
+        '#37A2DA',
+        '#32C5E9',
+        '#67E0E3',
+        '#9FE6B8',
+        '#ff9f7f',
+        '#E062AE',
+        '#e7bcf3',
+        '#9d96f5',
+        '#8378EA',
+        '#96BFFF'
+      ],
                     legend: {
                       top: '5%',
-                      left: 'center'
+                      left: 'center',
+                      data: m,
+                      formatter: (name) => {
+                        var series = myChart.getOption().series[0];
+                        var value = series.data.filter(row => row.name === name)[0].value;
+                        return name + '    ' + value;
+                      },
                     },
                     series: [{
                       // name: 'Access From',
@@ -575,10 +516,8 @@
   
             </div>
             </div>
-            
-        </div><!-- End Website Traffic -->
-
-        <!-- News & Updates Traffic -->
+        </div><!-- End inventory pie  -->
+        <!-- sales orders pie -->
         <div class="card">
           <div class="filter">
             <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -594,46 +533,229 @@
           </div>
 
           <div class="card-body pb-0">
-            <h5 class="card-title">News &amp; Updates <span>| Today</span></h5>
+            <h5 class="card-title">Sales Orders<span>| Today</span></h5>
+            <div class="row">
+              <div id="salesChart" style="min-height: 400px;" class="echart"></div>
 
-            <div class="news">
-              <div class="post-item clearfix">
-                <!-- <img src="{% static 'assets/img/news-1.jpg" alt=""> -->
-                <h4><a href="#">Nihil blanditiis at in nihil autem</a></h4>
-                <p>Sit recusandae non aspernatur laboriosam. Quia enim eligendi sed ut harum...</p>
-              </div>
+              <script data-sales="{{sales}}">
+                 d = document.currentScript.dataset
+                 vals = JSON.parse(d.sales)
+                 km= Object.keys(vals)
+                 sales_map = km.map((e) =>{ return {
+                  'name':e,
+                  'value':vals[e]
+                }})
+                document.addEventListener("DOMContentLoaded", () => {
+                  var inventoryChart = echarts.init(document.querySelector("#salesChart"));
+                  inventoryChart.setOption({
+                    tooltip: {
+                      trigger: 'item'
+                    },
+                    color:[
+                      'rgb(16, 207, 200)',
+        'rgb(6, 255, 64)',
+        'rgb(183, 205, 87)',
+        '#9d96f5',
+        '#FFDB5C',
+        '#8378EA',
+        '#67E0E3',
+        '#9FE6B8',
+        '#ff9f7f',
+        '#fb7293',
+        '#E062AE',
+        '#E690D1',
+        '#e7bcf3',
+      ],
+                    legend: {
+                      top: '5%',
+                      left: 'center',
+                      formatter: (name) => {
+                        var series = inventoryChart.getOption().series[0];
+                        var value = series.data.filter(row => row.name === name)[0].value;
+                        return name + '    ' + value;
+                      },
+                    },
+                    series: [{
+                      // name: 'Access From',
+                      type: 'pie',
+                      radius: ['40%', '70%'],
+                      avoidLabelOverlap: false,
+                      label: {
+                        show: false,
+                        position: 'center'
+                      },
+                      emphasis: {
+                        label: {
+                          show: true,
+                          fontSize: '18',
+                          fontWeight: 'bold',
+                          
+                        }
+                      },
+                      labelLine: {
+                        show: true
+                      },
+                      
+                      data:sales_map,
+                      
+                    }]
+                  });
+                });
+              </script>
+  
+            </div>
+            </div>
+            
+        </div>
+<!-- End sales pie -->
 
-              <div class="post-item clearfix">
-                <!-- <img src="{% static 'assets/img/news-2.jpg" alt=""> -->
-                <h4><a href="#">Quidem autem et impedit</a></h4>
-                <p>Illo nemo neque maiores vitae officiis cum eum turos elan dries werona nande...</p>
-              </div>
-
-              <div class="post-item clearfix">
-                <!-- <img src="{% static 'assets/img/news-3.jpg" alt=""> -->
-                <h4><a href="#">Id quia et et ut maxime similique occaecati ut</a></h4>
-                <p>Fugiat voluptas vero eaque accusantium eos. Consequuntur sed ipsam et totam...</p>
-              </div>
-
-              <div class="post-item clearfix">
-                <!-- <img src="{% static 'assets/img/news-4.jpg" alt=""> -->
-                <h4><a href="#">Laborum corporis quo dara net para</a></h4>
-                <p>Qui enim quia optio. Eligendi aut asperiores enim repellendusvel rerum cuder...</p>
-              </div>
-
-              <div class="post-item clearfix">
-                <!-- <img src="{% static 'assets/img/news-5.jpg" alt=""> -->
-                <h4><a href="#">Et dolores corrupti quae illo quod dolor</a></h4>
-                <p>Odit ut eveniet modi reiciendis. Atque cupiditate libero beatae dignissimos eius...</p>
-              </div>
-
-            </div><!-- End sidebar recent posts-->
-
-          </div>
-        </div><!-- End News & Updates -->
+       
 
       </div><!-- End Right side columns -->
 
     </div>
   </section>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <!-- News & Updates Traffic -->
+ <div class="card">
+  <div class="filter">
+    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+      <li class="dropdown-header text-start">
+        <h6>Filter</h6>
+      </li>
+
+      <li><a class="dropdown-item" href="#">Today</a></li>
+      <li><a class="dropdown-item" href="#">This Month</a></li>
+      <li><a class="dropdown-item" href="#">This Year</a></li>
+    </ul>
+  </div>
+
+  <div class="card-body pb-0">
+    <h5 class="card-title">News &amp; Updates <span>| Today</span></h5>
+
+    <div class="news">
+      <div class="post-item clearfix">
+        <!-- <img src="{% static 'assets/img/news-1.jpg" alt=""> -->
+        <h4><a href="#">Nihil blanditiis at in nihil autem</a></h4>
+        <p>Sit recusandae non aspernatur laboriosam. Quia enim eligendi sed ut harum...</p>
+      </div>
+
+      <div class="post-item clearfix">
+        <!-- <img src="{% static 'assets/img/news-2.jpg" alt=""> -->
+        <h4><a href="#">Quidem autem et impedit</a></h4>
+        <p>Illo nemo neque maiores vitae officiis cum eum turos elan dries werona nande...</p>
+      </div>
+
+      <div class="post-item clearfix">
+        <!-- <img src="{% static 'assets/img/news-3.jpg" alt=""> -->
+        <h4><a href="#">Id quia et et ut maxime similique occaecati ut</a></h4>
+        <p>Fugiat voluptas vero eaque accusantium eos. Consequuntur sed ipsam et totam...</p>
+      </div>
+
+      <div class="post-item clearfix">
+        <!-- <img src="{% static 'assets/img/news-4.jpg" alt=""> -->
+        <h4><a href="#">Laborum corporis quo dara net para</a></h4>
+        <p>Qui enim quia optio. Eligendi aut asperiores enim repellendusvel rerum cuder...</p>
+      </div>
+
+      <div class="post-item clearfix">
+        <!-- <img src="{% static 'assets/img/news-5.jpg" alt=""> -->
+        <h4><a href="#">Et dolores corrupti quae illo quod dolor</a></h4>
+        <p>Odit ut eveniet modi reiciendis. Atque cupiditate libero beatae dignissimos eius...</p>
+      </div>
+
+    </div><!-- End sidebar recent posts-->
+
+  </div>
+</div>End News & Updates
+
+
+
+
+
+ <!-- Recent Activity -->
+ <div class="card">
+  <div class="filter">
+    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+      <li class="dropdown-header text-start">
+        <h6>Filter</h6>
+      </li>
+
+      <li><a class="dropdown-item" href="#">Today</a></li>
+      <li><a class="dropdown-item" href="#">This Month</a></li>
+      <li><a class="dropdown-item" href="#">This Year</a></li>
+    </ul>
+  </div>
+
+  <div class="card-body">
+    <h5 class="card-title">Recent Activity <span>| Today</span></h5>
+
+    <div class="activity">
+
+      <div class="activity-item d-flex">
+        <div class="activite-label">32 min</div>
+        <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+        <div class="activity-content">
+          Quia quae rerum <a href="#" class="fw-bold text-dark">explicabo officiis</a> beatae
+        </div>
+      </div><!-- End activity item-->
+
+      <div class="activity-item d-flex">
+        <div class="activite-label">56 min</div>
+        <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
+        <div class="activity-content">
+          Voluptatem blanditiis blanditiis eveniet
+        </div>
+      </div><!-- End activity item-->
+
+      <div class="activity-item d-flex">
+        <div class="activite-label">2 hrs</div>
+        <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
+        <div class="activity-content">
+          Voluptates corrupti molestias voluptatem
+        </div>
+      </div><!-- End activity item-->
+
+      <div class="activity-item d-flex">
+        <div class="activite-label">1 day</div>
+        <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
+        <div class="activity-content">
+          Tempore autem saepe <a href="#" class="fw-bold text-dark">occaecati voluptatem</a> tempore
+        </div>
+      </div><!-- End activity item-->
+
+      <div class="activity-item d-flex">
+        <div class="activite-label">2 days</div>
+        <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
+        <div class="activity-content">
+          Est sit eum reiciendis exercitationem
+        </div>
+      </div><!-- End activity item-->
+
+      <div class="activity-item d-flex">
+        <div class="activite-label">4 weeks</div>
+        <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
+        <div class="activity-content">
+          Dicta dolorem harum nulla eius. Ut quidem quidem sit quas
+        </div>
+      </div><!-- End activity item-->
+
+    </div>
+
+  </div>
+</div><!-- End Recent Activity -->
