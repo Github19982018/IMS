@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="card col-lg-8">
+    <div class="card-body">
+      <h5 class="card-title">Links and as</h5>
+
+      <!-- List group with Links and as -->
+      <div class="list-group">
+        <a href="{% url 'report_purchase' %}?by=item " class="link">Purchase report by item</a>
+        <a href="{% url 'report_sales' %}?by=item" class="link">Sales report by item</a>
+        <a href="{% url 'report_sales' %}?by=customer" class="link">Sales report by customer</a>
+        <a href="{% url 'report_inventory' %}" class="link">Sales report by inventory</a>
+      </div><!-- End List group with Links and as -->
+
+    </div>
+  </div>
+  {% endblock %}

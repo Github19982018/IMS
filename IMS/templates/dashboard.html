@@ -35,23 +35,26 @@
           <h5 class="card-title ps-2 ">Sales activity<span>| Today</span></h5>
         
           <div class="d-flex align-items-center p-2">
-           
-            <div class="text-center p-2">
-              <h3 class="text-primary">{{sales_activity.pack}}
-              </h3>
-               <span class="text-muted small pt-2 ps-1">Pkgs</span>
-               <p class="text-muted small pt-2 ps-1">TO BE PACKED</p>
-            </div>
-            <div class="text-center  p-2">
+           <a class="link" href="{% url 'sales' %}">
+             <div class="text-center p-2">
+               <h3 class="text-primary">{{sales_activity.pack}}
+               </h3>
+                <span class="text-muted small pt-2 ps-1">Pkgs</span>
+                <p class="text-muted small pt-2 ps-1">TO BE PACKED</p>
+             </div></a>
+             <a class="link" href="{% url 'sales' %}"><div class="text-center  p-2">
               <h3 class="text-danger">{{sales_activity.ship}}</h3>
                <span class="text-muted small pt-2 ps-1">Qty</span>
                <p class="text-muted small pt-2 ps-1">TO BE SHIPPED</p>
-            </div>
-            <div class="text-center  p-2">
+            </div> </a>
+          
+           <a class="link" href="{% url 'sales' %}"><div class="text-center  p-2">
               <h3 class="text-success">{{sales_activity.deliver}}</h3>
                <span class="text-muted small pt-2 ps-1">Qty</span>
                <p class="text-muted small pt-2 ps-1">TO BE DELIVERED</p>
-            </div>
+            </div></a>
+            
+            
           </div>
         </div>
             </div>
