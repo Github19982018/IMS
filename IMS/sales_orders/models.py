@@ -25,10 +25,10 @@ class Sales(models.Model):
     ship_method = models.ForeignKey(to=Ship_method,null=True,on_delete=models.PROTECT)
     preferred_shipping_date = models.DateTimeField(null=True)
     created_by = models.CharField(max_length=100)
-    created_date = models.DateTimeField(default=datetime.now())
+    created_date = models.DateTimeField(default=datetime.now)
     total_amount = models.DecimalField(decimal_places=2,max_digits=10,null=True)
     status = models.ForeignKey(to=Sales_status,null=True,on_delete=models.PROTECT)
-    updated = models.DateTimeField(default=datetime.now())
+    updated = models.DateTimeField(default=datetime.now)
 
 
 class  Sales_items(models.Model):
