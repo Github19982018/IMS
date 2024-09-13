@@ -4,6 +4,7 @@ from sales_orders import views
 urlpatterns = [
     path('',views.view_sales,name='sales'),
     path('<int:id>/',views.get_sales,name='get_sale'),
+    path('get_package/<int:id>/',views.get_package,name='get_package'),
     path('make/',views.make_sales,name='make_sales'),
     path('draft/<int:id>',views.draft_sales,name='draft_sales'),
     path('save/<int:id>/',views.sales,name='sale'),

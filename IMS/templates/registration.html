@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+{% csrf_token %}
+{{form}}
+{% endblock %}

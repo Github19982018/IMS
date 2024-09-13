@@ -28,11 +28,12 @@
           <div class="progress-marker"></div>
         </li>
         <li class="progress-step {% if sales.status.id > 2 %}is-complete {% elif sales.status.id == 2 %}is-active {% endif %} ">
-            Awaiting packing
+            <a href="{%url 'get_package' sales.id%}" {% if sales.status.id < 2 %}style='pointer-events:none;color:black;'{%endif%}>Awaiting packing</a>
           <div class="progress-marker"></div>
         </li>
         <li class="progress-step {% if sales.status.id > 3 %}is-complete {% elif sales.status.id == 3 %}is-active {% endif %}">
-            Awaiting shipment
+            <a href="{%url 'ship' sales.id%}"  {% if sales.status.id < 3 %}style='pointer-events:none;color:black;'{%endif%}>Awaiting shipment</a>
+            
           <div class="progress-marker"></div>
         </li>
         <li class="progress-step {% if sales.status.id > 4 %}is-complete {% elif sales.status.id == 4 %}is-active {% endif %}" >

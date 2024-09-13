@@ -38,7 +38,7 @@
               <tbody>
                 {% for i in sales %}
                 <tr>
-                  <th scope="row"><a href="#">#{{i.id.id}}</a></th>
+                  <th scope="row"><a href="{% url 'get_sale' i.id %}">#{{i.id.id}}</a></th>
                   <td>{{i.customer}}</td>
                   <td><a href="#" class="text-primary">{{i.id.item_id.name}}</a></td>
                   <td>
