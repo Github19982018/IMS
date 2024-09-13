@@ -1,6 +1,6 @@
 from django.template.response import TemplateResponse as render
 from django.shortcuts import HttpResponse,HttpResponseRedirect
-from supplier.models import Supplier
+from supplier.models import Supplier,Supplier_rating
 from purchase_orders.models import Purchase_items
 
 # Create your views here.
@@ -12,14 +12,18 @@ def get_supplier(request,id):
     supplier = Supplier.objects.get(id=id)
     orders = Purchase_items.objects.filter(supplier=supplier)
     if request.method == 'POST':
-        rating = supplier.rating
-        rating.commitment = request.POST['commitment']
-        rating.consistency = request.POST['consistency']
-        rating.transaction = request.POST['transaction']
-        rating.cost = request.POST['cost']
-        rating.competency = request.POST['competency']
-        rating.communication = request.POST['communication']
+        commitment = request.POST['commitment']
+        consistency = request.POST['consistency']
+        transaction = request.POST['transaction']
+        cost = request.POST['cost']
+        competency = request.POST['competency']
+        communication = request.POST['communication']
+        rating = Supplier_rating(commitment=commitment,
+        consistency=consistency,transaction=transaction,cost=cost,competency=competency,
+        communication=communication)
+        supplier.rating = rating
         rating.save()
+        supplier.save()
         return HttpResponseRedirect('')
     else:
         return render(request,'supplier.html',{'supplier':supplier,'orders':orders})
