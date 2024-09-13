@@ -467,6 +467,86 @@
       <!-- Right side columns -->
       <div class="col-lg-4">
 
+
+          <!-- INventory  -->
+          <div class="card">
+
+            <div class="card-body pb-0">
+              <h5 class="card-title">Inventory </h5>
+              <div class="row">
+                <div id="inventoryChart" style="min-height: 400px;" class="echart"></div>
+  
+                <script data-data="{{stock}}">
+                  let d = document.currentScript.dataset
+                  let val = JSON.parse(d.data)
+                  let m= Object.keys(val).sort((a,b)=>a-b)
+                  let map = m.map((e) =>{ return {
+                    'name':e,
+                    'value':val[e]
+                  }})
+                  document.addEventListener("DOMContentLoaded", () => {
+                    
+                   var myChart = echarts.init(document.querySelector("#inventoryChart"))
+                   myChart.setOption({
+                      tooltip: {
+                        trigger: 'item'
+                      },color: [
+                        'rgb(200, 56, 50)',
+                        'rgb(242, 56, 66)',
+                        'rgb(24, 202, 238)',
+          '#37A2DA',
+          '#32C5E9',
+          '#67E0E3',
+          '#9FE6B8',
+          '#ff9f7f',
+          '#E062AE',
+          '#e7bcf3',
+          '#9d96f5',
+          '#8378EA',
+          '#96BFFF'
+        ],
+                      legend: {
+                        top: '5%',
+                        left: 'center',
+                        data: m,
+                        formatter: (name) => {
+                          var series = myChart.getOption().series[0];
+                          var value = series.data.filter(row => row.name === name)[0].value;
+                          return name + '    ' + value;
+                        },
+                      },
+                      series: [{
+                        // name: 'Access From',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                          show: false,
+                          position: 'center'
+                        },
+                        emphasis: {
+                          label: {
+                            show: true,
+                            fontSize: '18',
+                            fontWeight: 'bold',
+                            
+                          }
+                        },
+                        labelLine: {
+                          show: true
+                        },
+                        
+                        data:map,
+                        
+                      }]
+                    });
+                  });
+                </script>
+    
+              </div>
+              </div>
+          </div><!-- End inventory pie  -->
+
                   <!-- Top Selling -->
                   <div class="col-12">
                     <div class="card top-selling overflow-auto">
@@ -517,84 +597,7 @@
                     </div>
                   </div><!-- End Top Selling -->
 
-        <!-- INventory  -->
-        <div class="card">
-
-          <div class="card-body pb-0">
-            <h5 class="card-title">Inventory </h5>
-            <div class="row">
-              <div id="inventoryChart" style="min-height: 400px;" class="echart"></div>
-
-              <script data-data="{{stock}}">
-                let d = document.currentScript.dataset
-                let val = JSON.parse(d.data)
-                let m= Object.keys(val).sort((a,b)=>a-b)
-                let map = m.map((e) =>{ return {
-                  'name':e,
-                  'value':val[e]
-                }})
-                document.addEventListener("DOMContentLoaded", () => {
-                  
-                 var myChart = echarts.init(document.querySelector("#inventoryChart"))
-                 myChart.setOption({
-                    tooltip: {
-                      trigger: 'item'
-                    },color: [
-                      'rgb(200, 56, 50)',
-                      'rgb(242, 56, 66)',
-                      'rgb(24, 202, 238)',
-        '#37A2DA',
-        '#32C5E9',
-        '#67E0E3',
-        '#9FE6B8',
-        '#ff9f7f',
-        '#E062AE',
-        '#e7bcf3',
-        '#9d96f5',
-        '#8378EA',
-        '#96BFFF'
-      ],
-                    legend: {
-                      top: '5%',
-                      left: 'center',
-                      data: m,
-                      formatter: (name) => {
-                        var series = myChart.getOption().series[0];
-                        var value = series.data.filter(row => row.name === name)[0].value;
-                        return name + '    ' + value;
-                      },
-                    },
-                    series: [{
-                      // name: 'Access From',
-                      type: 'pie',
-                      radius: ['40%', '70%'],
-                      avoidLabelOverlap: false,
-                      label: {
-                        show: false,
-                        position: 'center'
-                      },
-                      emphasis: {
-                        label: {
-                          show: true,
-                          fontSize: '18',
-                          fontWeight: 'bold',
-                          
-                        }
-                      },
-                      labelLine: {
-                        show: true
-                      },
-                      
-                      data:map,
-                      
-                    }]
-                  });
-                });
-              </script>
-  
-            </div>
-            </div>
-        </div><!-- End inventory pie  -->
+      
 
 
        

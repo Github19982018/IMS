@@ -7,6 +7,7 @@ from .models import Inventory,Supplier,Warehouse
 def error_response_handler(request, exception=None):
     return HttpResponse('eror', status=404)
 
+
 def view_inventory(request):
     w = request.w
     # warehouse = Warehouse.objects.get(id=w)

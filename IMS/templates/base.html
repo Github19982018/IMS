@@ -350,10 +350,14 @@
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="#">
+              
+              <form action="{% url 'logout' %}" name="theForm" method="post" >
+                {%csrf_token%}
+                <a href="javascript:void(0);" onclick="theForm.submit()" class="dropdown-item d-flex align-items-center" >
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Sign Out</span>
               </a>
+              </form>
             </li>
 
           </ul><!-- End Profile Dropdown Items -->

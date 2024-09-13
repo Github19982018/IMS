@@ -8,7 +8,7 @@ from purchase_orders.models import Purchase,Purchase_status,Purchase_items
 from django.db import connection
 
 # Create your views here.
-# @login_required
+@login_required
 def dashboard(request):
     pack = Package.objects.filter(status=Package_status(id=1)).count()
     ship = Shipment.objects.filter(status=Ship_status(id=1)).count()
