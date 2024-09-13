@@ -20,7 +20,7 @@ def get_inventory(request,id):
 
 def  add_inventory(request):
     # photo = models.FilePathField(unique=True,null=True,blank=True)
-    name = 'test3'
+    name = request
     sku = '2'
     purchasing_price = 0
     selling_price = 0
