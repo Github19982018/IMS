@@ -38,10 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'inventory',
+    'accounts',
     'supplier',
     'purchase_orders',
     'sales_orders',
-    'reports'
+    'reports',
 ]
 
 MIDDLEWARE = [
@@ -133,3 +134,7 @@ STATICFILES_DIRS =  [os.path.join(BASE_DIR,'static')]
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'accounts.User'
+LOGIN_REDIRECT_URL='inventories'
+LOGOUT_REDIRECT_URL = 'login'
