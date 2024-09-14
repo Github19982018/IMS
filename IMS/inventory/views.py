@@ -1,5 +1,5 @@
 from django.template.response import TemplateResponse as render
-from django.shortcuts import HttpResponse,redirect
+from django.shortcuts import HttpResponse,redirect,HttpResponseRedirect
 from datetime import datetime
 from inventory.models import Inventory,Supplier
 from warehouse.models import Warehouse
@@ -44,8 +44,12 @@ def update_inventory(request,id):
     i = Inventory.objects.get(pk=id)
     if request.method == "POST":
         f = InventoryForm(request.POST,instance=i)
-        f.save()
-        return redirect(view_inventory)
+        if f.is_valid:
+            f.updated = datetime.now()
+            f.save()
+            return redirect(view_inventory)
+        else:
+            return HttpResponseRedirect('')
     else:
         supplier = Supplier.objects.all()
         warehouses = Warehouse.objects.all()
