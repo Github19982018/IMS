@@ -1,9 +1,13 @@
 from django.db import models
-from inventory.models import Warehouse,Supplier,Ship_method,Inventory
+from bulkmodel.models import BulkModel
+from inventory.models import Supplier,ShipMethod,Inventory
 from datetime import datetime
+from warehouse.models import Warehouse
+
 
 # Create your models here.
 class Purchase_status(models.Model):
+    id = models.SmallIntegerField(primary_key=True)
     status = models.CharField(max_length=50)
 
     def __str__(self) -> str:
@@ -11,9 +15,29 @@ class Purchase_status(models.Model):
 
 # class Purchase_draft(models.Model):
 #     item = models.ForeignKey(to=)
-class  Purchase_items(models.Model):
-    type = models.CharField(choices={'P':'Purchase','O':'Order'},max_length=20)
-    item_id = models.ForeignKey(to=Inventory,null=True,related_name='purchase',on_delete=models.CASCADE)
+
+class PurchaseOrder(models.Model):
+    warehouse = models.ForeignKey(to=Warehouse,on_delete=models.CASCADE)
+    contact_person = models.CharField(max_length=100)
+    bill_address = models.TextField()
+    contact_phone = models.PositiveIntegerField()
+    ship_address = models.TextField()
+    ship_method = models.ForeignKey(to=ShipMethod,on_delete=models.PROTECT)
+    preferred_shipping_date = models.DateTimeField()
+    created_by = models.CharField(max_length=100)
+    created_date = models.DateTimeField(default=datetime.now)
+    total_amount = models.DecimalField(decimal_places=2,max_digits=10)
+    status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
+
+class PurchaseReceive(models.Model):
+    created_date = models.DateTimeField(default=datetime.now)
+    order = models.OneToOneField(to=PurchaseOrder,related_name='order',on_delete=models.CASCADE)
+    delivered_date = models.DateTimeField(null=True)
+    status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
+
+class  PurchaseItems(models.Model):
+    purchase = models.ForeignKey(to=PurchaseOrder,on_delete=models.CASCADE,related_name='items')
+    item = models.ForeignKey(to=Inventory,related_name='purchase',on_delete=models.CASCADE)
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
@@ -22,18 +46,17 @@ class  Purchase_items(models.Model):
     def total_price(self):
         return self.quantity*self.price
     
-class Purchase(models.Model):
-    id = models.OneToOneField(to=Purchase_items,primary_key=True,on_delete=models.CASCADE,related_name='order')
-    warehouse = models.ForeignKey(to=Warehouse,on_delete=models.CASCADE)
-    contact_person = models.CharField(max_length=100)
-    bill_address = models.TextField()
-    contact_phone = models.PositiveIntegerField()
-    ship_address = models.TextField()
-    ship_method = models.ForeignKey(to=Ship_method,on_delete=models.PROTECT)
-    preferred_shipping_date = models.DateTimeField()
-    created_by = models.CharField(max_length=100)
-    created_date = models.DateTimeField(default=datetime.now)
-    total_amount = models.DecimalField(decimal_places=2,max_digits=10)
-    status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
+class PurchasesItems(BulkModel):
+    purchase = models.ForeignKey(to=PurchaseOrder,on_delete=models.CASCADE,related_name='item')
+    item = models.ForeignKey(to=Inventory,related_name='purchases',on_delete=models.CASCADE)
+    price = models.DecimalField(decimal_places=2,max_digits=10)
+    quantity = models.PositiveIntegerField()
+    units = models.CharField(max_length=50)
+    supplier = models.ForeignKey(to=Supplier,null=True,on_delete=models.PROTECT)
+    @property
+    def total_price(self):
+        return self.quantity*self.price
+    
+
 
 

@@ -1,7 +1,9 @@
 from django.shortcuts import redirect,HttpResponse
 from django.template.response import TemplateResponse as render
-from sales_orders.models import Sales,Sales_status,Sales_items,Sale_items,Package,Package_status,Ship_status,Shipment
-from inventory.models import Inventory,Ship_method,Warehouse,Customer
+from sales_orders.models import Sales,SalesStatus,SalesItems,SaleItems,Package,PackageStatus,ShipStatus,Shipment
+from inventory.models import Inventory,ShipMethod
+from warehouse.models import Warehouse
+from customer.models import Customer
 from datetime import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -26,35 +28,37 @@ def get_package(request,id):
 def make_sales(request):
     id_list =  request.GET.getlist('item') 
     items = Inventory.objects.filter(id__in=id_list)
-    if len(items)>1:
+    if len(items)>=1:
         sales_list = []
-        warehouse = Warehouse.objects.get(id=1)
-        sales = Sales.objects.create(warehouse=warehouse)
+        w = request.w
+        # warehouse = Warehouse.objects.get(id=w)
+        warehouse = Warehouse.objects.all()
+        sales = Sales.objects.create(warehouse=warehouse.first())
         for i in items:
-            sales_list.append(Sale_items(
+            sales_list.append(SaleItems(
                 sales = sales,
                 item_id = i,
                 price = i.selling_price,
                 quantity = 1,
                 units = i.units
             ))
-        draft = Sales_items.objects.bulk_create(sales_list)
-        return redirect(draft_sales,id=4,permanent=True)
+        draft = SalesItems.objects.bulk_create(sales_list)
+        return redirect(draft_sales,id=sales.id,permanent=True)
     else:
         return render(request,'404.html',{})
 
 
 
 def draft_sales(request,id):
-    draft = Sales_items.objects.filter(sales=id)
-    ship_method = Ship_method.objects.all()
+    draft = SalesItems.objects.filter(sales=id)
+    ship_method = ShipMethod.objects.all()
     customers = Customer.objects.all()
     s = request.GET.get('customer')
     customer = ''
     if s:
         customer = Customer.objects.get(id=s)
     else:
-        customer = Customer.objects.first()
+        customer = customer.first()
     
     draft.update(customer=customer)
     return render(request,'sales_orders/sales_draft.html',{'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
@@ -62,7 +66,7 @@ def draft_sales(request,id):
 def sales(request,id):
     sales = Sales.objects.get(id=id)
     if sales:
-        draft = Sales_items.objects.filter(sales=sales)
+        draft = SalesItems.objects.filter(sales=sales)
         if sales.status.id > 1:
             return render(request,'sales_orders/sale.html',{'number':id,'items':[draft], 'sales':sales})
         else:
@@ -72,12 +76,11 @@ def sales(request,id):
                 sales.ship_address = request.POST['ship_address']
                 # total_price = request.POST['total_price']
                 sh= request.POST['ship_method']
-                sales.ship_method = Ship_method.objects.get(id=sh)
+                sales.ship_method = ShipMethod.objects.get(id=sh)
                 p_date = request.POST['preferred_date']
-                # p_date = date(int(p_date)).strftime('%Y-%m-%d')
                 sales.preferred_shipping_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
-                sales.status = Sales_status.objects.get(status='draft')
-                sales.warehouse = Warehouse.objects.get(id=1)
+                sales.status = SalesStatus.objects.get(status='draft')
+                sales.warehouse = Warehouse.objects.get(id=request.w)
                 sales.save()
                 return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
     else:
@@ -86,14 +89,14 @@ def sales(request,id):
 def package_draft(request,id):
     sales = Sales.objects.get(id=id)
     p = Package.objects.create(sales=sales,created_at=datetime.now(),status=Package_status(id=1),customer=sales.customer,shipping_address=sales.ship_address)
-    items = Sales_items.objects.filter(sales=sales)
+    items = SalesItems.objects.filter(sales=sales)
     return render(request,'sales_orders/package_draft.html',{'number':p.id,'items':items, 'sales':sales, 'package' :p})
 
 def package(request,id):
     sales = Sales.objects.get(id=id)
     # sales.status = Sales_status(id=2)
     # sales.save()
-    items = Sales_items.objects.filter(sales=sales)
+    items = SalesItems.objects.filter(sales=sales)
     return render(request,'sales_orders/package.html',{'number':id,'items':items, 'sales':sales})
     
 def ship(request,id):
@@ -108,8 +111,8 @@ def ship(request,id):
     return render(request,'sales_orders/ship.html',{'number':id, 'sales':sales,'ship':ship, 'packages':packages})
 
 def sales_approve(request,id):
-    draft = Sales_items.objects.get(id=id)
-    status = Sales_status(id=4)
+    draft = SalesItems.objects.get(id=id)
+    status = SalesStatus(id=4)
     sales = Sales.objects.get(id=draft)
     sales.status = status
     sales.save()
@@ -137,8 +140,8 @@ def sales_approve(request,id):
 def sales_api(request):
     id =  request.GET.get('ref')
     status = request.GET.get('status')
-    draft = Sales_items.objects.get(id=id)
-    status = Sales_status(id=status)
+    draft = SalesItems.objects.get(id=id)
+    status = SalesStatus(id=status)
     sales = Sales.objects.get(id=draft)
     sales.status = status
     sales.save()
@@ -147,8 +150,8 @@ def sales_api(request):
 def packagge_api(request):
     id =  request.GET.get('ref')
     status = request.GET.get('status')
-    draft = Sales_items.objects.get(id=id)
-    status = Sales_status(id=status)
+    draft = SalesItems.objects.get(id=id)
+    status = SalesStatus(id=status)
     sales = Sales.objects.get(id=draft)
     sales.status = status
     sales.save()

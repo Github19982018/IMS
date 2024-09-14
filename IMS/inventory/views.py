@@ -1,7 +1,8 @@
 from django.template.response import TemplateResponse as render
 from django.shortcuts import HttpResponse
 from datetime import datetime
-from .models import Inventory,Supplier,Warehouse
+from inventory.models import Inventory,Supplier
+from warehouse.models import Warehouse
 # Create your views here.
 
 def error_response_handler(request, exception=None):

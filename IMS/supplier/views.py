@@ -1,7 +1,7 @@
 from django.template.response import TemplateResponse as render
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from supplier.models import Supplier,Supplier_rating
-from purchase_orders.models import Purchase_items
+# from purchase_orders.models import Purchase_items
 
 # Create your views here.
 def view_suppliers(request):
