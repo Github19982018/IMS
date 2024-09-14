@@ -29,6 +29,7 @@ urlpatterns = [
     path('ims/v1/sales/',include('sales_orders.urls')),
     path('ims/v1/reports/',include('reports.urls')),
     path('ims/v1/accounts/',include('accounts.urls')),
+    path('ims/v1/warehouses/',include('warehouse.urls')),
 ]
 
 handler404 = error_response_handler
