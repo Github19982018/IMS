@@ -26,6 +26,7 @@ urlpatterns = [
     path('ims/v1/inventory/',include('inventory.urls')),
     path('ims/v1/purchases/',include('purchase_orders.urls')),
     path('ims/v1/suppliers/',include('supplier.urls')),
+    path('ims/v1/customers/',include('customer.urls')),
     path('ims/v1/sales/',include('sales_orders.urls')),
     path('ims/v1/reports/',include('reports.urls')),
     path('ims/v1/accounts/',include('accounts.urls')),

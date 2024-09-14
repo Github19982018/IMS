@@ -31,13 +31,13 @@ def make_sales(request):
     if len(items)>=1:
         sales_list = []
         w = request.w
-        # warehouse = Warehouse.objects.get(id=w)
-        warehouse = Warehouse.objects.all()
-        sales = Sales.objects.create(warehouse=warehouse.first())
+        warehouse = Warehouse.objects.get(id=w)
+        # warehouse = Warehouse.objects.all()
+        sales = Sales.objects.create(warehouse=warehouse)
         for i in items:
             sales_list.append(SaleItems(
                 sales = sales,
-                item_id = i,
+                item = i,
                 price = i.selling_price,
                 quantity = 1,
                 units = i.units
@@ -58,7 +58,7 @@ def draft_sales(request,id):
     if s:
         customer = Customer.objects.get(id=s)
     else:
-        customer = customer.first()
+        customer = Customer.objects.first()
     
     draft.update(customer=customer)
     return render(request,'sales_orders/sales_draft.html',{'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
