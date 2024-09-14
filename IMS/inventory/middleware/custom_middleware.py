@@ -13,6 +13,7 @@ class Warehouse_middleware:
         with open('data/warehouse.txt','+w') as wfile:
             wfile.write(self.warehouse)
         request.w = self.warehouse
+        user = request.user
         response = self.get_response(request)
         return response
     

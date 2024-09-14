@@ -34,13 +34,14 @@
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="submit" class="btn btn-primary">Apply</button>
                   </div>
                 </div>
               </div>
             </div><!-- End Vertically centered Modal-->
       </div>
-      <form action="{% url 'make_sales' %}">
+      <form action="{% url 'create_sales' %}" method="post">
+        {%csrf_token%}
         <button type="submit" class="btn btn-primary">Order</button>
         <div class="card py-3 m-2">
             <div class="card-body">

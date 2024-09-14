@@ -6,14 +6,16 @@ from datetime import datetime
 
 # Create your views here.
 def view_warehouse(request):
-    order_by = request.GET.get('orderby')
-    filter = request.GET.get('filter')
-    warehouses = Warehouse.objects.all()
-    if filter:
-        warehouses = warehouses.filter()
-    if order_by:
-        warehouses = warehouses.order_by(order_by)
-    return render(request,'warehouse/warehouses.html',{'warehouses':warehouses})
+    user = request.user
+    if user.user_type == 1:
+        order_by = request.GET.get('orderby')
+        filter = request.GET.get('filter')
+        warehouses = Warehouse.objects.all()
+        if filter:
+            warehouses = warehouses.filter()
+        if order_by:
+            warehouses = warehouses.order_by(order_by)
+        return render(request,'warehouse/warehouses.html',{'warehouses':warehouses})
 
 def get_warehouse(request,id):
     warehouse = Warehouse.objects.get(pk=id)

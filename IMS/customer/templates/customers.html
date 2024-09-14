@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <div class="pagetitle">
+      <h1>Customers</h1>
+    </div><!-- End Page Title -->
+    <div class="card">
+      <table class="table table-borderless datatable">
+          <thead>
+            <tr>
+              <th>
+                Name
+              </th>
+              <th>Address</th>
+              <th>Since</th>
+              <th>Phone</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for i in customers %}
+          <tr> 
+          <td><a href={{i.id}}>{{i.name}}</a></td>
+          <td>{{i.address}}</td>
+          <td>{{i.since}}</td>
+          <td>{{i.phone}}</td>
+          <td>{{i.rating.total_rating}}</td>
+        </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+  {% endblock %}

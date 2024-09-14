@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <nav style="--bs-breadcrumb-divider: '>';">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'customers'%}"><b>customers</b></a></li>
+          <li class="active breadcrumb-item"><b>{{customer.name}}</b></li>
+        </ol>
+      </nav>
+
+      <div class="row">
+          <div class="col-lg-6">
+              <h5><b>About customer</b></h5>
+            <div class="card p-3">
+                <h5 class="card-title"><b>{{customer.name}}</b></h5>
+
+                  <div class="row">
+                    <div class="col-4 label ">Address:</div>
+                    <div class="col-8"><b>{{customer.address}}</b></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-4 label ">Phone:</div>
+                    <div class="col-8"><b>{{customer.phone}}</b></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-4 label ">Contact person:</div>
+                    <div class="col-8"><b>{{customer.contact_person}}</b></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-4 label ">Partners since:</div>
+                    <div class="col-8"><b>{{customer.since}}</b></div>
+                  </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="row">
+                <h5 class="col-8"><b>Recent Deals</b></h5>
+                <p class="col-4"><a href="" class="text-success">More Deals</a></p>
+            </div>
+            <div class="card">
+                    <table class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Created at</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          {% for i in orders %}
+                          <tr>
+                            <td><a href="#">{{i.id}}</a></td>
+                            <td>{{i.order.created_date}}</td>
+                            <td>{{i.order.total_amount}}</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+      </div>
+
+          <section>
+            <h5><b>customer Evaluation</b></h5>
+            <div class="card p-2">
+                <form method="post">
+                  {% csrf_token %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <td></td>
+                                <td>1 = Poor</td>
+                                <td>2 = Fair</td>
+                                <td>3 = Satisfactory</td>
+                                <td>4 = Good</td>
+                                <td>5 = Excellent</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>competency</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="competency" {% if customer.rating.competency == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="competency"{% if customer.rating.competency == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="competency"{% if customer.rating.competency == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="competency"{% if customer.rating.competency == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="competency"{% if customer.rating.competency == 5 %}checked{% endif %}></td>
+                            </tr>
+                            <tr>
+                                <td>communication</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="communication"{% if customer.rating.communication == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="communication"{% if customer.rating.communication == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="communication"{% if customer.rating.communication == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="communication"{% if customer.rating.communication == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="communication"{% if customer.rating.communication == 5 %}checked{% endif %}></td>
+                            </tr>
+                            <tr>
+                                <td>commitment</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="commitment"{% if customer.rating.commitment == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="commitment"{% if customer.rating.commitment == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="commitment"{% if customer.rating.commitment == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="commitment"{% if customer.rating.commitment == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="commitment"{% if customer.rating.commitment == 5 %}checked{% endif %}></td>
+                            </tr>
+                            <tr>
+                                <td>transaction</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="transaction"{% if customer.rating.transaction == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="transaction"{% if customer.rating.transaction == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="transaction"{% if customer.rating.transaction == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="transaction"{% if customer.rating.transaction == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="transaction"{% if customer.rating.transaction == 5 %}checked{% endif %}></td>
+                            </tr>
+                            <tr>
+                                <td>cost</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="cost"{% if customer.rating.cost == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="cost"{% if customer.rating.cost == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="cost"{% if customer.rating.cost == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="cost"{% if customer.rating.cost == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="cost"{% if customer.rating.cost == 5 %}checked{% endif %}></td>
+                            </tr>
+                            <tr>
+                                <td>consistency</td>
+                                <td><input class="form-check-input" type="radio" value="1" id="" name="consistency"{% if customer.rating.consistency == 1 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="2" id="" name="consistency"{% if customer.rating.consistency == 2 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="3" id="" name="consistency"{% if customer.rating.consistency == 3 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="4" id="" name="consistency"{% if customer.rating.consistency == 4 %}checked{% endif %}></td>
+                                <td><input class="form-check-input" type="radio" value="5" id="" name="consistency"{% if customer.rating.consistency == 5 %}checked{% endif %}></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h5>Overall rating: {{customer.rating.total_rating}}</h5>
+                    <input class="btn btn-success" type="submit" value="save">
+                </form>
+            </div>
+          </section>
+  {% endblock %}
