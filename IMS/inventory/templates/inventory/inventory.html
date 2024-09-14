@@ -14,12 +14,12 @@
                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verticalycentered">
                  Filter
                </button>
-               <button type="button" class="btn btn-primary">
+               <a href="{% url 'updateinventory' 1 %} " class="btn btn-primary">
                  Edit
-               </button>
-               <button type="button" class="btn btn-primary">
+               </a>
+               <a href="{% url 'addinventory' %}" class="btn btn-primary">
                  New Item
-               </button>
+               </a>
 
             </div>
             <div class="modal fade" id="verticalycentered" tabindex="-1">

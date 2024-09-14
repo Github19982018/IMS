@@ -21,6 +21,6 @@ class Supplier(models.Model):
     phone = models.PositiveIntegerField()
     address = models.TextField()
     since = models.DateField()
-    rating = models.OneToOneField(to=Supplier_rating,null=True, on_delete=models.CASCADE,related_name='supplier')
+    rating = models.OneToOneField(to=Supplier_rating,blank=True,null=True, on_delete=models.CASCADE,related_name='supplier')
     def __str__(self):
         return self.name
