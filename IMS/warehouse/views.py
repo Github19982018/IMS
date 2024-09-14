@@ -39,4 +39,4 @@ def update_warehouse(request,id):
             return HttpResponseRedirect('')
     else:
         form = WarehouseForm(instance=i)
-        return render(request,'warehouse/item.html',{'form':form})
+        return render(request,'warehouse/warehouse.html',{'form':form})

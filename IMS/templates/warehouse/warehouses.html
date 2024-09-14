@@ -2,7 +2,7 @@
 
 {% block main %}
     <div class ="pagetitle">
-      <h1>warehouse</h1>
+      <h1>Warehouse</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -58,11 +58,11 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for i in warehouse %}
+                  {% for i in warehouses %}
                   <tr>
-                    <a href="{% url 'updatewarehouse' i.id %} " class="btn btn-primary">
-                      Edit
-                    </a>
+                    <td><a href="{% url 'updatewarehouse' i.id %} " class="link">
+                      Edit</a>
+                    </td>
                     <td><a href="#">{{i.name}}</a></td>
                     <td>{{i.address}}</td>
                     <td>{{i.contact_person}}</td>
