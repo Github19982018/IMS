@@ -40,7 +40,7 @@
               </div>
             </div><!-- End Vertically centered Modal-->
       </div>
-      <form action="{% url 'create_sales' %}" method="post">
+      <form action="{% url 'make_purchase' %}" method="post">
         {%csrf_token%}
         <button type="submit" class="btn btn-primary">Order</button>
         <div class="card py-3 m-2">

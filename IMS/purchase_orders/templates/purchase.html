@@ -31,17 +31,38 @@
                   </tr>
                 </thead>
                 <tbody>
-                    <tr> 
+                  <form action="" id="form1" method="post">
+                    {%csrf_token%}
+                    <tr> {%for i in items%}
                     <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                    <td>{{item.item_id.name}}</td>
-                      <td>{{item.item_id.sku}}</td>
-                      <td>{{item.price}}</td>
-                      <td>{{item.units}}</td>
-                      <td>{{item.quantity}}</td>
-                      <td>{{item.total_price}}</td>
-                  </tr>
-                </tbody>
-              </table>
+                    <td>{{i.item.name}}</td>
+                      <td>{{i.item.sku}}</td>
+                      <td>{{i.price}}</td>
+                      <td>{{i.units}}</td>
+                      <td><input type="text" hidden name="item" value="{{i.id}}">
+                        <input type="number" value="{{i.quantity}}" name="quantity" onchange="document.querySelector('#form1').submit()"></td>
+                      <td>{{i.total_price}}</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+                </form>
+                </table>
+              
+        <!-- End Table with stripped rows -->
+         {% load sum_filter %}
+         
+        <div class="row">
+          <p class="col-2">Subtotal</p>
+          <p class="col-3" id="sub">{{items |add_items }}</p>
+        </div>
+          <div class="row">
+          <p class="col-2">offer</p>
+          <input class="col-2" type="number" name="discount" id="discount"  value="0" onchange="sub = document.querySelector('#sub').textContent; total = document.querySelector('#total').textContent = Number(sub)+Number(this.value)">
+        </div>
+          <div class="row">
+          <h4 class="col-2" >Total</h4>
+          <h4 class="col-4" id="total" ></h4>
+      </div>
               <!-- End Table with stripped rows -->
 
         </div>
@@ -70,7 +91,7 @@
                 </form>
               </div>
             </div>
-            <form class="row g-3" action="{% url 'purchase' number %}" method="post">
+            <form class="row g-3" action="{% url 'purchase' number %}" method="post" onsubmit="document.querySelector('#form1').sumbit();ths.form.submit();">
               {% csrf_token %}
                   
               <div class="col-12">
@@ -115,4 +136,8 @@
       </div>
     </div>
     </section>
+    {% endblock %}
+    {% load static %}
+    {% block code %}
+    <script src="{% static 'assets/js/sales_draft.js' %}"></script>
     {% endblock %}

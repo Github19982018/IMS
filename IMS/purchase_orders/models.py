@@ -13,21 +13,23 @@ class Purchase_status(models.Model):
     def __str__(self) -> str:
         return self.status
 
-# class Purchase_draft(models.Model):
-#     item = models.ForeignKey(to=)
+class PurchaseDraft(models.Model):
+    supplier = models.ForeignKey(to=Supplier,null=True,on_delete=models.PROTECT)
 
 class PurchaseOrder(models.Model):
+    id = models.OneToOneField(to=PurchaseDraft,on_delete=models.CASCADE,related_name='order',primary_key=True)
     warehouse = models.ForeignKey(to=Warehouse,on_delete=models.CASCADE)
     contact_person = models.CharField(max_length=100)
     bill_address = models.TextField()
     contact_phone = models.PositiveIntegerField()
     ship_address = models.TextField()
     ship_method = models.ForeignKey(to=ShipMethod,on_delete=models.PROTECT)
-    preferred_shipping_date = models.DateTimeField()
+    preferred_shipping_date = models.DateTimeField(default=datetime.now)
     created_by = models.CharField(max_length=100)
     created_date = models.DateTimeField(default=datetime.now)
     total_amount = models.DecimalField(decimal_places=2,max_digits=10)
     status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
+
 
 class PurchaseReceive(models.Model):
     created_date = models.DateTimeField(default=datetime.now)
@@ -36,23 +38,21 @@ class PurchaseReceive(models.Model):
     status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
 
 class  PurchaseItems(models.Model):
-    purchase = models.ForeignKey(to=PurchaseOrder,on_delete=models.CASCADE,related_name='items')
+    purchase = models.ForeignKey(to=PurchaseDraft,on_delete=models.CASCADE,related_name='items')
     item = models.ForeignKey(to=Inventory,related_name='purchase',on_delete=models.CASCADE)
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
-    supplier = models.ForeignKey(to=Supplier,null=True,on_delete=models.PROTECT)
     @property
     def total_price(self):
         return self.quantity*self.price
     
 class PurchasesItems(BulkModel):
-    purchase = models.ForeignKey(to=PurchaseOrder,on_delete=models.CASCADE,related_name='item')
+    purchase = models.ForeignKey(to=PurchaseDraft,on_delete=models.CASCADE,related_name='item')
     item = models.ForeignKey(to=Inventory,related_name='purchases',on_delete=models.CASCADE)
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
-    supplier = models.ForeignKey(to=Supplier,null=True,on_delete=models.PROTECT)
     @property
     def total_price(self):
         return self.quantity*self.price
