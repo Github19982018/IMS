@@ -19,7 +19,8 @@ class Warehouse_middleware:
     
     def process_template_response(self,request, response):
         warehouses = Warehouse.objects.all()
-        response.context_data['warehouses'] = warehouses
-        response.context_data['w'] = int(self.warehouse)
+        if response.context_data:
+            response.context_data['warehouses'] = warehouses
+            response.context_data['w'] = int(self.warehouse)
         return response
 

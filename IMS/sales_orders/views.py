@@ -196,13 +196,13 @@ def sales_approve(request,id):
 
 @api_view(['post'])
 def sales_api(request):
-    id =  request.POST['ref']
-    status = request.POST['status']
-    draft = SalesItems.objects.get(id=id)
+    data = request.data
+    id =  data['ref']
+    status = data['status']
+    draft = Sales.objects.get(id=id)
     status = SalesStatus(id=status)
-    sales = Sales.objects.get(id=draft)
-    sales.status = status
-    sales.save()
+    draft.status = status
+    draft.save()
     return HttpResponse('success')
 
 @api_view(["POST"])
