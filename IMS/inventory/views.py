@@ -30,12 +30,16 @@ def get_inventory(request,id):
 def add_inventory(request):
     if request.method == "POST":
         f = InventoryForm(request.POST)
-        f.save()
-        return redirect(view_inventory)
+        print(f.errors)
+        if f.is_valid():
+            f.updated = datetime.now()
+            f.save()
+            return redirect(view_inventory)
+        else:
+            return HttpResponse('error')
     else:
         supplier = Supplier.objects.all()
         warehouses = Warehouse.objects.all()
-        warehouse = 1
         warehouse = warehouses.get(id=request.w)
         form = InventoryForm()
         return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouse':warehouse, 'warehouses':warehouses})
@@ -44,7 +48,7 @@ def update_inventory(request,id):
     i = Inventory.objects.get(pk=id)
     if request.method == "POST":
         f = InventoryForm(request.POST,instance=i)
-        if f.is_valid:
+        if f.is_valid():
             f.updated = datetime.now()
             f.save()
             return redirect(view_inventory)

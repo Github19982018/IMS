@@ -12,7 +12,7 @@ class Brand(models.Model):
 
 
 class Inventory(models.Model):
-    photo = models.ImageField(unique=True,null=True,blank=True,upload_to='items')
+    photo = models.ImageField(null=True,blank=True,upload_to='items')
     name = models.CharField(unique=True, max_length=100)
     sku = models.CharField(unique=True,max_length=100)
     purchasing_price = models.DecimalField(decimal_places=2,max_digits=10)
@@ -23,7 +23,7 @@ class Inventory(models.Model):
     updated = models.DateTimeField(default=datetime.now)
     brand = models.ForeignKey(to=Brand,blank=True,null=True,on_delete=models.CASCADE)
     warehouse = models.ManyToManyField(to=Warehouse,related_name='items')
-    preferred_supplier = models.ForeignKey(to=Supplier,null=True,on_delete=models.PROTECT)
+    preferred_supplier = models.ForeignKey(to=Supplier,blank=True,null=True,on_delete=models.PROTECT)
     reorder_point = models.PositiveIntegerField(default=5)
 
     def __str__(self):
