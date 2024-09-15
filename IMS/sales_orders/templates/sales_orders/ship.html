@@ -4,9 +4,9 @@
     
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="ship_orders.html">ship Order</a></li>
-          <li class="breadcrumb-item">ship Order #{{number}}</li>
-          <li class="active breadcrumb-item">shipment #{{ship_number}}</li>
+          <li class="breadcrumb-item"><a href="ship_orders.html">Sales Order</a></li>
+          <li class="breadcrumb-item">sales Order #{{ship.sales.id}}</li>
+          <li class="active breadcrumb-item">shipment #{{ship.id}}</li>
         </ol>
       </nav>
 
@@ -19,7 +19,7 @@
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit shipment</button>
         <button class="btn btn-sm col">Cancel ship</button>
-        <a href="{% url 'ship' sales.id %}" id="btn" class="btn btn-sm col btn-success">ship a ship</a>
+          <a href="{% url 'create_ship' sales.id %}" id="btn" class="btn btn-sm col btn-success">ship</a>
     </div>
     <ul class="progress-tracker">
         <li class="progress-step {% if ship.status.id > 1 %}is-complete {% elif ship.status.id == 1 %}is-active {% endif %}">
@@ -46,15 +46,15 @@
         <h6 class="card-title p-1 ">From</h6>
         <div class="row">
             <div class="col-4">company: </div>
-            <div class="col-8">{{purchase.id.supplier}}</div>
+            <div class="col-8">{{ship.customer.name}}</div>
         </div>
         <div class="row">
             <div class="col-4">Address: </div>
-            <div class="col-8">{{purchase.bill_address}}</div>
+            <div class="col-8">{{ship.ship_address}}</div>
         </div>
         <div class="row">
             <div class="col-4">Phone: </div>
-            <div class="col-8">{{purchase.contact_phone}}</div>
+            <div class="col-8">{{ship.contact_phone}}</div>
         </div>
     </div>
       </div>
@@ -76,7 +76,7 @@
         </div>
         <div class="row">
             <div class="col-4">Customer: </div>
-            <div class="col-8">{{ship.customer}}</div>
+            <div class="col-8">{{ship.customer.name}}</div>
         </div>
         <div class="row">
             <div class="col-4">Shipping Address: </div>
@@ -84,7 +84,11 @@
         </div>
         <div class="row">
             <div class="col-4">Associated Package: </div>
-            <div class="col-8">{{ship.pacakge}}</div>
+            <div class="col-8">
+              {%for i in packages%}
+              <span>{{i.id}}</span>
+              {%endfor%}
+            </div>
         </div>
     </div>
       </div>
@@ -114,8 +118,12 @@
                             <div class="col-8">{{ship.ship_address}}</div>
                         </div>
                         <div class="row">
-                            <div class="col-4">Associated package: </div>
-                            <div class="col-8">{{ship.package}}</div>
+                            <div class="col-4">Associated packages: </div>
+                            <div class="col-8">
+                              {%for i in packages%}
+                              <span>{{i}}</span>
+                              {%endfor%}
+                            </div>
                         </div>
                     </div>
                       </div> 
@@ -142,10 +150,10 @@
                       {% for i in items %}
                       <tr> 
                       <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                      <td>{{i.item_id.name}}</td>
-                      <td>{{i.item_id.sku}}</td>
-                      <td>{{i.weight}}</td>
-                      <td>{{i.dimension}}</td>
+                      <td>{{i.item.name}}</td>
+                      <td>{{i.item.sku}}</td>
+                      <td>{{i.item.weight}}</td>
+                      <td>{{i.item.dimension}}</td>
                       <td>{{i.units}}</td>
                       <td>{{i.quantity}}</td>
                     </tr>

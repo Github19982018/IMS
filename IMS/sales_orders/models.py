@@ -31,6 +31,7 @@ class Sales(models.Model):
     total_amount = models.DecimalField(decimal_places=2,max_digits=10,null=True)
     status = models.ForeignKey(to=SalesStatus,null=True,on_delete=models.PROTECT)
     updated = models.DateTimeField(default=datetime.now)
+    offer = models.PositiveSmallIntegerField(default=0)
 
 
 class  SalesItems(models.Model):
@@ -39,7 +40,7 @@ class  SalesItems(models.Model):
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
-    customer = models.ForeignKey(to=Customer,null=True,on_delete=models.PROTECT)
+    discount = models.PositiveSmallIntegerField(default=0)
     @property
     def total_price(self):
         return self.quantity*self.price
@@ -50,8 +51,7 @@ class SaleItems(BulkModel):
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
-    customer = models.ForeignKey(to=Customer,null=True,on_delete=models.PROTECT)
-
+    discount = models.PositiveSmallIntegerField(default=0)
 
 class PackageStatus(models.Model):
     id = models.SmallIntegerField(primary_key=True)
@@ -68,7 +68,7 @@ class ShipStatus(models.Model):
 class Shipment(models.Model):
     tracking_number = models.PositiveBigIntegerField(editable=False)
     created_at = models.DateTimeField(default=datetime.now)
-    sales = models.ForeignKey(to=Sales,on_delete=models.CASCADE,related_name='shipment')
+    sales = models.OneToOneField(to=Sales,on_delete=models.CASCADE,related_name='shipment')
     ship_method = models.ForeignKey(to=ShipMethod,on_delete=models.PROTECT)
     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
     shipment_address = models.CharField(max_length=200)
@@ -82,7 +82,7 @@ class Package(models.Model):
     shipping_address = models.CharField(max_length=200)
     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
     status = models.ForeignKey(to=PackageStatus,on_delete=models.PROTECT)
-    ship = models.ForeignKey(to=Shipment,on_delete=models.PROTECT,related_name='package')
+    ship = models.ForeignKey(to=Shipment,null=True,on_delete=models.PROTECT,related_name='package')
 
 
 

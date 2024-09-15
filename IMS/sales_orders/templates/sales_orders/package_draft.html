@@ -18,7 +18,7 @@
         </div>
         <div class="col">
             <p class="label">Created at</p>
-            <p class="form-control">{{package.created_date}}></p>
+            <p class="form-control">{{package.created_at}}</p>
         </div>
       </div>
 
@@ -47,12 +47,12 @@
                     {% for i in items %}
                     <tr> 
                     <td><a href="#"><img width="50" src="{% static 'assets/img/product-1.jpg' %}" alt=""></a></td>
-                    <td>{{i.item_id.name}}</td>
-                    <td>{{i.item_id.sku}}</td>
-                    <td>{{i.price}}</td>
+                    <td>{{i.item.name}}</td>
+                    <td>{{i.item.sku}}</td>
+                    <td>{{i.item.weight}}</td>
+                    <td>{{i.item.dimensions}}</td>
                     <td>{{i.units}}</td>
                     <td>{{i.quantity}}</td>
-                    <td>{{i.total_price}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -84,19 +84,19 @@
                 </form>
               </div>
             </div>
-            <form class="row g-3 " id="sales_draft" action="{% url 'sale' number %}" method="post">
+            <form class="row g-3 " id="sales_draft" action="{% url 'package' number %}" method="post">
               {% csrf_token %}
                   
               <div class="col-12">
                 <label class="col-form-label">Billing Address</label>
                 <div class="col-lg-6">
-                  <input type="text" class="form-control" value="{{customer.address}}"  name="bill_address" id="bill">
+                  <input type="text" class="form-control" value="{{sales.bill_address}}"  name="bill_address" id="bill">
                 </div>
               </div>
               <div class="col-12">
                 <label class=" col-form-label" >Shipping Address</label>
                 <div class="col-lg-6">
-                  <input class="form-control" value="{{customer.address}}" type="text" name="ship_address" id="ship">
+                  <input class="form-control" value="{{sales.ship_address}}" type="text" name="ship_address" id="ship">
                   </select>
                 </div>
               </div>
@@ -119,7 +119,7 @@
               </div>
               
               <div class="">
-                <button type="submit" class="btn btn-success">Create Sales Order</button>
+                <button type="submit" class="btn btn-success">Create Package</button>
               </div>
             </form><!-- Vertical Form -->
 

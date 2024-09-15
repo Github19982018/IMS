@@ -6,7 +6,7 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="sales_orders.html">sales Order</a></li>
           <li class="breadcrumb-item">sales Order #{{number}}</li>
-          <li class="active breadcrumb-item">package #{{pack_number}}</li>
+          <li class="active breadcrumb-item">package #{{package.id}}</li>
         </ol>
       </nav>
 
@@ -14,7 +14,7 @@
  <div class="row">
     <div class="col-4 row">
         <div class="col w-10" >Status</div>
-        <div class="col w-10 badge bg-secondary rounded-pill" id="status">{{sales.status.status}}</div>
+        <div class="col w-10 badge bg-secondary rounded-pill" id="status">{{package.status}}</div>
     </div>
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit package</button>
@@ -50,7 +50,7 @@
                     <b>614-205-9702</b>
                 </div>
                 <div class="col-6">
-                    Created On Date: <b>{{package.created_date}}</b>
+                    Created On Date: <b>{{package.created_at}}</b>
                     <br>Estimated Packing Date: <b>{{package.estimatd_date}}</b>
                 </div>
                 <div class="row pt-4">
@@ -94,10 +94,10 @@
                       {% for i in items %}
                       <tr> 
                       <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                      <td>{{i.item_id.name}}</td>
-                      <td>{{i.item_id.sku}}</td>
-                      <td>{{i.weight}}</td>
-                      <td>{{i.dimension}}</td>
+                      <td>{{i.item.name}}</td>
+                      <td>{{i.item.sku}}</td>
+                      <td>{{i.item.weight}}</td>
+                      <td>{{i.item.dimension}}</td>
                       <td>{{i.units}}</td>
                       <td>{{i.quantity}}</td>
                     </tr>

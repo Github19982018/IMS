@@ -63,7 +63,8 @@ def draft_sales(request,id):
             sale.save()
             return HttpResponseRedirect('')
     else:
-        draft = SalesItems.objects.filter(sales=id)
+        sales = Sales.objects.get(id=id)
+        draft = SalesItems.objects.filter(sales=sales.id)
         ship_method = ShipMethod.objects.all()
         customers = Customer.objects.all()
         s = request.GET.get('customer')
@@ -72,9 +73,8 @@ def draft_sales(request,id):
             customer = Customer.objects.get(id=s)
         else:
             customer = Customer.objects.first()
-        for i in draft:
-            i.customer = customer
-            i.save()
+        sales.customer = customer
+        sales.save()
         return render(request,'sales_orders/sales_draft.html',{'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
 
 def sales(request,id):
@@ -84,75 +84,112 @@ def sales(request,id):
         if sales.status:
             return render(request,'sales_orders/sale.html',{'number':id,'items':[draft], 'sales':sales})
         else:
-                sales.customer = draft.first().customer
-                sales.bill_address = request.POST['bill_address']
-                sales.ship_address = request.POST['ship_address']
-                # total_price = request.POST['total_price']
-                sh= request.POST['ship_method']
-                sales.ship_method = ShipMethod.objects.get(id=sh)
-                p_date = request.POST['preferred_date']
-                sales.preferred_shipping_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
-                sales.status = SalesStatus.objects.get(status='draft')
-                sales.warehouse = Warehouse.objects.get(id=request.w)
-                sales.save()
-                return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
+            sales.bill_address = request.POST['bill_address']
+            sales.ship_address = request.POST['ship_address']
+            # total_price = request.POST['total_price']
+            sh= request.POST['ship_method'] or 1
+            sales.ship_method = ShipMethod.objects.get(id=sh)
+            p_date = request.POST['preferred_date']
+            sales.preferred_shipping_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
+            sales.status = SalesStatus.objects.get(status='draft')
+            sales.warehouse = Warehouse.objects.get(id=request.w)
+            sales.save()
+            return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
     else:
         return  render(request,'404.html',{})
     
 def package_draft(request,id):
     sales = Sales.objects.get(id=id)
     if sales:
+        ship_method = ShipMethod.objects.all()
+        customers = Customer.objects.all()
         if Package(sales=sales):
             p = Package.objects.create(sales=sales,created_at=datetime.now(),status=PackageStatus(id=1),customer=sales.customer,shipping_address=sales.ship_address)
             items = SalesItems.objects.filter(sales=sales)
-            return render(request,'sales_orders/package_draft.html',{'number':p.id,'items':items, 'sales':sales, 'package' :p})
+            return render(request,'sales_orders/package_draft.html',{'number':p.id,'items':items, 'sales':sales, 'package' :p,'ship_method':ship_method,'customers':customers})
         else:
             return HttpResponseRedirect('')
     else:
         return HttpResponseRedirect('')
 
 def package(request,id):
-    sales = Sales.objects.get(id=id)
-    # sales.status = Sales_status(id=2)
-    # sales.save()
+    package = Package.objects.get(id=id)
+    package.status = PackageStatus(id=1)
+    package.save()
+    sales = package.sales
     items = SalesItems.objects.filter(sales=sales)
-    return render(request,'sales_orders/package.html',{'number':id,'items':items, 'sales':sales})
+    return render(request,'sales_orders/package.html',{'package':package,'items':items, 'sales':sales})
     
 def ship(request,id):
     import random
     track=random.randint(100000000000,9999999999999)
-    pack = request.POST.getlist('package')
+    # pack = request.POST.getlist('package')
     sales = Sales.objects.get(id=id)
-    # items = Sale_items.objects.get(sales=sales)
-    ship = Shipment.objects.create(sales=sales,tracking_number=track,ship_method=sales.ship_method,customer=sales.customer,shipment_address=sales.ship_address)
-    # ship.sales.add(sales)
-    packages = Package.objects.filter(pk__in=pack).update(ship=ship)
-    return render(request,'sales_orders/ship.html',{'number':id, 'sales':sales,'ship':ship, 'packages':packages})
+    # items = sales.items
+    ship = Shipment.objects.get(sales=sales)
+    if ship:
+        packages = ship.package.all()
+        items = sales.items.all()
+        return render(request,'sales_orders/ship.html',{'number':id, 'sales':sales,'ship':ship, 'packages':packages, 'items':items})
+    else:
+        ship = Shipment.objects.create(sales=sales,tracking_number=track,ship_method=sales.ship_method,customer=sales.customer,shipment_address=sales.ship_address)
+        # ship.sales.add(sales)
+        packages = ship.package.all()
+        items = sales.items.all()
+        return render(request,'sales_orders/ship.html',{'number':id, 'sales':sales,'ship':ship, 'packages':packages, 'items':items})
 
+
+from sales_orders.serializer import ShipSerializer
+def create_ship(request,id):
+    sales = Sales.objects.get(id=id)
+    ship = Shipment.objects.get(sales=sales)
+    packages = ship.package.all()
+    items = sales.items.all()
+    ship.status = ShipStatus(id=2)
+    ship.save()
+    url = 'http://localhost:8081/sales/approve'
+    data = ShipSerializer(ship)
+    print(data.data)
+    # requests.post(url,data)
+    # draft = SalesItems.objects.get(sales=sales)
+    return redirect(ship,id=id)
+
+    # else:
+    #     return HttpResponse('')
+
+
+from sales_orders.serializer import SalesSerializer
 @api_view(['GET'])
 def sales_approve(request,id):
-    draft = SalesItems.objects.get(id=id)
     status = SalesStatus(id=4)
-    sales = Sales.objects.get(id=draft)
+    sales = Sales.objects.get(id=id)
+    draft = SalesItems.objects.get(sales=sales)
     sales.status = status
     sales.save()
     url = 'http://localhost:8081/sales/approve'
-    data = {
-        'ref':sales.id.id,
-        'supplier':sales.supplier.name,
-        'contact_person':sales.supplier.contact_person,
-        'bill_address':sales.bill_address,
-        'preferred_shipping_date':sales.preferred_shipping_date.isoformat(),
-        "ship_address":sales.ship_address,
-        'ship_method':sales.ship_method.method,
-        'contact_phone':int(sales.contact_phone),
-        'created_date':sales.created_date.isoformat(),
-        'total_amount':int(sales.total_amount),
-        "items":{'item_id':draft.item_id.id,
-                 'price':int(draft.price),
-                 'quantity':int(draft.quantity),
-                 'units':draft.units}
-    }
+    data = SalesSerializer(sales,items=draft)
+    print(data.data)
+    # for i in draft:
+    #     items['item']=i.item.name
+    #     items['price'] = i.price
+    #     items['quantity'] = i.quantity
+    #     items['un']
+    # data = {
+    #     'ref':sales.id,
+    #     'customer':sales.customer.name,
+    #     'contact_person':sales.sales_person,
+    #     'bill_address':sales.bill_address,
+    #     'preferred_shipping_date':sales.preferred_shipping_date.isoformat(),
+    #     "ship_address":sales.ship_address,
+    #     'ship_method':sales.ship_method.method,
+    #     'contact_phone':int(sales.contact_phone),
+    #     'created_date':sales.created_date.isoformat(),
+    #     'total_amount':int(sales.total_amount),
+    #     "items":{'item_id':draft.item.id,
+    #              'price':int(draft.price),
+    #              'quantity':int(draft.quantity),
+    #              'units':draft.units}
+    # }
     requests.post(url,json=data)
     return render(request,'sales_next.html',{'number':id,'items':[draft], 'Sales':Sales})
 
