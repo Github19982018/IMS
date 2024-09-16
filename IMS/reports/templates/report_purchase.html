@@ -2,46 +2,13 @@
 
 {% block main %}
     <div class ="pagetitle">
-      <h1>Inventory</h1>
+      <h1>Purchase Report by Item</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
       <!-- <div class="row">
         <div class="col-lg-12"> -->
-          <div class="row m-2">
-            <!-- Vertically centered Modal -->
-             <div class="col">
-               <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verticalycentered">
-                 Filter
-               </button>
-               <button type="button" class="btn btn-primary">
-                 Edit
-               </button>
-               <button type="button" class="btn btn-primary">
-                 New Item
-               </button>
 
-            </div>
-            <div class="modal fade" id="verticalycentered" tabindex="-1">
-              <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title">Filter</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    Non omnis incidunt qui sed occaecati magni asperiores est mollitia. Soluta at et reprehenderit. Placeat autem numquam et fuga numquam. Tempora in facere consequatur sit dolor ipsum. Consequatur nemo amet incidunt est facilis. Dolorem neque recusandae quo sit molestias sint dignissimos.
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                  </div>
-                </div>
-              </div>
-            </div><!-- End Vertically centered Modal-->
-      </div>
-      <form action="{% url 'make_sales' %}">
-        <button type="submit" class="btn btn-primary">Order</button>
         <div class="card py-3 m-2">
             <div class="card-body">
               
@@ -58,51 +25,18 @@
                 <tbody>
                   {% for i in purchase %}
                   <tr>
-                    <td><a href="#">{{i.item_id}}</a></td>
+                    <td><a href="#">{{i.item__name}}</a></td>
                     <td>{{i.quantity}}</td>
-                    <td>{{i.amount}}</td>
-                    <td>{{i.price}}</td>
+                    <td>${{i.amount}}</td>
+                    <td>${{i.price}}</td>
                   </tr>
                   {% endfor %}
-                    <tr> 
-                    <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                    <td>Unity Pugh</td>
-                    <td>9958</td>
-                    <td>Curicó</td>
-                    <td>2005/02/11</td>
-                    <td>37%</td>
-                    <td>Curicó</td>
-                    <td>2005/02/11</td>
-                    <td>37%</td>
-                  </tr>
-                  <tr>
-                    <td>Theodore Duran</td>
-                    <td>8971</td>
-                    <td>Dhanbad</td>
-                    <td>1999/04/07</td>
-                    <td>97%</td>
-                  </tr>
-                  <tr>
-                    <td>Kylie Bishop</td>
-                    <td>3147</td>
-                    <td>Norman</td>
-                    <td>2005/09/08</td>
-                    <td>63%</td>
-                  </tr>
-                  <tr>
-                    <td>Willow Gilliam</td>
-                    <td>3497</td>
-                    <td>Amqui</td>
-                    <td>2009/29/11</td>
-                    <td>30%</td>
-                  </tr>
                   
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->
             </div>
           </div>
-      </form>
           
 
 
