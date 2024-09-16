@@ -42,7 +42,7 @@
             </div><!-- End Vertically centered Modal-->
       </div>
       {%endif%}
-      <form action="{% url 'make_purchase' %}" method="post">
+      <form action="{% url 'make_sales' %}" method="post">
         {%csrf_token%}
     {% if user.role == 'specialist'%}
         <button type="submit" class="btn btn-primary">Order</button>

@@ -12,11 +12,15 @@ from django.contrib import messages
 
 # Create your views here.
 def view_sales(request):
-    sales = Sales.objects.all()
+    sales = Sales.objects.filter(warehouse=request.w)
     return render(request,'sales_orders/sales.html',{'sales':sales})
 
 def get_sales(request,id):
-    return redirect(sales,id=id)
+    s = Sales.objects.get(id=id)
+    if s:
+        return redirect(sales,id=id)
+    else:
+        return render(request,'404.html',{})
 
 # making Sales from inventory
 def make_sales(request):
@@ -38,18 +42,17 @@ def make_sales(request):
                     units = i.units
                 ))
             draft = SalesItems.objects.bulk_create(sales_list)
-            return redirect(draft_sales,id=sales.id)
-        else:
-            return render(request,'404.html',{})
-    else:
-        HttpResponse('')
+            return redirect(draft_sales,id=sales.id)    
+    return render(request,'404.html',{})
 
 def get_package(request,id):
-    sales = Sales.objects.get(id=id)
-    if sales.package == 'draft':
-        return redirect(package_draft,id=id)
-    else:
-        return redirect(package,id=id)
+    package = Package.objects.get(id=id)
+    if sales:
+        if package.status == 'draft':
+            return redirect(package_draft,id=id.sales.id)
+        else:
+            return redirect(package,id=id.sales.id)
+    return render(request,'404.html',{})
 
 
 
@@ -82,7 +85,7 @@ def sales(request,id):
     if sales:
         draft = SalesItems.objects.filter(sales=sales)
         if sales.status:
-            return render(request,'sales_orders/sale.html',{'number':id,'items':[draft], 'sales':sales})
+            return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
         else:
             sales.bill_address = request.POST['bill_address']
             sales.ship_address = request.POST['ship_address']

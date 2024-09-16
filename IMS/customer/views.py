@@ -2,16 +2,28 @@ from django.template.response import TemplateResponse as render
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from customer.models import Customer
 from sales_orders.models import Sales
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+
+def specialist_auth(request):
+    user = request.user
+    if user.user_type == 3:
+        return True
+    else:
+        raise PermissionError
+
+@login_required
 def view_customers(request):
     customers = Customer.objects.all()
     return render(request,'customers.html',{'customers':customers})
 
+@login_required
 def get_customer(request,id):
     customer = Customer.objects.get(id=id)
-    orders = Sales.objects.filter(customer=customer)
+    orders = Sales.objects.filter(customer=customer)[:4]
     if request.method == 'POST':
+        specialist_auth(request)
         commitment = request.POST['commitment']
         consistency = request.POST['consistency']
         transaction = request.POST['transaction']

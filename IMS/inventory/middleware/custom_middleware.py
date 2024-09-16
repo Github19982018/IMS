@@ -1,4 +1,6 @@
 from inventory.models import Warehouse
+from django.contrib.auth.decorators import login_required
+
 
 class Warehouse_middleware:
     with open('data/warehouse.txt','+w') as wfile:
@@ -16,6 +18,7 @@ class Warehouse_middleware:
         response = self.get_response(request)
         return response
     
+    # @login_required
     def process_template_response(self,request, response):
         warehouses = Warehouse.objects.all()
         user = request.user

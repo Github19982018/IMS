@@ -11,7 +11,7 @@ def error_response_handler(request, exception=None):
     return HttpResponse('eror', status=404)
 
 ""
-def manager_auth(request):
+def specialist_auth(request):
     user = request.user
     if user.user_type == 3:
         return True
@@ -21,15 +21,14 @@ def manager_auth(request):
 @login_required 
 def view_inventory(request):
     w = request.w
-    # warehouse = Warehouse.objects.get(id=w)n
+    warehouse = Warehouse.objects.get(id=w)
     order_by = request.GET.get('orderby')
     filter = request.GET.get('filter')
-    inventory = Inventory.objects.all()
+    inventory = Inventory.objects.filter(warehouse=warehouse)
     if filter:
-        inventory = inventory.filter()
+        inventory = inventory.filter(filter)
     if order_by:
         inventory = inventory.order_by(order_by)
-    # inventory = Inventory.objects.filter(warehouse=warehouse)
     return render(request,'inventory/inventory.html',{'inventory':inventory})
 
 def get_inventory(request,id):
@@ -38,7 +37,7 @@ def get_inventory(request,id):
 
 @login_required
 def add_inventory(request):
-    manager_auth(request)
+    specialist_auth(request)
     if request.method == "POST":
         f = InventoryForm(request.POST)
         print(f.errors)
@@ -51,13 +50,12 @@ def add_inventory(request):
     else:
         supplier = Supplier.objects.all()
         warehouses = Warehouse.objects.all()
-        warehouse = warehouses.get(id=request.w)
         form = InventoryForm()
-        return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouse':warehouse, 'warehouses':warehouses})
+        return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouses':warehouses})
 
 @login_required   
 def update_inventory(request,id):
-    manager_auth
+    specialist_auth(request)
     i = Inventory.objects.get(pk=id)
     if request.method == "POST":
         f = InventoryForm(request.POST,instance=i)
@@ -70,9 +68,8 @@ def update_inventory(request,id):
     else:
         supplier = Supplier.objects.all()
         warehouses = Warehouse.objects.all()
-        warehouse = warehouses.get(id=request.w)
         form = InventoryForm(instance=i)
-        return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouse':warehouse, 'warehouses':warehouses})
+        return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouses':warehouses})
 
 # def  add_inventory(request):
 #     # photo = models.FilePathField(unique=True,null=True,blank=True)

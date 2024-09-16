@@ -20,6 +20,8 @@ class Inventory(models.Model):
     on_hand = models.PositiveIntegerField()
     description = models.TextField(blank=True,null=True)
     units = models.CharField(max_length=50,blank=True)
+    dimensions = models.CharField(max_length=100)
+    weight = models.PositiveIntegerField()
     updated = models.DateTimeField(default=datetime.now)
     brand = models.ForeignKey(to=Brand,blank=True,null=True,on_delete=models.CASCADE)
     warehouse = models.ManyToManyField(to=Warehouse,related_name='items')

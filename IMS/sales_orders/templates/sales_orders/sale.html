@@ -17,7 +17,7 @@
         <div class="col w-10" >Status</div>
         <span class="col w-10 badge rounded-pill" id="status"></span>
     </div>
-  {%if user.roel == 'specialist'%}
+  {%if user.role == 'specialist'%}
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit order</button>
         <button class="btn btn-sm col">Cancel order</button>
@@ -125,8 +125,8 @@
                       {% for i in items %}
                       <tr> 
                       <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                      <td>{{i.item_id.name}}</td>
-                      <td>{{i.item_id.sku}}</td>
+                      <td>{{i.item.name}}</td>
+                      <td>{{i.item.sku}}</td>
                       <td>{{i.price}}</td>
                       <td>{{i.units}}</td>
                       <td>{{i.quantity}}</td>
