@@ -6,7 +6,7 @@ from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate,login,logout
 
-from accounts.forms import Registrationform,UserAuthenticationForm
+from accounts.forms import Registrationform
 from accounts.models import User
 
 class RegistrationView(CreateView):

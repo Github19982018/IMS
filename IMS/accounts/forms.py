@@ -11,12 +11,6 @@ class Registrationform(UserCreationForm):
         model = User
         fields = ['username','user_type','is_active','password','email']
 
-class UserAuthenticationForm(AuthenticationForm):
-    user_type = forms.ChoiceField()
-    # email = forms.EmailField(required=True)
-    # class Meta(AuthenticationForm.Meta):
-    #     model = User
-    #     fields = ['username','user_type','password','email']
 
     
         
