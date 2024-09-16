@@ -16,11 +16,13 @@
         <div class="col w-10" >Status</div>
         <div class="col w-10 badge bg-secondary rounded-pill" id="status">{{package.status}}</div>
     </div>
+{%if user.role == 'specialist'%}
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit package</button>
         <button class="btn btn-sm col">Delete package</button>
         <a href="{% url 'ship' sales.id %}" id="btn" class="btn btn-sm col btn-success">ship a package</a>
     </div>
+{%endif%}
     <ul class="progress-tracker">
         <li class="progress-step {% if package.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %}">
             Draft package slip creation {{package.status.id }}

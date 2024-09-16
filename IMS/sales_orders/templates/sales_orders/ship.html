@@ -16,11 +16,13 @@
         <div class="col w-10" >Status</div>
         <div class="col w-10 badge bg-secondary rounded-pill" id="status">{{ship.status.status}}</div>
     </div>
+{%if user.role == 'specialist' %}
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit shipment</button>
         <button class="btn btn-sm col">Cancel ship</button>
           <a href="{% url 'create_ship' sales.id %}" id="btn" class="btn btn-sm col btn-success">ship</a>
     </div>
+{%endif%}
     <ul class="progress-tracker">
         <li class="progress-step {% if ship.status.id > 1 %}is-complete {% elif ship.status.id == 1 %}is-active {% endif %}">
             Draft ship slip creation {{ship.status.id }}

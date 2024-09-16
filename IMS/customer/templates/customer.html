@@ -44,14 +44,16 @@
                                 <th>Order #</th>
                                 <th>Created at</th>
                                 <th>Amount</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                           {% for i in orders %}
                           <tr>
                             <td><a href="#">{{i.id}}</a></td>
-                            <td>{{i.order.created_date}}</td>
-                            <td>{{i.order.total_amount}}</td>
+                            <td>{{i.created_date}}</td>
+                            <td>{{i.total_amount}}</td>
+                            <td>{{i.status}}</td>
                           </tr>
                           {% endfor %}
                         </tbody>
@@ -59,32 +61,32 @@
                 </div>
             </div>
       </div>
-
-          <section>
-            <h5><b>customer Evaluation</b></h5>
-            <div class="card p-2">
-                <form method="post">
-                  {% csrf_token %}
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <td></td>
+  {%if user.role == 'specialist'%}
+      <section>
+        <h5><b>customer Evaluation</b></h5>
+        <div class="card p-2">
+          <form method="post">
+            {% csrf_token %}
+            <table class="table">
+              <thead>
+                <tr>
+                  <td></td>
                                 <td>1 = Poor</td>
                                 <td>2 = Fair</td>
                                 <td>3 = Satisfactory</td>
                                 <td>4 = Good</td>
                                 <td>5 = Excellent</td>
-                            </tr>
+                              </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>competency</td>
+                              <td>competency</td>
                                 <td><input class="form-check-input" type="radio" value="1" id="" name="competency" {% if customer.rating.competency == 1 %}checked{% endif %}></td>
                                 <td><input class="form-check-input" type="radio" value="2" id="" name="competency"{% if customer.rating.competency == 2 %}checked{% endif %}></td>
                                 <td><input class="form-check-input" type="radio" value="3" id="" name="competency"{% if customer.rating.competency == 3 %}checked{% endif %}></td>
                                 <td><input class="form-check-input" type="radio" value="4" id="" name="competency"{% if customer.rating.competency == 4 %}checked{% endif %}></td>
                                 <td><input class="form-check-input" type="radio" value="5" id="" name="competency"{% if customer.rating.competency == 5 %}checked{% endif %}></td>
-                            </tr>
+                              </tr>
                             <tr>
                                 <td>communication</td>
                                 <td><input class="form-check-input" type="radio" value="1" id="" name="communication"{% if customer.rating.communication == 1 %}checked{% endif %}></td>
@@ -100,7 +102,7 @@
                                 <td><input class="form-check-input" type="radio" value="3" id="" name="commitment"{% if customer.rating.commitment == 3 %}checked{% endif %}></td>
                                 <td><input class="form-check-input" type="radio" value="4" id="" name="commitment"{% if customer.rating.commitment == 4 %}checked{% endif %}></td>
                                 <td><input class="form-check-input" type="radio" value="5" id="" name="commitment"{% if customer.rating.commitment == 5 %}checked{% endif %}></td>
-                            </tr>
+                              </tr>
                             <tr>
                                 <td>transaction</td>
                                 <td><input class="form-check-input" type="radio" value="1" id="" name="transaction"{% if customer.rating.transaction == 1 %}checked{% endif %}></td>
@@ -132,4 +134,5 @@
                 </form>
             </div>
           </section>
+  {%endif%}
   {% endblock %}

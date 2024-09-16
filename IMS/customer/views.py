@@ -1,7 +1,7 @@
 from django.template.response import TemplateResponse as render
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from customer.models import Customer
-from sales_orders.models import SalesItems
+from sales_orders.models import Sales
 
 # Create your views here.
 def view_customers(request):
@@ -10,7 +10,7 @@ def view_customers(request):
 
 def get_customer(request,id):
     customer = Customer.objects.get(id=id)
-    orders = SalesItems.objects.filter(customer=customer)
+    orders = Sales.objects.filter(customer=customer)
     if request.method == 'POST':
         commitment = request.POST['commitment']
         consistency = request.POST['consistency']

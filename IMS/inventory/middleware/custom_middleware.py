@@ -13,14 +13,28 @@ class Warehouse_middleware:
         with open('data/warehouse.txt','+w') as wfile:
             wfile.write(self.warehouse)
         request.w = self.warehouse
-        user = request.user
         response = self.get_response(request)
         return response
     
     def process_template_response(self,request, response):
         warehouses = Warehouse.objects.all()
+        user = request.user
+        user_data = {}
+        if user.user_type == 2:
+            user_data = {
+                'role':'manager',
+                'name':user.username
+            }
+        elif user.user_type == 3:
+            user_data = {
+                'role':'specialist',
+                'name':user.username
+            }
+
         if response.context_data:
             response.context_data['warehouses'] = warehouses
             response.context_data['w'] = int(self.warehouse)
+            response.context_data['user'] = user_data
+
         return response
 

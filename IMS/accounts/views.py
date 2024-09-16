@@ -47,17 +47,17 @@ def logins(request):
         userpass = authenticate(request,username=username,password=password)
         if userpass is not None and userpass.is_superuser:
             login(request,userpass)
-            request.session['admin_id']=userpass.id
+            request.session['id']=userpass.id
             return redirect('/admin/')
         elif userpass is not None and userpass.is_active:
             user = User.objects.get(id=userpass.id)
             if user.user_type == 2:
                 login(request,userpass)
-                request.session['manager_id']=userpass.id
+                request.session['id']=userpass.id
                 return redirect('dashboard')
             elif user.user_type == 3:
                 login(request,userpass)
-                request.session['specialist_id']=userpass.id
+                request.session['id']=userpass.id
                 return redirect('inventories')
         
         return HttpResponse('invalid login')
