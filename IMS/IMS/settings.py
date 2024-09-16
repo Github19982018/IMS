@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'accounts',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -39,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'warehouse',
     'inventory',
-    'accounts',
     'supplier',
     'purchase_orders',
     'sales_orders',
@@ -139,5 +139,5 @@ STATICFILES_DIRS =  [os.path.join(BASE_DIR,'static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.User'
-LOGIN_REDIRECT_URL='dashboard'
+# LOGIN_REDIRECT_URL='dashboard'
 LOGOUT_REDIRECT_URL = 'login'
