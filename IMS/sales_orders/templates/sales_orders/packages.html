@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+    <div class="pagetitle">
+        <h1>Packages</h1>
+      </div><!-- End Page Title -->
+  
+    <div class="col-12">
+        <div class="card overflow-auto">
+
+          <div class="p-3 filter">
+            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+              <li class="dropdown-header text-start">
+                <h6>Filter</h6>
+              </li>
+
+              <li><a class="dropdown-item" href="#">Today</a></li>
+              <li><a class="dropdown-item" href="#">This Month</a></li>
+              <li><a class="dropdown-item" href="#">This Year</a></li>
+            </ul>
+          </div>
+
+          <div class="card-body">
+            <h5 class="card-title"> <span>| Today</span></h5>
+
+            <table class="table datatable">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Customer</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Sales</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for i in packages %}
+                <tr>
+                  <th scope="row"><a href="{% url 'get_package' i.id %}">#{{i.id}}</a></th>
+                  <td>{{i.customer}}</td>
+                  <td>{{i.created_date}}</td>
+                  <td>
+                    <a href="{% url 'get_sale' i.sales.id %}" class="text-primary">{{i.sales.id}}</a>
+                  </td>
+                  <td><span class="badge bg-success">{{i.status.status}}</span></td>
+                </tr>
+                {% endfor %}
+                
+              </tbody>
+            </table>
+
+          </div>
+
+        </div>
+      </div><!-- End Recent Sales -->
+
+{% endblock %}
