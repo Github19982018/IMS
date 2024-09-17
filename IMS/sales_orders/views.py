@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
 from django.contrib import messages
+from core.utils import specialilst_check,user_passes_test
 
 # Create your views here.
 def view_sales(request):
@@ -23,6 +24,7 @@ def get_sales(request,id):
         return render(request,'404.html',{})
 
 # making Sales from inventory
+@user_passes_test(specialilst_check)
 def make_sales(request):
     if request.method == 'POST':
         id_list =  request.POST.getlist('item') 
@@ -45,6 +47,7 @@ def make_sales(request):
             return redirect(draft_sales,id=sales.id)    
     return render(request,'404.html',{})
 
+
 def get_package(request,id):
     try:      
         package = Package.objects.get(id=id)
@@ -56,7 +59,7 @@ def get_package(request,id):
         return render(request,'404.html',{})
 
 
-
+@user_passes_test(specialilst_check)
 def draft_sales(request,id):
     if request.method == 'POST':
         quantity = request.POST.getlist('quantity')
@@ -86,6 +89,8 @@ def draft_sales(request,id):
             return render(request,'sales_orders/sales_draft.html',{'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
         except Sales.DoesNotExist:
             return render(request,'404.html',{})
+        
+
 def sales(request,id):
     try:
         sales = Sales.objects.get(id=id)
@@ -108,6 +113,8 @@ def sales(request,id):
     except Sales.DoesNotExist:
         return  render(request,'404.html',{})
     
+
+@user_passes_test(specialilst_check)
 def package_draft(request,id):
     try:
         sales = Sales.objects.get(id=id)
@@ -122,6 +129,7 @@ def package_draft(request,id):
     except Package.DoesNotExist:
         return render(request,'404.html',{})
 
+@user_passes_test(specialilst_check)
 def package(request,id):
     try:
         package = Package.objects.get(id=id)
@@ -133,11 +141,12 @@ def package(request,id):
     except Package.DoesNotExist:
         return render(request,'404.html',{})
     
+
 def ship(request,id):
     try:
         sales = Sales.objects.get(id=id)
         shiplist = Shipment.objects.filter(sales=sales)
-        if request.method == 'POST':
+        if request.method == 'POST' and specialilst_check:
             if shiplist:
                 [sh,] = shiplist
             else:            
@@ -162,6 +171,7 @@ def ship(request,id):
 
 
 from sales_orders.serializer import ShipSerializer
+@user_passes_test(specialilst_check)
 def create_ship(request,id):
     try:
         sales = Sales.objects.get(id=id)
@@ -186,6 +196,7 @@ def create_ship(request,id):
 
 
 from sales_orders.serializer import SalesSerializer
+@user_passes_test(specialilst_check)
 @api_view(['GET'])
 def sales_approve(request,id):
     status = SalesStatus(id=4)

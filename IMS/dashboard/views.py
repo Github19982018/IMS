@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse as render
 from sales_orders.models import Package,PackageStatus,Sales,SalesStatus,Shipment,ShipStatus,SalesItems
 from inventory.models import Inventory
@@ -8,7 +7,6 @@ from purchase_orders.models import PurchaseOrder,Purchase_status,PurchaseItems
 from django.db import connection
 
 # Create your views here.
-@login_required
 def dashboard(request):
     pack = Package.objects.filter(status=PackageStatus(id=1)).count()
     ship = Shipment.objects.filter(status=ShipStatus(id=1)).count()

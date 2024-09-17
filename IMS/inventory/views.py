@@ -5,17 +5,13 @@ from inventory.models import Inventory,Supplier
 from warehouse.models import Warehouse
 from inventory.forms import InventoryForm
 # Create your views here.
+from core.utils import specialilst_check,user_passes_test
 
 def error_response_handler(request, exception=None):
     return HttpResponse('eror', status=404)
 
 ""
-def specialist_auth(request):
-    user = request.user
-    if user.user_type == 3:
-        return True
-    else:
-        raise PermissionError
+
 
 def view_inventory(request):
     w = request.w
@@ -33,8 +29,8 @@ def get_inventory(request,id):
     inventory = Inventory.objects.get(pk=id)
     return HttpResponse(inventory)
 
+@user_passes_test(specialilst_check)
 def add_inventory(request):
-    specialist_auth(request)
     if request.method == "POST":
         f = InventoryForm(request.POST)
         print(f.errors)
@@ -50,8 +46,8 @@ def add_inventory(request):
         form = InventoryForm()
         return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouses':warehouses})
 
+@user_passes_test(specialilst_check)
 def update_inventory(request,id):
-    specialist_auth(request)
     i = Inventory.objects.get(pk=id)
     if request.method == "POST":
         f = InventoryForm(request.POST,instance=i)

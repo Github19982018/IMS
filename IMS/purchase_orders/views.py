@@ -8,6 +8,7 @@ from datetime import datetime, date
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
+from core.utils import specialilst_check,user_passes_test
 
 def specialist_auth(request):
     user = request.user
@@ -27,6 +28,7 @@ def view_purchases(request):
 #     return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
 
 # making purchase from inventory
+@user_passes_test(specialilst_check)
 def make_purchase(request):
     specialist_auth(request)
     if request.method == 'POST':
@@ -53,8 +55,8 @@ def make_purchase(request):
     else:
         return render(request,'404.html',{})
 
+@user_passes_test(specialilst_check)
 def draft_purchase(request,id):
-    specialist_auth(request)
     if request.method == 'POST':
         quantity = request.POST.getlist('quantity')
         item = request.POST.getlist('item')
@@ -78,6 +80,7 @@ def draft_purchase(request,id):
         purchase.save()
         return render(request,'purchase.html',{'number':id,'items':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
 
+
 def purchase(request,id):
     draft = PurchaseDraft.objects.get(id=id)
     if draft:
@@ -85,7 +88,7 @@ def purchase(request,id):
         purchase = PurchaseOrder.objects.get(id=draft)
         if purchase:
             return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})
-        else:
+        elif specialilst_check:
             if request.method == 'POST':
                 total = 0
                 for i in items:
@@ -104,6 +107,7 @@ def purchase(request,id):
     else:
         return render(request,'404.html',{})
 
+@user_passes_test(specialilst_check)
 def purchase_approve(request,id):
     draft = PurchaseDraft.objects.get(id=id)
     items = PurchaseItems.objects.filter(purchase=draft)
