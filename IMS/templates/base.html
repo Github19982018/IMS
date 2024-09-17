@@ -415,6 +415,18 @@
           <span>Sales Orders</span>
         </a>
       </li><!-- End Sales Ordrs Page Nav -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'packages' %}">
+          <i class="bi bi-card-list"></i>
+          <span>Packages</span>
+        </a>
+      </li><!-- End Packages Page Nav -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'ships' %}">
+          <i class="bi bi-card-list"></i>
+          <span>Shipments</span>
+        </a>
+      </li><!-- End Shipments Page Nav -->
 
   {% if user.role == 'manager'%}
       <li class="nav-item">

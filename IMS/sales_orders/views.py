@@ -16,6 +16,14 @@ def view_sales(request):
     sales = Sales.objects.filter(warehouse=request.w)
     return render(request,'sales_orders/sales.html',{'sales':sales})
 
+def view_packages(request):
+    packages = Package.objects.filter(sales__warehouse=request.w)
+    return render(request,'sales_orders/packages.html',{'packages':packages})
+
+def view_ships(request):
+    ships = Shipment.objects.filter(sales__warehouse=request.w)
+    return render(request,'sales_orders/ships.html',{'ships':ships})
+
 def get_sales(request,id):
     try:
         Sales.objects.get(id=id)
@@ -50,12 +58,19 @@ def make_sales(request):
 
 def get_package(request,id):
     try:      
-        package = Package.objects.get(id=id)
-        if package.status == 'draft':
-            return redirect(package_draft,id=id.sales.id)
+        pack = Package.objects.get(id=id)
+        if pack.status == 'draft':
+            return redirect(package_draft,id=id)
         else:
-            return redirect(package,id=id.sales.id)
+            return redirect(package,id=id)
     except Package.DoesNotExist:
+        return render(request,'404.html',{})
+    
+def get_ship(request,id):
+    try:      
+        sh = Shipment.objects.get(id=id)
+        return redirect(ship,id=sh.sales.id)
+    except Shipment.DoesNotExist:
         return render(request,'404.html',{})
 
 
