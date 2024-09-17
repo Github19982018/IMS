@@ -18,6 +18,9 @@ class User(AbstractUser):
                                 help_text=_('Required. 150 characters or fewer, Letters, digits and @/./+/-/_ only.'))
     user_type = models.PositiveSmallIntegerField(null=False,choices=USER_TYPE)
     email = models.EmailField(unique=True, error_messages={'unique':_("A user with that email name already exists.")})
+    phone = models.IntegerField(unique=True,null=True)
+    address = models.CharField(null=True,max_length=300)
+    profile_photo = models.ImageField(upload_to='profile_photo',blank=True)
     
     class Meta:
         verbose_name = _('user')
@@ -27,14 +30,11 @@ class User(AbstractUser):
         '''Send an email to this user'''
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
-class Manager(models.Model):
-    manager_id = models.ForeignKey(User,on_delete=models.CASCADE,related_name='manager')
-    phone = models.IntegerField(unique=True)
-    address = models.CharField(null=True,max_length=300)
-    profile_photo = models.ImageField(upload_to='documents',blank=True)
+# class Manager(models.Model):
+#     manager_id = models.ForeignKey(User,on_delete=models.CASCADE,related_name='manager')
 
-class Specialist(models.Model):
-    specialist_id = models.ForeignKey(User,on_delete=models.CASCADE,related_name='specialist')
-    phone = models.IntegerField(unique=True)
-    address = models.CharField(null=True,max_length=300)
-    profile_photo = models.ImageField(upload_to='documents',blank=True)
+# class Specialist(models.Model):
+#     specialist_id = models.ForeignKey(User,on_delete=models.CASCADE,related_name='specialist')
+#     phone = models.IntegerField(unique=True)
+#     address = models.CharField(null=True,max_length=300)
+#     profile_photo = models.ImageField(upload_to='documents',blank=True)

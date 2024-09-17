@@ -1,6 +1,7 @@
 from django.forms import BaseModelForm
 from django.http import HttpResponse
-from django.shortcuts import render,redirect,HttpResponseRedirect
+from django.shortcuts import redirect,HttpResponseRedirect
+from django.template.response import TemplateResponse as render
 from django.contrib.auth.views import LoginView
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
@@ -8,7 +9,7 @@ from django.contrib.auth import authenticate,login,logout
 
 from django.contrib.auth.decorators import login_not_required
 
-from accounts.forms import Registrationform
+from accounts.forms import Registrationform,Userform
 from accounts.models import User
 
 class RegistrationView(CreateView):
@@ -18,7 +19,9 @@ class RegistrationView(CreateView):
     success_url = reverse_lazy('inventories')
 
     def form_valid(self,form):
-        form.save()
+        instance = form.save(commit=False)
+        instance.is_active = False
+        instance.save()
         return super().form_valid(self,form)
 
         # if form.user_type == 'admin':
@@ -68,5 +71,19 @@ def logins(request):
         
     else:
         return render(request,'accounts/login.html')
+    
+
+def profile(request):
+    user_id = request.user.id
+    user = User.objects.get(id=user_id)
+    if request.method == 'POST':
+        userform = Userform(request.POST,instance=request.user)
+        print(userform.errors)
+        if userform.is_valid():
+            userform.save()
+    return render(request,'accounts/profile.html',{'USER':user})
+
+def change_password(request):
+    pass
         
         
