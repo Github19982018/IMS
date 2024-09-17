@@ -6,7 +6,9 @@ from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate,login,logout
 
-from accounts.forms import Registrationform,UserAuthenticationForm
+from django.contrib.auth.decorators import login_not_required
+
+from accounts.forms import Registrationform
 from accounts.models import User
 
 class RegistrationView(CreateView):
@@ -38,7 +40,7 @@ class RegistrationView(CreateView):
 
 #     def form_invalid(self, form):
 #         return self.render_to_response(self.get_context_data(form=form))
-
+@login_not_required
 def logins(request):
     if request.method == 'POST':
         username = request.POST['username']

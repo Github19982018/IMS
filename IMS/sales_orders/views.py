@@ -9,16 +9,30 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
 from django.contrib import messages
+from core.utils import specialilst_check,user_passes_test
 
 # Create your views here.
 def view_sales(request):
-    sales = Sales.objects.all()
+    sales = Sales.objects.filter(warehouse=request.w)
     return render(request,'sales_orders/sales.html',{'sales':sales})
 
+def view_packages(request):
+    packages = Package.objects.filter(sales__warehouse=request.w)
+    return render(request,'sales_orders/packages.html',{'packages':packages})
+
+def view_ships(request):
+    ships = Shipment.objects.filter(sales__warehouse=request.w)
+    return render(request,'sales_orders/ships.html',{'ships':ships})
+
 def get_sales(request,id):
-    return redirect(sales,id=id)
+    try:
+        Sales.objects.get(id=id)
+        return redirect(sales,id=id)
+    except Sales.DoesNotExist:
+        return render(request,'404.html',{})
 
 # making Sales from inventory
+@user_passes_test(specialilst_check)
 def make_sales(request):
     if request.method == 'POST':
         id_list =  request.POST.getlist('item') 
@@ -38,21 +52,29 @@ def make_sales(request):
                     units = i.units
                 ))
             draft = SalesItems.objects.bulk_create(sales_list)
-            return redirect(draft_sales,id=sales.id)
-        else:
-            return render(request,'404.html',{})
-    else:
-        HttpResponse('')
+            return redirect(draft_sales,id=sales.id)    
+    return render(request,'404.html',{})
+
 
 def get_package(request,id):
-    sales = Sales.objects.get(id=id)
-    if sales.package == 'draft':
-        return redirect(package_draft,id=id)
-    else:
-        return redirect(package,id=id)
+    try:      
+        pack = Package.objects.get(id=id)
+        if pack.status == 'draft':
+            return redirect(package_draft,id=id)
+        else:
+            return redirect(package,id=id)
+    except Package.DoesNotExist:
+        return render(request,'404.html',{})
+    
+def get_ship(request,id):
+    try:      
+        sh = Shipment.objects.get(id=id)
+        return redirect(ship,id=sh.sales.id)
+    except Shipment.DoesNotExist:
+        return render(request,'404.html',{})
 
 
-
+@user_passes_test(specialilst_check)
 def draft_sales(request,id):
     if request.method == 'POST':
         quantity = request.POST.getlist('quantity')
@@ -61,29 +83,36 @@ def draft_sales(request,id):
             sale = SalesItems.objects.get(id=item[i])
             sale.quantity = quantity[i]
             sale.save()
-            return HttpResponseRedirect('')
+        return HttpResponseRedirect('')
     else:
-        sales = Sales.objects.get(id=id)
-        draft = SalesItems.objects.filter(sales=sales.id)
-        ship_method = ShipMethod.objects.all()
-        customers = Customer.objects.all()
-        s = request.GET.get('customer')
-        customer = ''
-        if s:
-            customer = Customer.objects.get(id=s)
-        else:
-            customer = Customer.objects.first()
-        sales.customer = customer
-        sales.save()
-        return render(request,'sales_orders/sales_draft.html',{'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
+        try:
+            sales = Sales.objects.get(id=id)
+            draft = SalesItems.objects.filter(sales=sales.id)
+            ship_method = ShipMethod.objects.all()
+            customers = Customer.objects.all()
+            s = request.GET.get('customer')
+            customer = ''
+            if s:
+                try:
+                    customer = Customer.objects.get(id=s)
+                except Customer.DoesNotExist:
+                    customer = Customer.objects.first()
+            else:
+                customer = Customer.objects.first()
+            sales.customer = customer
+            sales.save()
+            return render(request,'sales_orders/sales_draft.html',{'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
+        except Sales.DoesNotExist:
+            return render(request,'404.html',{})
+        
 
 def sales(request,id):
-    sales = Sales.objects.get(id=id)
-    if sales:
+    try:
+        sales = Sales.objects.get(id=id)
         draft = SalesItems.objects.filter(sales=sales)
         if sales.status:
-            return render(request,'sales_orders/sale.html',{'number':id,'items':[draft], 'sales':sales})
-        else:
+            return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
+        elif request.method == 'POST':
             sales.bill_address = request.POST['bill_address']
             sales.ship_address = request.POST['ship_address']
             # total_price = request.POST['total_price']
@@ -95,70 +124,94 @@ def sales(request,id):
             sales.warehouse = Warehouse.objects.get(id=request.w)
             sales.save()
             return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
-    else:
+        return  render(request,'404.html',{})
+    except Sales.DoesNotExist:
         return  render(request,'404.html',{})
     
+
+@user_passes_test(specialilst_check)
 def package_draft(request,id):
-    sales = Sales.objects.get(id=id)
-    if sales:
+    try:
+        sales = Sales.objects.get(id=id)
         ship_method = ShipMethod.objects.all()
         customers = Customer.objects.all()
         if Package(sales=sales):
             p = Package.objects.create(sales=sales,created_at=datetime.now(),status=PackageStatus(id=1),customer=sales.customer,shipping_address=sales.ship_address)
             items = SalesItems.objects.filter(sales=sales)
             return render(request,'sales_orders/package_draft.html',{'number':p.id,'items':items, 'sales':sales, 'package' :p,'ship_method':ship_method,'customers':customers})
-        else:
-            return HttpResponseRedirect('')
-    else:
-        return HttpResponseRedirect('')
+    except Sales.DoesNotExist:
+        return  render(request,'404.html',{})
+    except Package.DoesNotExist:
+        return render(request,'404.html',{})
 
+@user_passes_test(specialilst_check)
 def package(request,id):
-    package = Package.objects.get(id=id)
-    package.status = PackageStatus(id=1)
-    package.save()
-    sales = package.sales
-    items = SalesItems.objects.filter(sales=sales)
-    return render(request,'sales_orders/package.html',{'package':package,'items':items, 'sales':sales})
+    try:
+        package = Package.objects.get(id=id)
+        package.status = PackageStatus(id=1)
+        package.save()
+        sales = package.sales
+        items = SalesItems.objects.filter(sales=sales)
+        return render(request,'sales_orders/package.html',{'package':package,'items':items, 'sales':sales})
+    except Package.DoesNotExist:
+        return render(request,'404.html',{})
     
+
 def ship(request,id):
-    import random
-    track=random.randint(100000000000,9999999999999)
-    # pack = request.POST.getlist('package')
-    sales = Sales.objects.get(id=id)
-    # items = sales.items
-    ship = Shipment.objects.get(sales=sales)
-    if ship:
-        packages = ship.package.all()
-        items = sales.items.all()
-        return render(request,'sales_orders/ship.html',{'number':id, 'sales':sales,'ship':ship, 'packages':packages, 'items':items})
-    else:
-        ship = Shipment.objects.create(sales=sales,tracking_number=track,ship_method=sales.ship_method,customer=sales.customer,shipment_address=sales.ship_address)
-        # ship.sales.add(sales)
-        packages = ship.package.all()
-        items = sales.items.all()
-        return render(request,'sales_orders/ship.html',{'number':id, 'sales':sales,'ship':ship, 'packages':packages, 'items':items})
+    try:
+        sales = Sales.objects.get(id=id)
+        shiplist = Shipment.objects.filter(sales=sales)
+        if request.method == 'POST' and specialilst_check:
+            if shiplist:
+                [sh,] = shiplist
+            else:            
+                import random
+                track=random.randint(100000000000,9999999999999)
+                sh = Shipment.objects.create(sales=sales,tracking_number=track,ship_method=sales.ship_method,customer=sales.customer,shipment_address=sales.ship_address)
+            # ship.sales.add(sales)
+            pack = request.POST.getlist('package')
+            packages = Package.objects.filter(id__in=pack)
+            packages.update(ship=sh)
+            items = sales.items.all()
+            return render(request,'sales_orders/ship.html',{'number':id, 'sales':sales,'ship':sh, 'packages':packages, 'items':items})
+        # items = sales.items
+        else:
+            if shiplist:
+                [sh,] = shiplist
+                packages = sh.package.all()
+                items = sales.items.all()
+                return render(request,'sales_orders/ship.html',{'number':id, 'sales':sales,'ship':sh, 'packages':packages, 'items':items})
+    except Sales.DoesNotExist:
+        return render(request,'404.html',{})
 
 
 from sales_orders.serializer import ShipSerializer
+@user_passes_test(specialilst_check)
 def create_ship(request,id):
-    sales = Sales.objects.get(id=id)
-    ship = Shipment.objects.get(sales=sales)
-    packages = ship.package.all()
-    items = sales.items.all()
-    ship.status = ShipStatus(id=2)
-    ship.save()
-    url = 'http://localhost:8081/sales/approve'
-    data = ShipSerializer(ship)
-    print(data.data)
-    # requests.post(url,data)
-    # draft = SalesItems.objects.get(sales=sales)
-    return redirect(ship,id=id)
+    try:
+        sales = Sales.objects.get(id=id)
+        shipment = Shipment.objects.get(sales=sales)
+        packages = shipment.package.all()
+        items = sales.items.all()
+        shipment.status = ShipStatus(id=2)
+        shipment.save()
+        url = 'http://localhost:8081/sales/approve'
+        data = ShipSerializer(shipment)
+        # print(data.data)
+        # requests.post(url,data)
+        # draft = SalesItems.objects.get(sales=sales)
+        return redirect(ship,id=id)
+    except Sales.DoesNotExist:
+        return render(request,'404.html',{})
+    except Shipment.DoesNotExist:
+        return HttpResponseRedirect('')
 
     # else:
     #     return HttpResponse('')
 
 
 from sales_orders.serializer import SalesSerializer
+@user_passes_test(specialilst_check)
 @api_view(['GET'])
 def sales_approve(request,id):
     status = SalesStatus(id=4)

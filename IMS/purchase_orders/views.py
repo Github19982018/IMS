@@ -8,10 +8,19 @@ from datetime import datetime, date
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
+from core.utils import specialilst_check,user_passes_test
+
+def specialist_auth(request):
+    user = request.user
+    if user.user_type == 3:
+        return True
+    else:
+        raise PermissionError
+
 
 # Create your views here.
 def view_purchases(request):
-    purchases = PurchaseOrder.objects.all()
+    purchases = PurchaseOrder.objects.filter(warehouse=request.w)
     return render(request,'purchases.html',{'purchases':purchases})
 # def get_purchase(request,id):
 #     draft = Purchase_items.objects.get(pk=id)
@@ -19,28 +28,34 @@ def view_purchases(request):
 #     return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
 
 # making purchase from inventory
+@user_passes_test(specialilst_check)
 def make_purchase(request):
-    id_list =  request.POST.getlist('item') 
-    items = Inventory.objects.filter(id__in=id_list)
-    if len(items)>=1:
-        purchase_list = []
-        w = request.w
-        warehouse = Warehouse.objects.get(id=w)
-        # warehouse = Warehouse.objects.all()
-        purchase = PurchaseDraft.objects.create()
-        for i in items:
-            purchase_list.append(PurchasesItems(
-                purchase = purchase,
-                item = i,
-                price = i.selling_price,
-                quantity = 1,
-                units = i.units
-            ))
-        draft = PurchaseItems.objects.bulk_create(purchase_list)
-        return redirect(draft_purchase,id=purchase.id,permanent=True)
+    specialist_auth(request)
+    if request.method == 'POST':
+        id_list =  request.POST.getlist('item') 
+        items = Inventory.objects.filter(id__in=id_list)
+        if len(items)>=1:
+            purchase_list = []
+            w = request.w
+            warehouse = Warehouse.objects.get(id=w)
+            # warehouse = Warehouse.objects.all()
+            purchase = PurchaseDraft.objects.create()
+            for i in items:
+                purchase_list.append(PurchasesItems(
+                    purchase = purchase,
+                    item = i,
+                    price = i.selling_price,
+                    quantity = 1,
+                    units = i.units
+                ))
+            draft = PurchaseItems.objects.bulk_create(purchase_list)
+            return redirect(draft_purchase,id=purchase.id,permanent=True)
+        else:
+            return redirect('inventories')
     else:
         return render(request,'404.html',{})
 
+@user_passes_test(specialilst_check)
 def draft_purchase(request,id):
     if request.method == 'POST':
         quantity = request.POST.getlist('quantity')
@@ -65,6 +80,7 @@ def draft_purchase(request,id):
         purchase.save()
         return render(request,'purchase.html',{'number':id,'items':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
 
+
 def purchase(request,id):
     draft = PurchaseDraft.objects.get(id=id)
     if draft:
@@ -72,9 +88,8 @@ def purchase(request,id):
         purchase = PurchaseOrder.objects.get(id=draft)
         if purchase:
             return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})
-        else:
+        elif specialilst_check:
             if request.method == 'POST':
-                items = PurchaseItems.objects.filter(purchase=draft)
                 total = 0
                 for i in items:
                     total += i.total_price
@@ -87,9 +102,12 @@ def purchase(request,id):
                 status = Purchase_status.objects.get(status='draft')
                 purchase = PurchaseOrder.objects.create(id=draft,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
                 return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})
+            else:
+                return render(request,'404.html',{})
     else:
         return render(request,'404.html',{})
 
+@user_passes_test(specialilst_check)
 def purchase_approve(request,id):
     draft = PurchaseDraft.objects.get(id=id)
     items = PurchaseItems.objects.filter(purchase=draft)
@@ -119,7 +137,6 @@ def purchase_approve(request,id):
     # requests.post(url,json=data)
     purchase.save()
     return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
-
 
 def purchase_api(request):
     id =  request.GET.get('ref')

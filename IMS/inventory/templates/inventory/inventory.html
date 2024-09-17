@@ -8,6 +8,7 @@
     <section class="section">
       <!-- <div class="row">
         <div class="col-lg-12"> -->
+    {% if user.role == 'specialist'%}
           <div class="row m-2">
             <!-- Vertically centered Modal -->
              <div class="col">
@@ -40,9 +41,12 @@
               </div>
             </div><!-- End Vertically centered Modal-->
       </div>
-      <form action="{% url 'make_purchase' %}" method="post">
+      {%endif%}
+      <form action="{% url 'make_sales' %}" method="post">
         {%csrf_token%}
+    {% if user.role == 'specialist'%}
         <button type="submit" class="btn btn-primary">Order</button>
+    {%endif%}
         <div class="card py-3 m-2">
             <div class="card-body">
               

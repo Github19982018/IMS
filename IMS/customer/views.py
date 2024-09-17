@@ -1,17 +1,19 @@
 from django.template.response import TemplateResponse as render
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from customer.models import Customer
-from sales_orders.models import SalesItems
+from sales_orders.models import Sales
+from core.utils import specialilst_check
 
 # Create your views here.
+
 def view_customers(request):
     customers = Customer.objects.all()
     return render(request,'customers.html',{'customers':customers})
 
 def get_customer(request,id):
     customer = Customer.objects.get(id=id)
-    orders = SalesItems.objects.filter(customer=customer)
-    if request.method == 'POST':
+    orders = Sales.objects.filter(customer=customer)[:4]
+    if request.method == 'POST' and specialilst_check:
         commitment = request.POST['commitment']
         consistency = request.POST['consistency']
         transaction = request.POST['transaction']

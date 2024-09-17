@@ -40,18 +40,20 @@ class  SalesItems(models.Model):
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
-    discount = models.PositiveSmallIntegerField(default=0)
+    discount = models.PositiveSmallIntegerField(default=1)
     @property
     def total_price(self):
-        return self.quantity*self.price
-    
+        return (self.quantity*self.price)-(self.price*self.quantity*self.discount/100)
+    def __str__(self):
+        return self.item
 class SaleItems(BulkModel):
     sales = models.ForeignKey(to=Sales,on_delete=models.CASCADE)
     item = models.ForeignKey(to=Inventory,null=True,on_delete=models.CASCADE)
     price = models.DecimalField(decimal_places=2,max_digits=10)
     quantity = models.PositiveIntegerField()
     units = models.CharField(max_length=50)
-    discount = models.PositiveSmallIntegerField(default=0)
+    discount = models.PositiveSmallIntegerField(default=1)
+    
 
 class PackageStatus(models.Model):
     id = models.SmallIntegerField(primary_key=True)
@@ -65,6 +67,7 @@ class ShipStatus(models.Model):
     status = models.CharField(max_length=50)
     def __str__(self) -> str:
         return self.status
+    
 class Shipment(models.Model):
     tracking_number = models.PositiveBigIntegerField(editable=False)
     created_at = models.DateTimeField(default=datetime.now)

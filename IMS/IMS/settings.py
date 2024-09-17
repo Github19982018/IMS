@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'sales_orders',
     'reports',
     'customer',
-    'rest_framework'
+    'rest_framework',
+    'core'
 ]
 
 MIDDLEWARE = [
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'inventory.middleware.custom_middleware.Warehouse_middleware',

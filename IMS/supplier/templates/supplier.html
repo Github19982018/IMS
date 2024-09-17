@@ -44,6 +44,7 @@
                                 <th>Order #</th>
                                 <th>Created at</th>
                                 <th>Amount</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -52,6 +53,7 @@
                             <td><a href="#">{{i.id}}</a></td>
                             <td>{{i.order.created_date}}</td>
                             <td>{{i.order.total_amount}}</td>
+                            <td>{{i.order.status}}</td>
                           </tr>
                           {% endfor %}
                         </tbody>
@@ -59,7 +61,7 @@
                 </div>
             </div>
       </div>
-
+  {%if user.role == 'specialist'%}
           <section>
             <h5><b>Supplier Evaluation</b></h5>
             <div class="card p-2">
@@ -132,4 +134,5 @@
                 </form>
             </div>
           </section>
+  {%endif%}
   {% endblock %}

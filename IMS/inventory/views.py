@@ -5,28 +5,31 @@ from inventory.models import Inventory,Supplier
 from warehouse.models import Warehouse
 from inventory.forms import InventoryForm
 # Create your views here.
+from core.utils import specialilst_check,user_passes_test
 
 def error_response_handler(request, exception=None):
     return HttpResponse('eror', status=404)
 
+""
+
 
 def view_inventory(request):
     w = request.w
-    # warehouse = Warehouse.objects.get(id=w)n
+    warehouse = Warehouse.objects.get(id=w)
     order_by = request.GET.get('orderby')
     filter = request.GET.get('filter')
-    inventory = Inventory.objects.all()
+    inventory = Inventory.objects.filter(warehouse=warehouse)
     if filter:
-        inventory = inventory.filter()
+        inventory = inventory.filter(filter)
     if order_by:
         inventory = inventory.order_by(order_by)
-    # inventory = Inventory.objects.filter(warehouse=warehouse)
     return render(request,'inventory/inventory.html',{'inventory':inventory})
 
 def get_inventory(request,id):
     inventory = Inventory.objects.get(pk=id)
     return HttpResponse(inventory)
 
+@user_passes_test(specialilst_check)
 def add_inventory(request):
     if request.method == "POST":
         f = InventoryForm(request.POST)
@@ -40,10 +43,10 @@ def add_inventory(request):
     else:
         supplier = Supplier.objects.all()
         warehouses = Warehouse.objects.all()
-        warehouse = warehouses.get(id=request.w)
         form = InventoryForm()
-        return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouse':warehouse, 'warehouses':warehouses})
-    
+        return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouses':warehouses})
+
+@user_passes_test(specialilst_check)
 def update_inventory(request,id):
     i = Inventory.objects.get(pk=id)
     if request.method == "POST":
@@ -57,9 +60,8 @@ def update_inventory(request,id):
     else:
         supplier = Supplier.objects.all()
         warehouses = Warehouse.objects.all()
-        warehouse = warehouses.get(id=request.w)
         form = InventoryForm(instance=i)
-        return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouse':warehouse, 'warehouses':warehouses})
+        return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouses':warehouses})
 
 # def  add_inventory(request):
 #     # photo = models.FilePathField(unique=True,null=True,blank=True)
