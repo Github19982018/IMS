@@ -53,8 +53,9 @@ def make_sales(request):
                     units = i.units
                 ))
             draft = SalesItems.objects.bulk_create(sales_list)
-            return redirect(draft_sales,id=sales.id)    
-    return render(request,'404.html',{})
+            return redirect(draft_sales,id=sales.id)
+    messages.add_message(request,messages.WARNING,'please select an item to order')    
+    return redirect('inventories')
 
 
 def get_package(request,id):

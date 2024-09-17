@@ -33,8 +33,8 @@ def view_purchases(request):
 @user_passes_test(specialilst_check)
 def make_purchase(request):
     specialist_auth(request)
-    if request.method == 'POST':
-        id_list =  request.POST.getlist('item') 
+    if request.method == 'GET':
+        id_list =  request.GET.getlist('item') 
         items = Inventory.objects.filter(id__in=id_list)
         if len(items)>=1:
             purchase_list = []
@@ -56,6 +56,20 @@ def make_purchase(request):
             return redirect('inventories')
     else:
         return render(request,'404.html',{})
+    
+@user_passes_test(specialilst_check)
+def make_purchase(request,id):
+    if request.method == 'GET':
+        i = Inventory.objects.get(id=id)
+        purchase = PurchaseDraft.objects.create()
+        draft = PurchaseItems.objects.create(purchase = purchase,
+                item = i,
+                price = i.selling_price,
+                quantity = 1,
+                units = i.units)
+        return redirect(draft_purchase,id=purchase.id,permanent=True)
+    else:
+            return redirect('inventories')
 
 @user_passes_test(specialilst_check)
 def draft_purchase(request,id):
@@ -73,7 +87,7 @@ def draft_purchase(request,id):
         suppliers = Supplier.objects.all()
         ship_method = ShipMethod.objects.all()
         supplier = ''
-        s = request.GET.get('supplier',draft.first().item.preferred_supplier)
+        s = request.GET.get('supplier',draft.first().item.preferred_supplier.id)
         if s:
             supplier = Supplier.objects.get(id=s)
         else:
@@ -87,9 +101,9 @@ def purchase(request,id):
     draft = PurchaseDraft.objects.get(id=id)
     if draft:
         items = PurchaseItems.objects.filter(purchase=draft)
-        purchase = PurchaseOrder.objects.get(id=draft)
+        purchase = PurchaseOrder.objects.filter(id=draft)
         if purchase:
-            return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})
+            return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()})
         elif specialilst_check:
             if request.method == 'POST':
                 total = 0
@@ -115,10 +129,10 @@ def purchase_approve(request,id):
         draft = PurchaseDraft.objects.get(id=id)
         items = PurchaseItems.objects.filter(purchase=draft)
         status = Purchase_status(id=2)
-        purchase = PurchaseOrder.objects.get(id=draft)
+        purch = PurchaseOrder.objects.get(id=draft)
         data = {'items':items,
                 'order':draft,
-                'purchase':purchase}
+                'purchase':purch}
         serializer = PurchasesSerializer(data)
         purchase.status = status
         url = 'http://localhost:8081/purchases/approve'
@@ -142,12 +156,13 @@ def purchase_approve(request,id):
         #     "items":its
         # }
         requests.post(url,serializer.data)
-        purchase.save()
-        return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
+        purch.save()
+        return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch})
     except PurchaseDraft.DoesNotExist:
-        return HttpResponseRedirect('')
+        return redirect(purchase,id)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
+        return redirect(purchase,id)
 
 @api_view(['POST'])
 def purchase_api(request):

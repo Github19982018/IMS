@@ -13,7 +13,7 @@ class Brand(models.Model):
 
 class Inventory(models.Model):
     photo = models.ImageField(null=True,blank=True,upload_to='items')
-    name = models.CharField(unique=True, max_length=100)
+    name = models.CharField(unique=True, max_length=100,db_index=True)
     sku = models.CharField(unique=True,max_length=100)
     purchasing_price = models.DecimalField(decimal_places=2,max_digits=10)
     selling_price = models.DecimalField(decimal_places=2,max_digits=10)
