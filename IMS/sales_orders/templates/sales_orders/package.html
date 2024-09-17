@@ -20,7 +20,11 @@
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit package</button>
         <button class="btn btn-sm col">Delete package</button>
-        <a href="{% url 'ship' sales.id %}" id="btn" class="btn btn-sm col btn-success">ship a package</a>
+        <form class="col" action="{% url 'ship' sales.id  %}" method="post">
+          {%csrf_token%}
+          <input type="number" name="package" id="" hidden value="{{package.id}}">
+          <button href="" id="btn" class="btn btn-success">ship a package</button>
+        </form>
     </div>
 {%endif%}
     <ul class="progress-tracker">

@@ -2,7 +2,6 @@ from django.template.response import TemplateResponse as render
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from supplier.models import Supplier,Supplier_rating
 from purchase_orders.models import PurchaseDraft
-from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -12,12 +11,10 @@ def specialist_auth(request):
         return True
     else:
         raise PermissionError
-@login_required
 def view_suppliers(request):
     suppliers = Supplier.objects.all()
     return render(request,'suppliers.html',{'suppliers':suppliers})
 
-@login_required
 def get_supplier(request,id):
     supplier = Supplier.objects.get(id=id)
     orders = PurchaseDraft.objects.filter(supplier=supplier)[:4]

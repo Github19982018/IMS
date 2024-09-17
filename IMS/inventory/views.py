@@ -4,7 +4,6 @@ from datetime import datetime
 from inventory.models import Inventory,Supplier
 from warehouse.models import Warehouse
 from inventory.forms import InventoryForm
-from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def error_response_handler(request, exception=None):
@@ -18,7 +17,6 @@ def specialist_auth(request):
     else:
         raise PermissionError
 
-@login_required 
 def view_inventory(request):
     w = request.w
     warehouse = Warehouse.objects.get(id=w)
@@ -35,7 +33,6 @@ def get_inventory(request,id):
     inventory = Inventory.objects.get(pk=id)
     return HttpResponse(inventory)
 
-@login_required
 def add_inventory(request):
     specialist_auth(request)
     if request.method == "POST":
@@ -53,7 +50,6 @@ def add_inventory(request):
         form = InventoryForm()
         return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouses':warehouses})
 
-@login_required   
 def update_inventory(request,id):
     specialist_auth(request)
     i = Inventory.objects.get(pk=id)

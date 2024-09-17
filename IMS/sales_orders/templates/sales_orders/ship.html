@@ -20,7 +20,12 @@
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit shipment</button>
         <button class="btn btn-sm col">Cancel ship</button>
-          <a href="{% url 'create_ship' sales.id %}" id="btn" class="btn btn-sm col btn-success">ship</a>
+        <form class="col" action="{% url 'create_ship' sales.id %}" method="post">
+          {%csrf_token%}
+          <input hidden type="number" value="{{package.id}} name=package">
+          <input type="submit" id="btn" class="btn  btn-success" value="ship">
+        </form>
+          
     </div>
 {%endif%}
     <ul class="progress-tracker">
@@ -52,7 +57,7 @@
         </div>
         <div class="row">
             <div class="col-4">Address: </div>
-            <div class="col-8">{{ship.ship_address}}</div>
+            <div class="col-8">{{ship.shipment_address}}</div>
         </div>
         <div class="row">
             <div class="col-4">Phone: </div>
@@ -117,13 +122,13 @@
                         </div>
                         <div class="row">
                             <div class="col-4">Shipping Address: </div>
-                            <div class="col-8">{{ship.ship_address}}</div>
+                            <div class="col-8">{{ship.shipping_address}}</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Associated packages: </div>
                             <div class="col-8">
                               {%for i in packages%}
-                              <span>{{i}}</span>
+                              <span>{{i.id}}</span>
                               {%endfor%}
                             </div>
                         </div>

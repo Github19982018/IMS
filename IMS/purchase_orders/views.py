@@ -8,7 +8,6 @@ from datetime import datetime, date
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
-from django.contrib.auth.decorators import login_required
 
 def specialist_auth(request):
     user = request.user
@@ -19,7 +18,6 @@ def specialist_auth(request):
 
 
 # Create your views here.
-@login_required
 def view_purchases(request):
     purchases = PurchaseOrder.objects.filter(warehouse=request.w)
     return render(request,'purchases.html',{'purchases':purchases})
@@ -29,7 +27,6 @@ def view_purchases(request):
 #     return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
 
 # making purchase from inventory
-@login_required
 def make_purchase(request):
     specialist_auth(request)
     if request.method == 'POST':
@@ -56,7 +53,6 @@ def make_purchase(request):
     else:
         return render(request,'404.html',{})
 
-@login_required
 def draft_purchase(request,id):
     specialist_auth(request)
     if request.method == 'POST':
@@ -82,7 +78,6 @@ def draft_purchase(request,id):
         purchase.save()
         return render(request,'purchase.html',{'number':id,'items':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
 
-@login_required
 def purchase(request,id):
     draft = PurchaseDraft.objects.get(id=id)
     if draft:
@@ -109,7 +104,6 @@ def purchase(request,id):
     else:
         return render(request,'404.html',{})
 
-@login_required
 def purchase_approve(request,id):
     draft = PurchaseDraft.objects.get(id=id)
     items = PurchaseItems.objects.filter(purchase=draft)
@@ -140,7 +134,6 @@ def purchase_approve(request,id):
     purchase.save()
     return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
 
-@login_required
 def purchase_api(request):
     id =  request.GET.get('ref')
     status = request.GET.get('status')
