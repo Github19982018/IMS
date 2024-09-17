@@ -43,22 +43,24 @@ def logins(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        user_type = request.POST['user_type']
         #authenticate method checks the provided username and password against the database
         userpass = authenticate(request,username=username,password=password)
-        if userpass is not None and userpass.is_superuser:
-            login(request,userpass)
-            request.session['admin_id']=userpass.id
-            return redirect('/admin/')
-        elif userpass is not None and userpass.is_active:
-            user = User.objects.get(id=userpass.id)
-            if user.user_type == 2:
+        if userpass:
+            if user_type == '1' and userpass.is_superuser:
                 login(request,userpass)
-                request.session['manager_id']=userpass.id
-                return redirect('dashboard')
-            elif user.user_type == 3:
-                login(request,userpass)
-                request.session['specialist_id']=userpass.id
-                return redirect('inventories')
+                request.session['admin_id']=userpass.id
+                return redirect('/admin/',{'user':request.user})
+            elif userpass.is_active:
+                user = User.objects.get(id=userpass.id)
+                if user_type=='2' and  user.user_type == 2:
+                    login(request,userpass)
+                    request.session['manager_id']=userpass.id
+                    return redirect('dashboard')
+                elif user_type == '3' and user.user_type == 3:
+                    login(request,userpass)
+                    request.session['specialist_id']=userpass.id
+                    return redirect('inventories')
         
         return HttpResponse('invalid login')
         
