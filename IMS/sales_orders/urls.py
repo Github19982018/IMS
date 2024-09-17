@@ -16,6 +16,7 @@ urlpatterns = [
     path('<int:id>/package/',views.package,name='package'),
     path('<int:id>/ship/',views.ship,name='ship'),
     path('supplier/',views.sales_approve,name='supplier_approve'),
+    path('package/',views.package_api,name='package_api'),
     path('sales/',views.sales_api,name='sales_api'),
     path('<int:id>/ship/create',views.create_ship,name='create_ship'),
 ]

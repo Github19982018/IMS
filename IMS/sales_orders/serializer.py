@@ -3,34 +3,49 @@ from sales_orders.models import Sales, SalesItems,Shipment,Package
 
 from django.db.models import fields
 
+class PackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Package
+        fields = '__all__'
+
+
 class ItemsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SalesItems
         fields = '__all__'
         
-class SalesSerializer(serializers.ModelSerializer):
+class SaleSerializer(serializers.ModelSerializer):
     items = ItemsSerializer(many=True)
     class Meta:
         model = Sales
         fields = '__all__'
+        depth=2
 
-class ItemsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SalesItems
-        fields = '__all__'
+
         
-class ShipSerializer(serializers.ModelSerializer):
-    # items = ItemsSerializer(many=True)
+class ShipmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shipment
-        # fields = '__all__'
-        exclude = ['shipment_date','sales','customer','status']
-        # depth = 3
-
-class PackageSerializer(serializers.ModelSerializer):
-    # items=ItemsSerializer(many=True)
-
-    class Meta:
-        model = Package
         fields = '__all__'
-        depth = 3
+        # exclude = ['shipment_date','sales','customer','status']
+
+class SalesSerializer(serializers.Serializer):
+    items = ItemsSerializer(many=True)
+    sales = SaleSerializer
+
+class PackSerializer(serializers.Serializer):
+    items = ItemsSerializer(many=True)
+    package = PackageSerializer()
+
+
+class ShipSerializer(serializers.Serializer):
+    shipment = ShipmentSerializer()
+    items = ItemsSerializer(many=True)
+    packages = PackageSerializer(many=True)
+
+
+class ApiSerializer(serializers.Serializer):
+    ref = serializers.IntegerField()
+    status = serializers.IntegerField(min_value=0, max_value=10)
+
+

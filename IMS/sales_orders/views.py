@@ -7,6 +7,7 @@ from customer.models import Customer
 from datetime import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.exceptions import APIException
 import requests
 from django.contrib import messages
 from core.utils import specialilst_check,user_passes_test
@@ -112,7 +113,7 @@ def sales(request,id):
         draft = SalesItems.objects.filter(sales=sales)
         if sales.status:
             return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
-        elif request.method == 'POST':
+        elif request.method == 'POST' and specialilst_check:
             sales.bill_address = request.POST['bill_address']
             sales.ship_address = request.POST['ship_address']
             # total_price = request.POST['total_price']
@@ -193,12 +194,19 @@ def create_ship(request,id):
         shipment = Shipment.objects.get(sales=sales)
         packages = shipment.package.all()
         items = sales.items.all()
+        data = {'shipment':shipment,
+                'packages':packages,
+                'items':items}
         shipment.status = ShipStatus(id=2)
         shipment.save()
         url = 'http://localhost:8081/sales/approve'
-        data = ShipSerializer(shipment)
+        data = ShipSerializer(data)
         # print(data.data)
-        # requests.post(url,data)
+        try:
+            requests.post(url,data)
+            messages.add_message(request,messages.SUCCESS,'Successfully send for approval')
+        except requests.exceptions.ConnectionError:
+            messages.add_message(request,messages.ERROR,'Cant connect to the server')
         # draft = SalesItems.objects.get(sales=sales)
         return redirect(ship,id=id)
     except Sales.DoesNotExist:
@@ -212,79 +220,83 @@ def create_ship(request,id):
 
 from sales_orders.serializer import SalesSerializer
 @user_passes_test(specialilst_check)
-@api_view(['GET'])
 def sales_approve(request,id):
-    status = SalesStatus(id=4)
-    sales = Sales.objects.get(id=id)
-    draft = SalesItems.objects.get(sales=sales)
-    sales.status = status
-    sales.save()
-    url = 'http://localhost:8081/sales/approve'
-    data = SalesSerializer(sales,items=draft)
-    print(data.data)
-    # for i in draft:
-    #     items['item']=i.item.name
-    #     items['price'] = i.price
-    #     items['quantity'] = i.quantity
-    #     items['un']
-    # data = {
-    #     'ref':sales.id,
-    #     'customer':sales.customer.name,
-    #     'contact_person':sales.sales_person,
-    #     'bill_address':sales.bill_address,
-    #     'preferred_shipping_date':sales.preferred_shipping_date.isoformat(),
-    #     "ship_address":sales.ship_address,
-    #     'ship_method':sales.ship_method.method,
-    #     'contact_phone':int(sales.contact_phone),
-    #     'created_date':sales.created_date.isoformat(),
-    #     'total_amount':int(sales.total_amount),
-    #     "items":{'item_id':draft.item.id,
-    #              'price':int(draft.price),
-    #              'quantity':int(draft.quantity),
-    #              'units':draft.units}
-    # }
-    requests.post(url,json=data)
-    return render(request,'sales_next.html',{'number':id,'items':[draft], 'Sales':Sales})
+    try:
+        status = SalesStatus(id=4)
+        sales = Sales.objects.get(id=id)
+        items = SalesItems.objects.get(sales=sales)
+        sales.status = status
+        data = {
+            'items':items,
+            'sales':sales
+        }
+        url = 'http://localhost:8081/sales/approve'
+        data = SalesSerializer(sales,items=items)
+        print(data.data)
+        try:
+            requests.post(url,data)
+            sales.save()
+        except requests.exceptions.ConnectionError:
+            messages.add_message(request,messages.ERROR,'Cant connect to the server')
+        return render(request,'sales_next.html',{'number':id,'items':items, 'Sales':Sales})
+    except Sales.DoesNotExist:
+        return HttpResponseRedirect('')
+    except SalesItems.DoesNotExist:
+        return HttpResponseRedirect('')
 
 
-@api_view(['post'])
+@api_view(['POST'])
 def sales_api(request):
-    data = request.data
-    id =  data['ref']
-    status = data['status']
-    draft = Sales.objects.get(id=id)
-    status = SalesStatus(id=status)
-    draft.status = status
-    draft.save()
-    return HttpResponse('success')
+    try:
+        data = request.data
+        id =  data['ref']
+        status = data['status']
+        draft = Sales.objects.get(id=id)
+        status = SalesStatus(id=status)
+        draft.status = status
+        draft.save()
+        return Response({'data':'successfully updated'},status=201)
+
+    except Sales.DoesNotExist:
+        return Response({'error':'order does not exist'},status=404)
+
+
+
 
 @api_view(["POST"])
 def package_api(request):
-    id =  request.POST['ref']
-    status = request.POST['status']
-    draft = Package.objects.get(id=id)
-    status = PackageStatus(id=status)
-    sales = draft.sales
-    draft.status = status
-    sales.staus = 2
-    draft.save()
-    sales.save()
-    messages.add_message(request,messages.INFO,f"package {id}: {status}")
-    return HttpResponse('success')
+    try:
+        data =  request.data
+        package = Package.objects.get(id=data['ref'])
+        sales = package.sales
+        package.status = PackageStatus(2)
+        sales.status = SalesStatus(3)
+        package.save()
+        sales.save()
+        return Response({'data':'successfully updated'},status=201)
+    except KeyError:
+            return Response({'error':'Invalid data'},status=404)
+    except Package.DoesNotExist:
+        return Response({'error':'order does not exist'},status=404)
 
 @api_view(["POST"])
 def ship_api(request):
-    id =  request.POST['ref']
-    status = request.POST['status']
-    draft = Shipment.objects.get(id=id)
-    status = ShipStatus(id=status)
-    sales = draft.sales
-    draft.status = status
-    if status == 2:
-        sales.status = 3
-    elif status == 3:
-        sales.status = 4
-    draft.save()
-    sales.save()
-    messages.add_message(request,messages.INFO,f"package {id}: {status}")
-    return HttpResponse('success')
+    try:
+        data = request.data
+        draft = Shipment.objects.get(id=data.ref)
+        status = ShipStatus(id=status)
+        sales = draft.sales
+        draft.status = status
+        if status == 2:
+            sales.status = 3
+        elif status == 3:
+            sales.status = 4
+        draft.save()
+        sales.save()
+        return Response({'data':'successfully updated'},status=201)
+    except KeyError:
+            return Response({'error':'Invalid data'},status=404)
+    except Shipment.DoesNotExist:
+            return HttpResponse({'error':'order does not exist'},status=404)
+    except ShipStatus.DoesNotExist:
+            return HttpResponse({f'error':'invalid data: status:{status}'},status=404)

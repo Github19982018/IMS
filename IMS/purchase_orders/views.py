@@ -9,6 +9,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
 from core.utils import specialilst_check,user_passes_test
+from purchase_orders.serializers import PurchasesSerializer
+from django.contrib import messages
 
 def specialist_auth(request):
     user = request.user
@@ -109,41 +111,72 @@ def purchase(request,id):
 
 @user_passes_test(specialilst_check)
 def purchase_approve(request,id):
-    draft = PurchaseDraft.objects.get(id=id)
-    items = PurchaseItems.objects.filter(purchase=draft)
-    status = Purchase_status(id=4)
-    purchase = PurchaseOrder.objects.get(id=draft)
-    purchase.status = status
-    url = 'http://localhost:8081/purchases/approve'
-    its = {}
-    for i in items:
-        item = its[i.item.name] = {}
-        item['price'] = int(i.price)
-        item['units'] = i.item.units
-        item['quantity'] = i.quantity
-    data = {
-        'ref':purchase.id.id,
-        'supplier':purchase.id.supplier.name,
-        'contact_person':purchase.id.supplier.contact_person,
-        'bill_address':purchase.bill_address,
-        'preferred_shipping_date':purchase.preferred_shipping_date.isoformat(),
-        "ship_address":purchase.ship_address,
-        'ship_method':purchase.ship_method.method,
-        'contact_phone':int(purchase.contact_phone),
-        'created_date':purchase.created_date.isoformat(),
-        'total_amount':int(purchase.total_amount),
-        "items":its
-    }
-    # requests.post(url,json=data)
-    purchase.save()
-    return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
+    try:
+        draft = PurchaseDraft.objects.get(id=id)
+        items = PurchaseItems.objects.filter(purchase=draft)
+        status = Purchase_status(id=2)
+        purchase = PurchaseOrder.objects.get(id=draft)
+        data = {'items':items,
+                'order':draft,
+                'purchase':purchase}
+        serializer = PurchasesSerializer(data)
+        purchase.status = status
+        url = 'http://localhost:8081/purchases/approve'
+        # its = {}
+        # for i in items:
+        #     item = its[i.item.name] = {}
+        #     item['price'] = int(i.price)
+        #     item['units'] = i.item.units
+        #     item['quantity'] = i.quantity
+        # data = {
+        #     'ref':purchase.id.id,
+        #     'supplier':purchase.id.supplier.name,
+        #     'contact_person':purchase.id.supplier.contact_person,
+        #     'bill_address':purchase.bill_address,
+        #     'preferred_shipping_date':purchase.preferred_shipping_date.isoformat(),
+        #     "ship_address":purchase.ship_address,
+        #     'ship_method':purchase.ship_method.method,
+        #     'contact_phone':int(purchase.contact_phone),
+        #     'created_date':purchase.created_date.isoformat(),
+        #     'total_amount':int(purchase.total_amount),
+        #     "items":its
+        # }
+        requests.post(url,serializer.data)
+        purchase.save()
+        return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
+    except PurchaseDraft.DoesNotExist:
+        return HttpResponseRedirect('')
+    except requests.exceptions.ConnectionError:
+        messages.add_message(request,messages.ERROR,'Cant connect to the server')
 
+@api_view(['POST'])
 def purchase_api(request):
-    id =  request.GET.get('ref')
-    status = request.GET.get('status')
-    draft = PurchaseItems.objects.get(id=id)
-    status = Purchase_status(id=status)
-    purchase = PurchaseOrder.objects.get(id=draft)
-    purchase.status = status
-    purchase.save()
-    return HttpResponse('success')
+    try:
+        data = request.data
+        id = data['ref']
+        draft = PurchaseDraft.objects.get(id=id)
+        status = Purchase_status(id=3)
+        purchase = PurchaseOrder.objects.get(id=draft)
+        purchase.status = status
+        purchase.save()
+        return Response({'data':'successfully updated'},status=201)
+    except PurchaseDraft.DoesNotExist:
+        return Response({'error':'order does not exist'},status=404)
+
+    
+@api_view(['POST'])
+def supplier_api(request):
+    try:
+        data = request.data
+        id = data['ref']
+        status = data['status']
+        draft = PurchaseDraft.objects.get(id=id)
+        status = Purchase_status(id=status)
+        purchase = PurchaseOrder.objects.get(id=draft)
+        purchase.status = status
+        purchase.save()
+        return Response({'data':'successfully updated'},status=201)
+    except PurchaseDraft.DoesNotExist:
+        return Response({'error':'order does not exist'},status=404)
+    except Purchase_status.DoesNotExist:
+        return Response({'error':'invalid status value'},status=404)
