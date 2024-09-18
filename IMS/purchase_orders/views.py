@@ -7,10 +7,14 @@ from supplier.models import Supplier
 from datetime import datetime, date
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from accounts.models import User
 import requests
 from core.utils import specialilst_check,user_passes_test
 from purchase_orders.serializers import PurchasesSerializer
 from django.contrib import messages
+from core.models import Notifications
+from django.urls import reverse_lazy
+
 
 def specialist_auth(request):
     user = request.user
@@ -115,6 +119,7 @@ def purchase(request,id):
                 sh= request.POST['ship_method']
                 ship_method = ShipMethod.objects.get(id=sh)
                 p_date = request.POST['preferred_date']
+                p_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
                 status = Purchase_status.objects.get(status='draft')
                 purchase = PurchaseOrder.objects.create(id=draft,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
                 return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})
@@ -168,12 +173,15 @@ def purchase_approve(request,id):
 def purchase_api(request):
     try:
         data = request.data
-        id = data['ref']
-        draft = PurchaseDraft.objects.get(id=id)
+        ref = data['ref']
+        draft = PurchaseDraft.objects.get(id=ref)
         status = Purchase_status(id=3)
         purchase = PurchaseOrder.objects.get(id=draft)
         purchase.status = status
         purchase.save()
+        n = Notifications.objects.create(title='Purchase Approval',
+        message=f'Purchase order {ref} approved by Purchase team',link = reverse_lazy('purchase',args=[ref]),)
+        n.user.add(User.objects.get(user_type=3),tag='success')
         return Response({'data':'successfully updated'},status=201)
     except PurchaseDraft.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)
@@ -183,13 +191,17 @@ def purchase_api(request):
 def supplier_api(request):
     try:
         data = request.data
-        id = data['ref']
+        ref = data['ref']
         status = data['status']
-        draft = PurchaseDraft.objects.get(id=id)
+        draft = PurchaseDraft.objects.get(id=ref)
         status = Purchase_status(id=status)
         purchase = PurchaseOrder.objects.get(id=draft)
         purchase.status = status
         purchase.save()
+        n = Notifications.objects.create(title='Purchase Approval',
+        message=f'Purchase order {ref} approved by Purchase team',link = reverse_lazy('purchase',args=[ref]),
+        tag='success')
+        n.user.add(User.objects.get(user_type=3))
         return Response({'data':'successfully updated'},status=201)
     except PurchaseDraft.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)

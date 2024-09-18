@@ -58,7 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'inventory.middleware.custom_middleware.Warehouse_middleware',
+    'core.middleware.custom_middleware.Warehouse_middleware',
 ]
 
 ROOT_URLCONF = 'IMS.urls'
