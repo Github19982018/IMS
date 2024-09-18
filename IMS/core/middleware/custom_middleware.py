@@ -28,12 +28,14 @@ class Warehouse_middleware:
             if user.user_type == 2:
                 user_data = {
                     'role':'manager',
-                    'name':user.username
+                    'name':user.username,
+                    'user':user
                 }
             elif user.user_type == 3:
                 user_data = {
                     'role':'specialist',
-                    'name':user.username
+                    'name':user.username,
+                    'user':user
                 }
             notifications = Notifications.objects.filter(user=request.user)[:5]
             seen = Notifications.objects.filter(user=request.user,seen=False)

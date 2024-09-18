@@ -19,6 +19,8 @@ from django.urls import path,include
 from django.test import override_settings,SimpleTestCase
 from inventory.views import error_response_handler
 from dashboard.views import dashboard
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,7 +33,7 @@ urlpatterns = [
     path('ims/v1/reports/',include('reports.urls')),
     path('ims/v1/accounts/',include('accounts.urls')),
     path('ims/v1/warehouses/',include('warehouse.urls')),
-]
+]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = error_response_handler
 
