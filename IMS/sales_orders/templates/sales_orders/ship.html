@@ -16,7 +16,7 @@
         <div class="col w-10" >Status</div>
         <div class="col w-10 badge bg-secondary rounded-pill" id="status">{{ship.status.status}}</div>
     </div>
-{%if user.role == 'specialist' %}
+{%if employee.role == 'specialist' %}
     <div class="col-8 row">
         <button class="btn btn-sm col">Edit shipment</button>
         <button class="btn btn-sm col">Cancel ship</button>

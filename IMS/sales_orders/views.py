@@ -15,7 +15,6 @@ from core.utils import specialilst_check,user_passes_test
 # Create your views here.
 def view_sales(request):
     sales = Sales.objects.filter(warehouse=request.w)
-    sales.filter(status=SalesStatus(0)).delete()
     return render(request,'sales_orders/sales.html',{'sales':sales})
 
 def view_packages(request):
@@ -76,39 +75,6 @@ def get_ship(request,id):
     except Shipment.DoesNotExist:
         return render(request,'404.html',{})
     
-@user_passes_test(specialilst_check)
-def save_quantity(request):
-    if request.method == 'POST':
-        warehouse = Warehouse.objects.get(id=request.w)
-        sale = Sales.objects.create(warehouse=warehouse)
-        quantity = request.POST.getlist('quantity')
-        item = request.POST.getlist('item')
-        sales_list = []
-        items = Inventory.objects.filter(id__in=item)
-        print(items)
-        for i in range(len(items)):
-            sales_list.append(SaleItems(
-                sales = sale,
-                item = items[i],
-                price = items[i].selling_price,
-                quantity = quantity[i],
-                units = items[i].units
-            ))
-        draft = SalesItems.objects.bulk_create(sales_list)
-        return sales(request,id=sale.id)
-    else:
-        s = request.GET.get('customer')
-        customer = ''
-        if s:
-            try:
-                customer = Customer.objects.get(id=s)
-            except Customer.DoesNotExist:
-                customer = Customer.objects.first()
-        else:
-            customer = Customer.objects.first()
-        sales.customer = customer
-        sales.save()
-    return render(save_quantity)
 
 
 @user_passes_test(specialilst_check)
@@ -117,30 +83,64 @@ def draft_sales(request):
         id_list =  request.POST.getlist('item') 
         if len(id_list)>=1:
             items = Inventory.objects.filter(id__in=id_list)
-            
-            # warehouse = Warehouse.objects.all()
-            # 
             ship_method = ShipMethod.objects.all()
             customers = Customer.objects.all()
             customer = customers.first()
-            return render(request,'sales_orders/sales_draft.html',{'number':3,'items':items,'customer':customer,'customers':customers,'ship_method':ship_method,'date':datetime.today()})
+            return render(request,'sales_orders/sales_draft.html',{'items':items,'customer':customer,'customers':customers,'ship_method':ship_method,'date':datetime.today()})
         else:
             messages.add_message(request,messages.WARNING,'please select an item to order')    
             return redirect('inventories')
+        
 
-    else:
-        s = request.GET.get('customer')
-        customer = ''
-        if s:
-            try:
-                customer = Customer.objects.get(id=s)
-            except Customer.DoesNotExist:
-                customer = Customer.objects.first()
+    # else:
+    #     s = request.GET.get('customer')
+    #     customer = ''
+    #     if s:
+    #         try:
+    #             customer = Customer.objects.get(id=s)
+    #         except Customer.DoesNotExist:
+    #             customer = Customer.objects.first()
+    #     else:
+    #         customer = Customer.objects.first()
+    #     sales.customer = customer
+    #     sales.save()
+    #     return render(request,'sales_orders/sale_draft.html',{'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
+
+
+@user_passes_test(specialilst_check)
+def save_quantity(request):
+    try:
+        if request.method == 'POST':
+            warehouse = Warehouse.objects.get(id=request.w)
+            sale = Sales.objects.create(warehouse=warehouse,customer=Customer.objects.first())
+            quantity = request.POST.getlist('quantity')
+            item = request.POST.getlist('item')
+            sales_list = []
+            items = Inventory.objects.filter(id__in=item)
+            print(items)
+            for i in range(len(items)):
+                sales_list.append(SaleItems(
+                    sales = sale,
+                    item = items[i],
+                    price = items[i].selling_price,
+                    quantity = quantity[i],
+                    units = items[i].units
+                ))
+            draft = SalesItems.objects.bulk_create(sales_list)
+            return sales(request,id=sale.id)
         else:
-            customer = Customer.objects.first()
-        sales.customer = customer
-        sales.save()
-        return render(request,'sales_orders/sale_draft.html',{'number':id,'items':draft,'customers':customers,'ship_method':ship_method,'customer':customer,'date':datetime.today()})
+            s = request.GET.get('customer')
+            customer = ''
+            if s:
+                customer = Customer.objects.get(id=s)
+                sales.customer = customer
+                sales.save()
+        return render(save_quantity)
+    except Customer.DoesNotExist:
+        pass
+    except Sales.DoesNotExist:
+        return render(request,'404.html',{})
+
 
         
 # @user_passes_test(specialilst_check)
@@ -148,37 +148,27 @@ def sales(request,id):
     try: 
         sales = Sales.objects.get(id=id)
         draft = SalesItems.objects.filter(sales=sales)
-        if request.method == "POST":
-            if sales.status:
-                return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
-            elif request.method == 'POST' and specialilst_check:
-                sales.bill_address = request.POST['bill_address']
-                sales.ship_address = request.POST['ship_address']
-                customer = request.POST['customer']
-                sales.customer = Customer.objects.get(id=customer)
-                # total_price = request.POST['total_price']
-                sh= request.POST['ship_method'] or 1
-                sales.ship_method = ShipMethod.objects.get(id=sh)
-                p_date = request.POST['preferred_date']
-                sales.preferred_shipping_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
-                sales.status = SalesStatus.objects.get(status='draft')
-                sales.warehouse = Warehouse.objects.get(id=request.w)
-                sales.save()
-                return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
-        else:
-            s = request.GET.get('customer')
-            customer = ''
-            if s:
-                try:
-                    customer = Customer.objects.get(id=s)
-                except Customer.DoesNotExist:
-                    customer = Customer.objects.first()
-            else:
-                customer = Customer.objects.first()
-            sales.customer = customer
+        if sales.status:
+            return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
+        elif request.method == 'POST' and specialilst_check:
+            sales.bill_address = request.POST['bill_address']
+            sales.ship_address = request.POST['ship_address']
+            customer = request.POST['customer']
+            sales.customer = Customer.objects.get(id=customer)
+            # sales.total_price = request.POST['total_price']
+            sh= request.POST['ship_method'] or 1
+            sales.ship_method = ShipMethod.objects.get(id=sh)
+            p_date = request.POST['preferred_date']
+            sales.preferred_shipping_date = datetime.strptime(p_date,'%m/%d/%Y, %I:%M:%S %p')
+            sales.status = SalesStatus.objects.get(status='draft')
+            sales.warehouse = Warehouse.objects.get(id=request.w)
             sales.save()
-        # return  render(request,'404.html',{})
+            return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
+        else:
+            return  render(request,'404.html',{})
     except Sales.DoesNotExist:
+        return  render(request,'404.html',{})
+    except SalesItems.DoesNotExist:
         return  render(request,'404.html',{})
     
 

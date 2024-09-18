@@ -120,7 +120,7 @@ def purchase(request,id):
                 sh= request.POST['ship_method']
                 ship_method = ShipMethod.objects.get(id=sh)
                 p_date = request.POST['preferred_date']
-                p_date = datetime.strptime(p_date,'%d/%m/%Y, %I:%M:%S %p')
+                p_date = datetime.strptime(p_date,'%m/%d/%Y, %I:%M:%S %p')
                 status = Purchase_status.objects.get(status='draft')
                 purchase = PurchaseOrder.objects.create(id=draft,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
                 return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})

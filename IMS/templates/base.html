@@ -344,13 +344,13 @@
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
             <img src="{% static 'assets/img/profile-img.jpg' %}" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block dropdown-toggle ps-2">{{user.name | title}}</span>
+            <span class="d-none d-md-block dropdown-toggle ps-2">{{employee.name | title}}</span>
           </a><!-- End Profile Iamge Icon -->
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
             <li class="dropdown-header">
-              <h6>{{user.name | title}}</h6>
-              <span>Inventory {{user.role | title}}</span>
+              <h6>{{employee.name | title}}</h6>
+              <span>Inventory {{employee.role | title}}</span>
             </li>
             <li>
               <hr class="dropdown-divider">
@@ -454,7 +454,7 @@
         </a>
       </li><!-- End Shipments Page Nav -->
 
-  {% if user.role == 'manager'%}
+  {% if employee.role == 'manager'%}
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'reports'%}">
           <i class="bi bi-box-arrow-in-right"></i>
@@ -476,7 +476,7 @@
         </form>
       </li><!-- End Warehouses Nav -->
         <!-- </ul> -->
-{% if user.role == 'manager'%}
+{% if employee.role == 'manager'%}
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'warehouses' %}">
           <i class="bi bi-box-arrow-in-right"></i>
@@ -510,22 +510,22 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div> -->
     {%if i.tags == 'error'%}
-    <div class="alert  alert-danger alert-dismissible fade show" role="alert">
+    <div class="alert  alert-danger popover position-fixed alert-dismissible fade show" role="alert">
       <i class="bi bi-exclamation-octagon me-1"></i>
       {{i.tags|upper}}: {{i}} 
       <button  type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>{%elif i.tags == 'info'%}
-    <div class="alert  alert-info alert-dismissible fade show" role="alert">
+    <div class="alert  alert-info popover position-fixed alert-dismissible fade show" role="alert">
       <i class="bi bi-exclamation-octagon me-1"></i>
       {{i.tags|upper}}: {{i}} 
       <button  type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>{%elif i.tags == 'warning'%}
-    <div class="alert  alert-warning alert-dismissible fade show" role="alert">
+    <div class="alert  alert-warning popover position-fixed alert-dismissible fade show" role="alert">
       <i class="bi bi-exclamation-octagon me-1"></i>
       {{i.tags|upper}}: {{i}} 
       <button  type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>{%elif i.tags == 'success'%}
-    <div class="alert  alert-success alert-dismissible fade show" role="alert">
+    <div class="alert  alert-success popover position-fixed alert-dismissible fade show" role="alert">
       <i class="bi bi-exclamation-octagon me-1"></i>
       {{i.tags|upper}}: {{i}} 
       <button  type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
