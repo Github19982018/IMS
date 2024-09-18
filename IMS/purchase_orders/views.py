@@ -36,7 +36,6 @@ def view_purchases(request):
 # making purchase from inventory
 @user_passes_test(specialilst_check)
 def make_purchase(request):
-    specialist_auth(request)
     if request.method == 'GET':
         id_list =  request.GET.getlist('item') 
         items = Inventory.objects.filter(id__in=id_list)
@@ -91,9 +90,11 @@ def draft_purchase(request,id):
         suppliers = Supplier.objects.all()
         ship_method = ShipMethod.objects.all()
         supplier = ''
-        s = request.GET.get('supplier',draft.first().item.preferred_supplier.id)
+        s = request.GET.get('supplier')
         if s:
             supplier = Supplier.objects.get(id=s)
+        elif draft.first().item.preferred_supplier:
+            supplier = draft.first().item.preferred_supplier
         else:
             supplier = suppliers.first()
         purchase.supplier = supplier

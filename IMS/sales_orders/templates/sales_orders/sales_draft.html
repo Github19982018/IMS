@@ -9,13 +9,13 @@
           <li class="active breadcrumb-item">New Sales Order #{{number}}</li>
         </ol>
       </nav>
-
+  <form action="{% url 'save_sales' %}"  method="post">
     <section class="section">
       <div class="row">
         <div class="col-lg-12">
 
         <h2 class="card-title"><b>Item details</b></h2>
-          <form action="" id="form1" method="post">
+          <!-- <form action="" id="form1" method="post"> -->
             {%csrf_token%}
               <!-- Table with stripped rows -->
               <table class="table">
@@ -29,30 +29,30 @@
                     <td>Price</td>
                     <td>Units</td>
                     <td>Quantity</td>
-                    <td>Total</td>
+                    <!-- <td>Total</td> -->
                   </tr>
                 </thead>
                 <tbody>
                     {% for i in items %}
                     <tr> 
                     <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                    <td>{{i.item.name}}</td>
-                    <td>{{i.item.sku}}</td>
-                    <td>{{i.price}}</td>
+                    <td>{{i.name}}</td>
+                    <td>{{i.sku}}</td>
+                    <td id="price">{{i.selling_price}}</td>
                     <td>{{i.units}}</td>
                     <td><input type="text" hidden name="item" value="{{i.id}}">
-                      <input type="number" value="{{i.quantity}}" name="quantity" onchange="document.querySelector('#form1').submit()"></td>
-                    <td>{{i.total_price}}</td>
+                      <input type="number" value="1" name="quantity"></td>
+                    <td id="total"></td>
                     </tr>
                     {% endfor %}
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->
-               {% load sum_filter %}
+               <!-- {% load sum_filter %}
                
               <div class="row">
                 <p class="col-2">Subtotal</p>
-                <p class="col-3" id="sub">{{items |add_items }}</p>
+                <p class="col-3" id="sub"></p>
               </div>
                 <div class="row">
                 <p class="col-2">offer</p>
@@ -61,7 +61,7 @@
                 <div class="row">
                 <h4 class="col-2" >Total</h4>
                 <h4 class="col-4" id="total" ></h4>
-            </div>
+            </div> -->
           </form>
         </div>
       </div>
@@ -73,24 +73,25 @@
           <div class="card-body">
 
             <!-- Vertical Form -->
+            <!-- <form action="{% url 'save_sales' %}"  method="get"> -->
+          {% csrf_token %}
             <div class="col-12">
               <label class=" col-form-label">Customer</label>
               <div class="col-lg-6">
-                <form action="" >
-                  <select class="form-select" name="supplier" id="supplier"  onchange="this.form.submit();">
+            
+                  <select class="form-select" name="customer" id="customer"  onchange="this.form.submit();">
                   {% for i in customers %}
-                  <option value="{{i.id}}" {% if supplier.id == i.id %}selected
+                  <option value="{{i.id}}" {% if customer.id == i.id %}selected
                   {% endif %}>{{i.name}}</option>
                   {% endfor %}
                   <!-- option value="1">One</option>
                   <option value="2">Two</option>
                   <option value="3">Three</option> -->
                 </select>
-                </form>
               </div>
             </div>
-            <form class="row g-3 " id="sales_draft" action="{% url 'sale' number %}" method="post" id="form1">
-              {% csrf_token %}
+            <!-- <form class="row g-3 " id="sales_draft" action="{% url 'save_sales' %}" method="post" id="form1"> -->
+        <!-- </form> -->
                   
               <div class="col-12">
                 <label class="col-form-label">Billing Address</label>
@@ -124,11 +125,10 @@
               </div>
               
               <div class="">
-                <button type="submit" class="btn btn-success" 
-                onsubmit="form1 = document.getElementById('form1'); forme2 = document.getElementById('form2');form1.submit();form2.submit();">
+                <button type="submit" class="btn btn-success" >
                 Create Sales Order</button>
               </div>
-            </form><!-- Vertical Form -->
+  </form><!-- Vertical Form -->
 
           </div>
         </div>
