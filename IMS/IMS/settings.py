@@ -92,7 +92,8 @@ DATABASES = {
         'USER':'root',
         'PASSWORD':'admin',
         'HOST':'localhost',
-        'PORT':'3306'
+        'PORT':'3306',
+        'CONN_MAX_Age':None
     }
 }
 
@@ -141,5 +142,5 @@ STATICFILES_DIRS =  [os.path.join(BASE_DIR,'static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.User'
-# LOGIN_REDIRECT_URL='dashboard'
+LOGIN_REDIRECT_URL='/admin'
 LOGOUT_REDIRECT_URL = 'login'

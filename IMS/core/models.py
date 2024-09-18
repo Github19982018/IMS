@@ -20,6 +20,8 @@ class Nofifications(models.Model):
     def __str__(self) -> str:
         return self.title
 
+    class Meta:
+        ordering = ['created',]
 
 class Messages(models.Model):
     sender = models.ForeignKey(to=User,related_name='send_messages',on_delete=models.CASCADE)
@@ -27,3 +29,5 @@ class Messages(models.Model):
     message = models.TextField()
     seen = models.BooleanField(default=False)
     created = models.DateTimeField(default=datetime.now)
+
+

@@ -166,19 +166,61 @@
           <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-bell"></i>
 
-            <span class="badge bg-primary badge-number">4</span>
+            <span class="badge bg-primary badge-number">{% if notifications%}{{notifications | length}}{%endif%}</span>
           </a><!-- End Notification Icon -->
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
             <li class="dropdown-header">
-              You have 4 new notifications
+              {% if not notifications%}You have no new notifications {%else%}
+              You have {{notifications | length}} new notifications{%endif%}
               <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
             </li>
+
+      {%if notifications %}
+      {% for i in notifications %}
             <li>
               <hr class="dropdown-divider">
             </li>
-            
-            
+      {%if i.tag == 'error'%}
+      <li class="notification-item">
+        <i class="bi bi-x-circle text-danger"></i>
+        <div>
+          <h4>{{i.title}}</h4>
+          <p>{{i.message}}</p>
+          <p>{{i.created}}</p>
+        </div>
+      </li>
+      {%elif i.tag == 'info'%}
+      <li class="notification-item">
+        <i class="bi bi-info-circle text-primary"></i>
+        <div>
+          <h4>{{i.title}}</h4>
+          <p>{{i.message}}</p>
+          <p>{{i.created}}</p>
+        </div>
+      </li>
+      {%elif i.tag == 'warning'%}
+    <li class="notification-item">
+      <i class="bi bi-exclamation-circle text-warning"></i>
+      <div>
+        <h4>{{i.title}}</h4>
+        <p>{{i.message}}</p>
+        <p>{{i.created}}</p>
+      </div>
+    </li>
+    {%elif i.tag == 'success'%}
+    <li class="notification-item">
+      <i class="bi bi-check-circle text-success"></i>
+      <div>
+        <h4>{{i.title}}</h4>
+        <p>{{i.message}}</p>
+        <p>{{i.created}}</p>
+      </div>
+    </li>
+    {%endif%}
+    {%endfor%}
+    {%endif%}
+<!--             
             <li class="notification-item">
               <i class="bi bi-exclamation-circle text-warning"></i>
               <div>
@@ -205,14 +247,7 @@
               <hr class="dropdown-divider">
             </li>
 
-            <li class="notification-item">
-              <i class="bi bi-check-circle text-success"></i>
-              <div>
-                <h4>Sit rerum fuga</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>2 hrs. ago</p>
-              </div>
-            </li>
+            
 
             <li>
               <hr class="dropdown-divider">
@@ -232,7 +267,7 @@
             </li>
             <li class="dropdown-footer">
               <a href="#">Show all notifications</a>
-            </li>
+            </li> -->
 
           </ul><!-- End Notification Dropdown Items -->
 
@@ -321,7 +356,7 @@
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'profile'%}">
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'profile'%}#profile-edit">
                 <i class="bi bi-person"></i>
                 <span>My Profile</span>
               </a>
@@ -375,7 +410,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="{% url 'dashboard' %}">
+        <a class="nav-link collapsed" href="{% url 'dashboard' %}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -482,19 +517,35 @@
 
   <main id="main" class="main">
     {%if messages %}
-    <div class="position-fixed end-50 z-100 ">
+    <div class="position-fixed end-50 popover ">
       <ul class="position-relative ">
         {%for i in messages %}
     <!-- <div class="position-fixed bg-white alert {%if messages.tags == ERROR%}border-danger{%else%}border-{{messages.tags}} {%endif%} alert-dismissible fade show" role="alert">
       {{i}}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div> -->
-    <li class="alert {%if i.tags == 'error'%} alert-danger {%else%} alert-{{i.tags}} {%endif%} alert-dismissible fade show" role="alert">
+    {%if i.tags == 'error'%}
+    <li class="alert  alert-danger alert-dismissible fade show" role="alert">
       <i class="bi bi-exclamation-octagon me-1"></i>
-      {{i.tags|upper}}:{{i}} 
+      {{i.tags|upper}}: {{i}} 
+      <button  type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
+    </li>{%elif i.tags == 'info'%}
+    <li class="alert  alert-info alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-octagon me-1"></i>
+      {{i.tags|upper}}: {{i}} 
+      <button  type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
+    </li>{%elif i.tags == 'warning'%}
+    <li class="alert  alert-warning alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-octagon me-1"></i>
+      {{i.tags|upper}}: {{i}} 
+      <button  type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
+    </li>{%elif i.tags == 'success'%}
+    <li class="alert  alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-octagon me-1"></i>
+      {{i.tags|upper}}: {{i}} 
       <button  type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
     </li>
-    
+    {%endif%}
     {%endfor%}
   </ul>
   </div>

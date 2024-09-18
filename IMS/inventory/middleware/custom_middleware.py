@@ -1,5 +1,6 @@
 from inventory.models import Warehouse
 from django.contrib.auth.decorators import login_required
+from core.models import Nofifications
 
 
 class Warehouse_middleware:
@@ -23,21 +24,29 @@ class Warehouse_middleware:
         warehouses = Warehouse.objects.all()
         user = request.user
         user_data = {}
-        if user.user_type == 2:
-            user_data = {
-                'role':'manager',
-                'name':user.username
-            }
-        elif user.user_type == 3:
-            user_data = {
-                'role':'specialist',
-                'name':user.username
-            }
+        try:
+            if user.user_type == 2:
+                user_data = {
+                    'role':'manager',
+                    'name':user.username
+                }
+            elif user.user_type == 3:
+                user_data = {
+                    'role':'specialist',
+                    'name':user.username
+                }
+            notifications = Nofifications.objects.filter(user=request.user)[:5]
+            messages = [{'title':'Nofification','created':'now','message':'test notification','tag':'error'}]
+            if response.context_data:
+                response.context_data['warehouses'] = warehouses
+                response.context_data['w'] = int(self.warehouse)
+                response.context_data['user'] = user_data
+                response.context_data['notifications'] = notifications
+            else:
+                response.context_data = {'warehouses':warehouses, 'user':user_data}
 
-        if response.context_data:
-            response.context_data['warehouses'] = warehouses
-            response.context_data['w'] = int(self.warehouse)
-            response.context_data['user'] = user_data
+        except AttributeError:
+            pass
 
         return response
 

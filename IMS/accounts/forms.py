@@ -1,6 +1,6 @@
 
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm,PasswordChangeForm,UserChangeForm
 from django.db import transaction
 from accounts.models import User
 
@@ -13,16 +13,17 @@ class Registrationform(UserCreationForm):
 
 
 
-class Userform(UserCreationForm):
-    class Meta(UserCreationForm.Meta):
+class Updateform(forms.ModelForm):
+    username = forms.CharField(max_length=150,required=True)
+    first_name = forms.CharField(max_length=150,required=True)
+    last_name = forms.CharField(max_length=150)
+    email = forms.EmailField(required=True,)
+    address = forms.CharField(max_length=400)
+    phone = forms.IntegerField()
+    profie_photo = forms.ImageField(required=False)
+    class Meta:
         model = User
-        fields = ['first_name','last_name','email','address','phone']
-
-    def save(self,commit=True):
-        user = super(Userform, self).save(commit=False)
-        if commit:
-            user.save()
-        return user
+        fields = ['username','first_name','last_name','email','address','phone','profile_photo']
 
 
     

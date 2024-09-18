@@ -19,14 +19,17 @@ def dashboard(request):
     # print(purchase_amount,purchase_quantity)
     total_stock = Inventory.objects.all().count()
     cursor = connection.cursor()
-    draft = PurchaseOrder.objects.filter(status=Purchase_status(id=1)).count()
+    draft = PurchaseOrder.objects.filter(status=Purchase_status(id=2)).count()
     packed = PurchaseOrder.objects.filter(status=Purchase_status(id=3)).count()
-    shipped = PurchaseOrder.objects.filter(status=Purchase_status(id=5)).count()
+    shipped = PurchaseOrder.objects.filter(status=Purchase_status(id=4)).count()
     # cursor.execute('''SELECT count(id) FROM purchase where id>0 and id<)
 
     cursor.execute('''SELECT count(id) FROM inventory_inventory where on_hand<(reorder_point) and (on_hand>0)''')
+    # low_stock = Inventory.objects.raw('''SELECT count(id) FROM inventory_inventory where on_hand<(reorder_point) and (on_hand>0)''')
+    # low_stock = Inventory.objects.aaggregate(F('on_hand'))
     ((low_stock,),) = cursor.fetchall()
     cursor.execute('''SELECT count(id) FROM inventory_inventory where on_hand<=0''')
+    # no_stock = Inventory.objects.raw('''SELECT count(id) FROM inventory_inventory where on_hand<=0''')
     ((no_stock,),)= cursor.fetchall()
     in_stock = total_stock - (low_stock + no_stock)
     sales = Sales.objects.all().order_by('-updated')
@@ -38,7 +41,6 @@ def dashboard(request):
     stock = json.dumps({'Low Stock':low_stock, 'No Stock':no_stock,'In Stock':in_stock})
     # stock=[43,56,22]
     sales = json.dumps({'Packed':packed,'shipped':shipped,'draft':draft})
-    cursor.close()
     return render(request,'dashboard.html',{'sales_activity':{'pack':pack,'ship':ship,'deliver':deliver},'sales':sales,
                                             'inventory':{'on_hand':on_hand,'recieve':to_receive,
                                                          'top_selling':top_selling},'stock': stock,'purchase':{'items':purchase_items,
