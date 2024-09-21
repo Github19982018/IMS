@@ -198,6 +198,19 @@ def package(request,id):
         return render(request,'sales_orders/package.html',{'package':package,'items':items, 'sales':sales})
     except Package.DoesNotExist:
         return render(request,'404.html',{})  
+  
+@user_passes_test(specialilst_check)  
+def delete_package(request,id):
+    try:
+        package = Package.objects.get(id=id)
+        if package.status.id <= 3:
+            package.delete()
+        else:
+            messages.warning(request,"Pakage can't be deleted")
+            return HttpResponseRedirect(request.path_info)
+        return redirect(view_packages)
+    except Package.DoesNotExist:
+        return render(request,'404.htnl',{})
     
 
 def ship(request,id):
@@ -227,6 +240,18 @@ def ship(request,id):
     except Sales.DoesNotExist:
         return render(request,'404.html',{})
 
+@user_passes_test(specialilst_check)
+def cancel_ship(request,id):
+    try:
+        sh = Shipment.objects.get(id=id)
+        if sh.status < 5:
+            sh.status = ShipStatus(status='cancel')
+            messages.info(request,f"shipment {sh.id} cancelled")
+        else:
+            messages.warning(request,f"shipment {sh.id} cant be cancelled already received")
+    except Shipment.DoesNotExist:
+        return render(request,'404.html',{})
+    
 
 from sales_orders.serializer import ShipSerializer
 @user_passes_test(specialilst_check)
