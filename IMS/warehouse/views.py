@@ -1,4 +1,5 @@
-from django.shortcuts import render,redirect,HttpResponse,HttpResponseRedirect
+from django.shortcuts import redirect,HttpResponse,HttpResponseRedirect
+from django.template.response import TemplateResponse as render
 from warehouse.models import Warehouse
 from warehouse.forms import WarehouseForm
 from datetime import datetime

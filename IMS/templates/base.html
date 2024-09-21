@@ -274,14 +274,15 @@
 
         </li><!-- End Notification Nav -->
 
-        <li class="nav-item dropdown">
+        <!-- <li class="nav-item dropdown"> -->
 
-          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+          <!-- <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-chat-left-text"></i>
             <span class="badge bg-success badge-number">3</span>
-          </a><!-- End Messages Icon -->
+          </a> -->
+          <!-- End Messages Icon -->
 
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+          <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
             <li class="dropdown-header">
               You have 3 new messages
               <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
@@ -334,16 +335,17 @@
 
             <li class="dropdown-footer">
               <a href="#">Show all messages</a>
-            </li>
+            </li> -->
 
-          </ul><!-- End Messages Dropdown Items -->
+          <!-- </ul>End Messages Dropdown Items -->
 
-        </li><!-- End Messages Nav -->
+        <!-- </li> -->
+        <!-- End Messages Nav -->
 
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="{{ employee.user.profile_photo.url }}" alt="Profile" class="rounded-circle">
+            <img src="{%if employee.user.profile.photo%} {{employee.user.profile.photo.url}} {%endif%}" alt="Profile" class="rounded-circle">
             <span class="d-none d-md-block dropdown-toggle ps-2">{{employee.name | title}}</span>
           </a><!-- End Profile Iamge Icon -->
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
