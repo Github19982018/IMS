@@ -6,10 +6,10 @@
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="purchase.html">Sales Order</a></li>
-          <li class="active breadcrumb-item">New Sales Order</li>
+          <li class="active breadcrumb-item">Sales Order#{{sales.id}}</li>
         </ol>
       </nav>
-  <form action="{% url 'save_sales' %}"  method="post">
+  <form action="{% url 'sale' sales.id %}"  method="post">
     <section class="section">
       <div class="row">
         <div class="col-lg-12">
@@ -35,13 +35,13 @@
                 <tbody>
                     {% for i in items %}
                     <tr> 
-                    <td><a href="#"><img width="50" src="{%if i.photo%} {{i.photo.url}} {%endif%}" alt="{{i.name}} image"></a></td>
-                    <td>{{i.name}}</td>
-                    <td>{{i.sku}}</td>
-                    <td id="price">{{i.selling_price}}</td>
-                    <td>{{i.units}}</td>
+                    <td><a href="#"><img width="50" src="{%if i.item.photo%} {{i.item.photo.url}} {%endif%}" alt="{{i.item.name}} image"></a></td>
+                    <td>{{i.item.name}}</td>
+                    <td>{{i.item.sku}}</td>
+                    <td id="price">{{i.price}}</td>
+                    <td>{{i.item.units}}</td>
                     <td><input type="text" hidden name="item" value="{{i.id}}">
-                      <input type="number" value="1" name="quantity"></td>
+                      <input type="number" value={{i.quantity}} name="quantity"></td>
                     <td id="total"></td>
                     </tr>
                     {% endfor %}
@@ -81,7 +81,7 @@
             
                   <select class="form-select" name="customer" id="customer">
                   {% for i in customers %}
-                  <option value="{{i.id}}" {% if customer.id == i.id %}selected
+                  <option value="{{i.id}}" {% if sales.customer.id == i.id %}selected
                   {% endif %}>{{i.name}}</option>
                   {% endfor %}
                   <!-- option value="1">One</option>
@@ -96,13 +96,13 @@
               <div class="col-12">
                 <label class="col-form-label">Billing Address</label>
                 <div class="col-lg-6">
-                  <input type="text" class="form-control" value="{{customer.address}}"  name="bill_address" id="bill">
+                  <input type="text" class="form-control" value="{{sales.customer.address}}"  name="bill_address" id="bill">
                 </div>
               </div>
               <div class="col-12">
                 <label class=" col-form-label" >Shipping Address</label>
                 <div class="col-lg-6">
-                  <input class="form-control" value="{{customer.address}}" type="text" name="ship_address" id="ship">
+                  <input class="form-control" value="{{sales.customer.address}}" type="text" name="ship_address" id="ship">
                   </select>
                 </div>
               </div>
@@ -111,7 +111,7 @@
                 <div class="col-lg-6">
                     <select class="form-select" name="ship_method" aria-label="Default select example">
                       {% for i in ship_method %}
-                      <option value="{{i.id}}">{{i.method}}</option>
+                      <option value="{{i.id}}" {%if sales.ship_method.id == i.id%}selected{%endif%}>{{i.method}}</option>
                       {% endfor %}
                   </select>
                 </div>

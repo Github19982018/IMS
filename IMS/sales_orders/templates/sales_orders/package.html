@@ -18,7 +18,7 @@
     </div>
 {%if employee.role == 'specialist'%}
     <div class="col-8 row">
-        <button class="btn btn-sm col">Edit package</button>
+        <a class="btn btn-sm col" href="{%url 'package_draft' sales.id %}">Edit package</a>
         <button class="btn btn-sm col">Delete package</button>
         <form class="col" action="{% url 'ship' sales.id  %}" method="post">
           {%csrf_token%}

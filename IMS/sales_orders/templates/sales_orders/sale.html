@@ -19,8 +19,8 @@
     </div>
   {%if employee.role == 'specialist'%}
     <div class="col-8 row">
-        <button class="btn btn-sm col">Edit order</button>
-        <button class="btn btn-sm col">Cancel order</button>
+        <a class="btn btn-sm col" href="{%url 'edit_sale' sales.id%}">Edit order</a>
+        <a class="btn btn-sm col" >Cancel order</a>
         <a href="{%url  'package_draft' number %}" class="btn btn-sm col btn-success">create package</a>
     </div>
     {%endif%}
