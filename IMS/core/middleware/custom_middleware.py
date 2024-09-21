@@ -4,13 +4,15 @@ from core.models import Notifications
 
 
 class Warehouse_middleware:
+    wa = Warehouse.objects.all().first().id
     with open('data/warehouse.txt','+w') as wfile:
-        wfile.write('1')
+        wfile.write(str(wa))
 
     def __init__(self,get_response): 
         self.get_response = get_response
         with open('data/warehouse.txt','r+') as wfile:
             self.warehouse = wfile.read()
+            
     def __call__(self, request):
         self.warehouse = request.GET.get('warehouse') or self.warehouse
         with open('data/warehouse.txt','+w') as wfile:
@@ -49,7 +51,7 @@ class Warehouse_middleware:
                 seen.update(seen=True)
 
             else:
-                response.context_data = {'warehouses':warehouses, 'employee':user_data}
+                response.context_data = {'warehouses':warehouses, 'employee':user_data, 'notifications':notifications, 'ncount':count}
 
         except AttributeError:
             pass

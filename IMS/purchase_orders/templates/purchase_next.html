@@ -18,7 +18,7 @@
     </div>
     <div class="col-8 row">
         <a href="{% url 'add_purchase' number %}" class="btn btn-sm col">Edit order</a>
-        <button class="btn btn-sm col">Cancel order</button>
+        <a href="{% url 'cancel_purchase' number %}" class="btn btn-sm col">Cancel order</a>
         {% if purchase.status.id == 1 %}
         <a href="{% url 'purchase_approve' number %}" class="btn btn-sm col btn-success">send for approval</a>
         {% endif %}
@@ -56,7 +56,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-6 ">
-                    <b>Ohio, Columbus, 5303 Fisher Rd</b><br>
+                    <b>Kochin, Ernakulam Kerala</b><br>
                     <b>614-205-9702</b>
                 </div>
                 <div class="col-6">

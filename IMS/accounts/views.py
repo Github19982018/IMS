@@ -31,19 +31,7 @@ class RegistrationView(CreateView):
         print(form.errors)
         return super().form_invalid(form)
 
-# class UserLoginView(LoginView):
-#     redirect_authenticated_user = True 
-#     template_name = 'accounts/login.html'
-#     success_url = reverse_lazy('inventories')
-#     # authentication_form = UserAuthenticationForm
 
-#     def form_valid(self,form):
-#         userpass = authenticate(self,username=form.cleaned_data['username'],password=form.cleaned_data['password'])
-#         if userpass is not None and userpass.user_type == 'admin':
-#             self.success_url = reverse_lazy('dashboard')
-
-#     def form_invalid(self, form):
-#         return self.render_to_response(self.get_context_data(form=form))
 @login_not_required
 def logins(request):
     if request.method == 'POST':
@@ -56,7 +44,6 @@ def logins(request):
             if user_type == '1' and userpass.is_superuser:
                 user = User.objects.get(id=userpass.id)
                 login(request,userpass)
-                print(request.user.pk)
                 request.session['user']=userpass.id
                 return redirect(to=reverse_lazy('admin:index'),context={'user':request.user})
             elif userpass.is_active:
@@ -90,14 +77,7 @@ def profile(request):
         user_form = Updateform(instance=request.user)
     return render(request,'accounts/profile.html',{'USER':request.user,'userform':user_form})
 
-    user_id = request.user.id
-    user = User.objects.get(id=user_id)
-    if request.method == 'POST':
-        userform = Userform(request.POST,instance=request.user)
-        print(userform.errors)
-        if userform.is_valid():
-            userform.save()
-    return render(request,'accounts/profile.html',{'USER':user})
+
 
 def change_password(request):
     if request.method == 'POST':

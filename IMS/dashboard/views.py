@@ -18,12 +18,12 @@ def dashboard(request):
     purchase_amount = PurchaseOrder.objects.aggregate(purchase_amount=Sum('total_amount'))
     # print(purchase_amount,purchase_quantity)
     total_stock = Inventory.objects.all().count()
-    cursor = connection.cursor()
     draft = PurchaseOrder.objects.filter(status=Purchase_status(id=2)).count()
     packed = PurchaseOrder.objects.filter(status=Purchase_status(id=3)).count()
     shipped = PurchaseOrder.objects.filter(status=Purchase_status(id=4)).count()
     # cursor.execute('''SELECT count(id) FROM purchase where id>0 and id<)
 
+    cursor = connection.cursor()
     cursor.execute('''SELECT count(id) FROM inventory_inventory where on_hand<(reorder_point) and (on_hand>0)''')
     # low_stock = Inventory.objects.raw('''SELECT count(id) FROM inventory_inventory where on_hand<(reorder_point) and (on_hand>0)''')
     # low_stock = Inventory.objects.aaggregate(F('on_hand'))

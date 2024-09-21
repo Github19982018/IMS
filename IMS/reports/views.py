@@ -31,8 +31,7 @@ def sales(request):
 
 @user_passes_test(manager_check)
 def inventory(request):
-    inventory = Inventory.objects.values('name').annotate(ordered=Sum('on_hand')).filter(purchase__order__status=1)
-    
+    inventory = Inventory.objects.values('name').filter(purchase__order__status=1).annotate(ordered=Sum('on_hand')) 
     return render(request,'report_inventory.html',{'inventory':inventory})
     
     
