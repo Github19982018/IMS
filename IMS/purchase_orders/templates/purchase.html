@@ -34,7 +34,7 @@
                   <form action="" id="form1" method="post">
                     {%csrf_token%}
                     <tr> {%for i in items%}
-                    <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
+                    <td><a href="#"><img width="50" src="{%if i.item.photo%} {{i.item.photo.url}} {%endif%}" alt="{[i.item.name]}"></a></td>
                     <td>{{i.item.name}}</td>
                       <td>{{i.item.sku}}</td>
                       <td>{{i.price}}</td>

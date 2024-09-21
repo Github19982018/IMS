@@ -35,7 +35,7 @@
                 <tbody>
                     {% for i in items %}
                     <tr> 
-                    <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
+                    <td><a href="#"><img width="50" src="{%if i.photo%} {{i.photo.url}} {%endif%}" alt="{{i.name}} image"></a></td>
                     <td>{{i.name}}</td>
                     <td>{{i.sku}}</td>
                     <td id="price">{{i.selling_price}}</td>

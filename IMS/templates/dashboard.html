@@ -30,6 +30,8 @@
         <div class="row">
           <div class="row">
             <div class="col-8">
+
+
         <!-- sales activity -->
         <div class="card p-1 my-3 border bg-white" >
           <h5 class="card-title ps-2 ">Sales activity<span>| Today</span></h5>
@@ -142,7 +144,7 @@
                             <tbody>
                               {% for i in inventory.top_selling %}
                               <tr>
-                                <th scope="row"><a href="#"><img src="{% static 'assets/img/product-1.jpg' %}" alt=""></a></th>
+                                <th scope="row"><a href="#"><img src="{%if i.item.photo%} {{i.item.photo.url}} {%endif%}" alt="{{i.item.name}} image"></a></th>
                                 <td><a href="#" class="text-primary fw-bold">{{i.item.name}}</a></td>
                                 <td class="fw-bold ">{{i.price}}
                                 <td class="fw-bold">${{i.amount}}</td>

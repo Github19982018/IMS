@@ -67,7 +67,7 @@
                   {% for i in inventory %}
                   <tr>
                     <td><input type="checkbox" name="item" id="" value="{{i.id}}" ></td>
-                    <td>{{i.photo}}</td>
+                    <td><img src="{{i.photo.url}}" alt="{{i.name}} image " width="50" height="50"></td>
                     <td><a class="bi bi-pen" href="{% url 'updateinventory' i.id %}">{{i.name}} </a></td>
                     <td>{{i.sku}}</td>
                     <td>{{i.dimensions}}</td>

@@ -59,7 +59,6 @@ def logins(request):
                 print(request.user.pk)
                 request.session['user']=userpass.id
                 return redirect(to=reverse_lazy('admin:index'),context={'user':request.user})
-                return
             elif userpass.is_active:
                 user = User.objects.get(id=userpass.id)
                 if user_type=='2' and  user.user_type == 2:

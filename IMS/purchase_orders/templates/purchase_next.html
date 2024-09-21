@@ -121,9 +121,9 @@
                     <tbody>
                       {% for i in items %}
                       <tr> 
-                      <td><a href="#"><img width="50" src="assets/img/product-1.jpg" alt=""></a></td>
-                      <td>{{i.item_id.name}}</td>
-                      <td>{{i.item_id.sku}}</td>
+                      <td><a href="#"><img width="50" src="{%if i.item.photo%} {{i.item.photo.url}} {%endif%}" alt="{{i.item.name}} image"></a></td>
+                      <td>{{i.item.name}}</td>
+                      <td>{{i.item.sku}}</td>
                       <td>{{i.price}}</td>
                       <td>{{i.units}}</td>
                       <td>{{i.quantity}}</td>

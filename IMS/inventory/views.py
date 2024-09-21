@@ -32,7 +32,7 @@ def get_inventory(request,id):
 @user_passes_test(specialilst_check)
 def add_inventory(request):
     if request.method == "POST":
-        f = InventoryForm(request.POST)
+        f = InventoryForm(request.POST, request.FILES)
         print(f.errors)
         if f.is_valid():
             f.updated = datetime.now()
@@ -50,7 +50,7 @@ def add_inventory(request):
 def update_inventory(request,id):
     i = Inventory.objects.get(pk=id)
     if request.method == "POST":
-        f = InventoryForm(request.POST,instance=i)
+        f = InventoryForm(request.POST, request.FILES, instance=i)
         if f.is_valid():
             f.updated = datetime.now()
             f.save()
