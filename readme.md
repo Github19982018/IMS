@@ -2,16 +2,16 @@
 IMS is an Inventory Management System which provides low-level stock control and part tracking. The core of the IMS system is a Python/Django database backend which provides an web interface and a REST API for interaction with warehouse interfaces and applications.
 
 <figure>
+<h2>Dashboard</h2>
 <img src="IMS/static/assets/img/dashboard.png">
-<figcaption>Dashboard</figcaption>
 </figure>
 <figure>
+<h2>Inventory</h2>
 <img src="IMS/static/assets/img/inventory.png">
-<figcaption>Inventory</figcaption>
 </figure>
-<img src="IMS/static/assets/img/purchasse_order.png">
-<figcaption>Purchase Order</figcaption>
+<h2>Purchase Order</figcaption>
+<img src="IMS/static/assets/img/purchase_order.png">
 </figure>
+<h2>Notifications</figcaption>
 <img src="IMS/static/assets/img/notifications-ship.png">
-<figcaption>Notifications</figcaption>
 </figure>
