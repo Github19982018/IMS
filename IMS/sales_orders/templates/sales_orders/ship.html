@@ -19,7 +19,7 @@
 {%if employee.role == 'specialist' %}
     <div class="col-8 row">
         <!-- <a href="{%url 'ship' sales.id%}" class="btn btn-sm col">Edit shipment</a> -->
-        <button class="btn btn-sm col">Cancel ship</button>
+        <a href="{% url 'cancel_ship' ship.id %}" class="btn btn-sm col">Cancel ship</a>
         <form class="col" action="{% url 'create_ship' sales.id %}" method="post">
           {%csrf_token%}
           <input hidden type="number" value="{{package.id}} name=package">

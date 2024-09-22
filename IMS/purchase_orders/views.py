@@ -154,10 +154,10 @@ def cancel_purchase(request, id):
         serializer = PurchasesSerializer(data)
         url = 'http://localhost:8081/purchases/update'
         requests.post(url,serializer.data,timeout=1)
-        return HttpResponseRedirect(request.path_info)
+        return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
-        return HttpResponseRedirect(request.path_info)
+        return redirect('purchase',id=id)
 
 @user_passes_test(specialilst_check)
 def purchase_approve(request,id):

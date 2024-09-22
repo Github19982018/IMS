@@ -238,10 +238,11 @@ def delete_package(request,id):
         package = Package.objects.get(id=id)
         if package.status.id <= 3:
             package.delete()
+            messages.success(request,f"package {id} deleted successfully")
+            return redirect('packages')
         else:
             messages.warning(request,"Pakage can't be deleted")
-            return HttpResponseRedirect(request.path_info)
-        return redirect(view_packages)
+            return redirect(get_package,id=id)
     except Package.DoesNotExist:
         return render(request,'404.htnl',{})
     
@@ -277,12 +278,35 @@ def ship(request,id):
 def cancel_ship(request,id):
     try:
         sh = Shipment.objects.get(id=id)
-        if sh.status < 5:
-            sh.status = ShipStatus(status='cancel')
+        if sh.status.id < 4:
+            sh.status = ShipStatus.objects.get(status='cancelled')
+            sh.save()
             messages.info(request,f"shipment {sh.id} cancelled")
+            return redirect('ships')
         else:
             messages.warning(request,f"shipment {sh.id} cant be cancelled already received")
+            return redirect('get_ship',id=id)
     except Shipment.DoesNotExist:
+        return render(request,'404.html',{})
+    
+@user_passes_test(specialilst_check)
+def cancel_sales(request,id):
+    try:
+        s = Sales.objects.get(id=id)
+        if s.status.id < 5:
+            s.status = SalesStatus.objects.get(status='cancelled')
+            try:
+                s.package.all().delete()
+                s.shipment.all().update(status=ShipStatus(status='cancelled'))
+            except:
+                pass
+            s.save()
+            messages.info(request,f"sales {s.id} cancelled")
+            return redirect('sales')
+        else:
+            messages.warning(request,f"sales {s.id} cant be cancelled already shiped")
+            return redirect('get_sales',id=id)
+    except Sales.DoesNotExist:
         return render(request,'404.html',{})
     
 
