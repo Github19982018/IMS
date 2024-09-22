@@ -40,7 +40,7 @@
                 <tr>
                   <th scope="row"><a href="{% url 'get_sale' i.id %}">#{{i.id}}</a></th>
                   <td>{{i.customer}}</td>
-                  <td><a href="#" class="text-primary">{{i.customer.name}}</a></td>
+                  <td>{{i.created_date}}</td>
                   <td>
                     {{i.total_amount}}
                   </td>
