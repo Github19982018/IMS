@@ -19,7 +19,18 @@ from django.urls import reverse_lazy
 
 # Create your views here.
 def view_purchases(request):
-    purchases = PurchaseOrder.objects.filter(warehouse=request.w)
+    date = request.GET.get('date','month')
+    orderby = request.GET.get('orderby','id')
+    purchases = PurchaseOrder.objects.filter(warehouse=request.w).order_by(orderby)
+    day = datetime.now().day
+    year = datetime.now().year
+    month = datetime.now().month
+    if date=='today':
+        purchases = purchases.filter(updated__day=day,updated__month=month,updated__year=year)
+    if date == 'month':
+        purchases = purchases.filter(updated__month=month,updated__year=year)
+    elif date == 'year':
+        purchases = purchases.filter(updated__year=year)
     return render(request,'purchases.html',{'purchases':purchases})
 
 # def get_purchase(request,id):

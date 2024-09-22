@@ -8,7 +8,34 @@
     <section class="section">
       <!-- <div class="row">
         <div class="col-lg-12"> -->
+          <form class="modal fade" id="verticalycentered" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Filter</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="filter">
+                    <select name="orderby" class=" form-select">
+                      <option disabled selected>Sort by</option>
+                      <option value="name">Name</option>
+                      <option value="purchasing_price">Purchasing Price</option>
+                      <option value="selling_price">Selling Price</option>
+                      <option value="on_hand">On Hand</option>
+                      <option value="updated">Updated</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Apply</button>
+                </div>
+              </div>
+            </div>
+          </form><!-- End Vertically centered Modal-->
       <form action="{% url 'make_sales' %}" method="post">
+        
         {%csrf_token%}
     {% if employee.role == 'specialist'%}
     <div class="row m-2">
@@ -23,23 +50,6 @@
         <button type="submit" class="btn btn-primary">Sales Order</button>
 
           </div>
-          <div class="modal fade" id="verticalycentered" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Filter</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  Non omnis incidunt qui sed occaecati magni asperiores est mollitia. Soluta at et reprehenderit. Placeat autem numquam et fuga numquam. Tempora in facere consequatur sit dolor ipsum. Consequatur nemo amet incidunt est facilis. Dolorem neque recusandae quo sit molestias sint dignissimos.
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Apply</button>
-                </div>
-              </div>
-            </div>
-          </div><!-- End Vertically centered Modal-->
     </div>
     {%endif%}
         <div class="card py-3 m-2">

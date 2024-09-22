@@ -14,15 +14,48 @@ from core.utils import specialilst_check,user_passes_test
 
 # Create your views here.
 def view_sales(request):
-    sales = Sales.objects.filter(warehouse=request.w)
+    date = request.GET.get('date','month')
+    orderby = request.GET.get('orderby','id')
+    sales = Sales.objects.filter(warehouse=request.w).order_by(orderby)
+    day = datetime.now().day
+    year = datetime.now().year
+    month = datetime.now().month
+    if date=='today':
+        sales = sales.filter(updated__day=day,updated__month=month,updated__year=year)
+    if date == 'month':
+        sales = sales.filter(updated__month=month,updated__year=year)
+    elif date == 'year':
+        sales = sales.filter(updated__year=year)
     return render(request,'sales_orders/sales.html',{'sales':sales})
 
 def view_packages(request):
-    packages = Package.objects.filter(sales__warehouse=request.w)
+    date = request.GET.get('date','month')
+    orderby = request.GET.get('orderby','id')
+    packages = Package.objects.filter(sales__warehouse=request.w).order_by(orderby)
+    day = datetime.now().day
+    year = datetime.now().year
+    month = datetime.now().month
+    if date=='today':
+        packages = packages.filter(updated__day=day,updated__month=month,updated__year=year)
+    if date == 'month':
+        packages = packages.filter(updated__month=month,updated__year=year)
+    elif date == 'year':
+        packages = packages.filter(updated__year=year)
     return render(request,'sales_orders/packages.html',{'packages':packages})
 
 def view_ships(request):
-    ships = Shipment.objects.filter(sales__warehouse=request.w)
+    date = request.GET.get('date','month')
+    orderby = request.GET.get('orderby','id')
+    ships = Shipment.objects.filter(sales__warehouse=request.w).order_by(orderby)
+    day = datetime.now().day
+    year = datetime.now().year
+    month = datetime.now().month
+    if date=='today':
+        ships = ships.filter(updated__day=day,updated__month=month,updated__year=year)
+    if date == 'month':
+        ships = ships.filter(updated__month=month,updated__year=year)
+    elif date == 'year':
+        ships = ships.filter(updated__year=year)
     return render(request,'sales_orders/ships.html',{'ships':ships})
 
 def get_sales(request,id):

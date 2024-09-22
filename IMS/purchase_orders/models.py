@@ -27,6 +27,7 @@ class PurchaseOrder(models.Model):
     preferred_shipping_date = models.DateTimeField(default=datetime.now)
     created_by = models.CharField(max_length=100)
     created_date = models.DateTimeField(default=datetime.now)
+    updated = models.DateTimeField(default=datetime.now)
     total_amount = models.DecimalField(decimal_places=2,max_digits=10)
     status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
 

@@ -28,6 +28,7 @@ class Sales(models.Model):
     preferred_shipping_date = models.DateTimeField(null=True)
     created_by = models.CharField(max_length=100)
     created_date = models.DateTimeField(default=datetime.now)
+    updated = models.DateTimeField(default=datetime.now)
     total_amount = models.DecimalField(decimal_places=2,max_digits=10,null=True)
     status = models.ForeignKey(to=SalesStatus,null=True,on_delete=models.PROTECT)
     updated = models.DateTimeField(default=datetime.now)
@@ -77,15 +78,16 @@ class Shipment(models.Model):
     shipment_address = models.CharField(max_length=200)
     shipment_date = models.DateTimeField(null=True)
     status = models.ForeignKey(null=True,to=ShipStatus,on_delete=models.PROTECT)
+    updated = models.DateTimeField(default=datetime.now)
 
 class Package(models.Model):
     sales = models.ForeignKey(to=Sales,on_delete=models.CASCADE,related_name='package')
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=datetime.now)
     packed_at = models.DateTimeField(null=True)
     shipping_address = models.CharField(max_length=200)
     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
     status = models.ForeignKey(to=PackageStatus,on_delete=models.PROTECT)
     ship = models.ForeignKey(to=Shipment,null=True,on_delete=models.PROTECT,related_name='package')
-
+    updated = models.DateTimeField(default=datetime.now)
 
 

@@ -7,20 +7,49 @@
       </div><!-- End Page Title -->
   
     <div class="col-12">
+      <div class="col-12">
+        <div class="col">
+          <button type="button" class="bi bi-sliders btn btn-primary" data-bs-toggle="modal" data-bs-target="#verticalycentered">
+            Filter
+          </button>
+  
+            </div>
+            <div class="modal fade" id="verticalycentered" tabindex="-1">
+              <form class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Filter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="filter">
+                      <select name="date" class=" form-select">
+                        <option disabled selected>Date</option>
+                        <option value="today">Today</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                      </select>
+                    </div>
+                    <div class="filter">
+                      <select name="orderby" class=" form-select">
+                        <option disabled selected>Sort by</option>
+                        <option value="id">Order</option>
+                        <option value="updated">Updated</option>
+                        <option value="customer">Customer</option>
+                        <option value="sales">Sales</option>
+                        <option value="status">Status</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                  </div>
+                </div>
+              </form>
+            </div><!-- End Vertically centered Modal-->
+      </div>
         <div class="card overflow-auto">
-
-          <div class="p-3 filter">
-            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              <li class="dropdown-header text-start">
-                <h6>Filter</h6>
-              </li>
-
-              <li><a class="dropdown-item" href="#">Today</a></li>
-              <li><a class="dropdown-item" href="#">This Month</a></li>
-              <li><a class="dropdown-item" href="#">This Year</a></li>
-            </ul>
-          </div>
 
           <div class="card-body">
             <h5 class="card-title"> <span>| Today</span></h5>
@@ -30,7 +59,7 @@
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Customer</th>
-                  <th scope="col">Date</th>
+                  <th scope="col">Updated</th>
                   <th scope="col">Sales</th>
                   <th scope="col">Status</th>
                 </tr>
@@ -40,7 +69,7 @@
                 <tr>
                   <th scope="row"><a href="{% url 'get_ship' i.id %}">#{{i.id}}</a></th>
                   <td>{{i.customer}}</td>
-                  <td>{{i.created_at}}</td>
+                  <td>{{i.updated}}</td>
                   <td>
                     <a href="{%url 'get_sale' i.sales.id %}" class="text-primary">{{i.sales.id}}</a>
                   </td>

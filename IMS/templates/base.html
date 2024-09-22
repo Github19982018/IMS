@@ -345,8 +345,11 @@
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="{%if employee.user.profile_photo%} {{employee.user.profile_photo.url}} {%endif%}" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block dropdown-toggle ps-2">{{employee.name | title}}</span>
+            <img src="{%if employee.user.profile_photo%} {{employee.user.profile_photo.url}} {%endif%}" alt="Profile" class="rounded-circle" />
+              <div>
+                <span class="d-none d-md-block dropdown-toggle ps-2">{{employee.name | title}}</span>
+                <span class="text-muted">{{employee.role | title}}</span>
+              </div>
           </a><!-- End Profile Iamge Icon -->
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
             <li class="dropdown-header">
