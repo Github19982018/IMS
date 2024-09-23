@@ -25,7 +25,7 @@ urlpatterns = [
     path('<int:id>/ship/cancel',views.cancel_ship,name='cancel_ship'),
     path('<int:id>/cancel',views.cancel_sales,name='cancel_sales'),
     
-    path('supplier_api/',views.sales_approve,name='supplier_approve'),
     path('package_api/',views.package_api,name='package_api'),
     path('sales_api/',views.sales_api,name='sales_api'),
+    path('ships_api/',views.ship_api,name='ships_api'),
 ]

@@ -30,15 +30,18 @@ class ShipmentSerializer(serializers.ModelSerializer):
         # exclude = ['shipment_date','sales','customer','status']
 
 class SalesSerializer(serializers.Serializer):
+    ref = serializers.IntegerField(required=True)
     items = ItemsSerializer(many=True)
     sales = SaleSerializer
 
 class PackSerializer(serializers.Serializer):
+    ref = serializers.IntegerField(required=True)
     items = ItemsSerializer(many=True)
     package = PackageSerializer()
 
 
 class ShipSerializer(serializers.Serializer):
+    ref=serializers.IntegerField(required=True)
     shipment = ShipmentSerializer()
     items = ItemsSerializer(many=True)
     packages = PackageSerializer(many=True)

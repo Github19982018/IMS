@@ -14,6 +14,10 @@ from purchase_orders.serializers import PurchasesSerializer
 from django.contrib import messages
 from core.models import Notifications
 from django.urls import reverse_lazy
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
 
 
 
@@ -152,7 +156,7 @@ def cancel_purchase(request, id):
                 'order':draft,
                 'purchase':purch}
         serializer = PurchasesSerializer(data)
-        url = 'http://localhost:8081/purchases/update'
+        url = env('BASE_URL')+'/purchases/update'
         requests.post(url,serializer.data,timeout=1)
         return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
@@ -171,7 +175,7 @@ def purchase_approve(request,id):
                 'purchase':purch}
         serializer = PurchasesSerializer(data)
         purchase.status = status
-        url = 'http://localhost:8081/purchases/approve'
+        url = env('BASE_URL')+'/purchases/approve'
         requests.post(url,serializer.data)
         purch.save()
         return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch})
@@ -194,7 +198,7 @@ def supplier_approve(request,id):
                 'purchase':purch}
         serializer = PurchasesSerializer(data)
         purchase.status = status
-        url = 'http://localhost:8081/suppliers/approve'
+        url = env('BASE_URL')+'/suppliers/approve'
         requests.post(url,serializer.data)
         purch.save()
         return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch})

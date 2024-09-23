@@ -11,6 +11,12 @@ from rest_framework.exceptions import APIException
 import requests
 from django.contrib import messages
 from core.utils import specialilst_check,user_passes_test
+environ.Env.read_env()
+from sales_orders.serializer import PackSerializer,ShipSerializer
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
 
 # Create your views here.
 def view_sales(request):
@@ -225,6 +231,7 @@ def package(request,id):
     try:
         package = Package.objects.get(id=id)
         package.status = PackageStatus(id=1)
+        package_approve(request,id)
         package.save()
         sales = package.sales
         items = SalesItems.objects.filter(sales=sales)
@@ -310,7 +317,6 @@ def cancel_sales(request,id):
         return render(request,'404.html',{})
     
 
-from sales_orders.serializer import ShipSerializer
 @user_passes_test(specialilst_check)
 def create_ship(request,id):
     try:
@@ -318,12 +324,13 @@ def create_ship(request,id):
         shipment = Shipment.objects.get(sales=sales)
         packages = shipment.package.all()
         items = sales.items.all()
-        data = {'shipment':shipment,
+        data = {'ref':id,
+                'shipment':shipment,
                 'packages':packages,
                 'items':items}
         shipment.status = ShipStatus(id=2)
         shipment.save()
-        url = 'http://localhost:8081/sales/approve'
+        url = env('BASE_URL')+'/sales/ships/approve'
         data = ShipSerializer(data)
         try:
             requests.post(url,data)
@@ -337,32 +344,32 @@ def create_ship(request,id):
         return HttpResponseRedirect('')
 
 
-
-from sales_orders.serializer import SalesSerializer
-@user_passes_test(specialilst_check)
-def sales_approve(request,id):
+def package_approve(request,id):
     try:
-        status = SalesStatus(id=4)
-        sales = Sales.objects.get(id=id)
+        status = PackageStatus(id=4)
+        packages = Package.objects.get(id=id)
         items = SalesItems.objects.get(sales=sales)
-        sales.status = status
+        packages.status = status
         data = {
+            'ref':id,
             'items':items,
-            'sales':sales
+            'packages': packages
         }
-        url = 'http://localhost:8081/sales/approve'
-        data = SalesSerializer(sales,items=items)
+        url = env('BASE_URL')+'/sales/packages/approve'
+        data = PackSerializer(data)
         print(data.data)
         try:
             requests.post(url,data)
-            sales.save()
+            packages.save()
         except requests.exceptions.ConnectionError:
             messages.add_message(request,messages.ERROR,'Cant connect to the server')
-        return render(request,'sales_next.html',{'number':id,'items':items, 'Sales':Sales})
+        return
     except Sales.DoesNotExist:
-        return HttpResponseRedirect('')
+        messages.add_message(request,messages.ERROR,'Invalid data input')
+        return 
     except SalesItems.DoesNotExist:
-        return HttpResponseRedirect('')
+        messages.add_message(request,messages.ERROR,'Invalid data input')
+        return
 
 
 @api_view(['POST'])
