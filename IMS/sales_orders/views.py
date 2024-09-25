@@ -11,7 +11,6 @@ from rest_framework.exceptions import APIException
 import requests
 from django.contrib import messages
 from core.utils import specialilst_check,user_passes_test
-environ.Env.read_env()
 from sales_orders.serializer import PackSerializer,ShipSerializer
 import environ
 
@@ -330,11 +329,12 @@ def create_ship(request,id):
                 'items':items}
         shipment.status = ShipStatus(id=2)
         shipment.save()
-        url = env('BASE_URL')+'/sales/ships/approve'
+        url = env('BASE_URL')+'/sales/ships/approve/'
         data = ShipSerializer(data)
         try:
             requests.post(url,data)
             messages.add_message(request,messages.SUCCESS,'Successfully send for approval')
+            return redirect(ship,id=id)
         except requests.exceptions.ConnectionError:
             messages.add_message(request,messages.ERROR,'Cant connect to the server')
         return redirect(ship,id=id)
@@ -355,7 +355,7 @@ def package_approve(request,id):
             'items':items,
             'packages': packages
         }
-        url = env('BASE_URL')+'/sales/packages/approve'
+        url = env('BASE_URL')+'/sales/packages/approve/'
         data = PackSerializer(data)
         print(data.data)
         try:

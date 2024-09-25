@@ -19,32 +19,30 @@
     <div class="col-8 row">
         <a href="{% url 'add_purchase' number %}" class="btn btn-sm col">Edit order</a>
         <a href="{% url 'cancel_purchase' number %}" class="btn btn-sm col">Cancel order</a>
-        {% if purchase.status.id == 1 %}
-        <a href="{% url 'purchase_approve' number %}" class="btn btn-sm col btn-success">send for approval</a>
-        {% endif %}
+        <a href="{% url 'p_approve' number %}" id="approve" class="btn btn-sm col btn-success">send for approval</a>
       </div>
     <ul class="progress-tracker">
-        <li class="progress-step {% if purchase.status.id > 1 %}is-complete {% elif purchase.status.id == 1 %}is-active {% endif %}">
+        <li class="progress-step {% if purchase.status.id > 0 %}is-complete {% elif purchase.status.id == 1 %}is-active {% endif %}">
             Draft purchase creation {{purchase.status.id }}
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 2 %}is-complete {% elif purchase.status.id == 2 %}is-active {% endif %} ">
+        <li class="progress-step {% if purchase.status.id > 1 %}is-complete {% elif purchase.status.id == 1 %}is-active {% endif %} ">
             Awaiting purchasing team approval
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 3 %}is-complete {% elif purchase.status.id == 3 %}is-active {% endif %}">
+        <li class="progress-step {% if purchase.status.id > 2 %}is-complete {% elif purchase.status.id == 3 %}is-active {% endif %}">
             Awaiting Supplier approval
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 4 %}is-complete {% elif purchase.status.id == 4 %}is-active {% endif %}" >
+        <li class="progress-step {% if purchase.status.id > 3 %}is-complete {% elif purchase.status.id == 4 %}is-active {% endif %}" >
             Order processing
-          <div class="progress-marker {% if purchase.status.id > 5 %}is-complete {% elif purchase.status.id == 5 %}is-active {% endif %}"></div>
+          <div class="progress-marker {% if purchase.status.id > 4 %}is-complete {% elif purchase.status.id == 4 %}is-active {% endif %}"></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 6 %}is-complete {% elif purchase.status.id == 6 %}is-active {% endif %}">
+        <li class="progress-step {% if purchase.status.id > 5 %}is-complete {% elif purchase.status.id == 5 %}is-active {% endif %}">
             Awaiting shipment
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 7 %}is-complete {% elif purchase.status.id == 7 %}is-active {% endif %}">
+        <li class="progress-step {% if purchase.status.id > 6 %}is-complete {% elif purchase.status.id == 7 %}is-active {% endif %}">
             Order dispatched
           <div class="progress-marker"></div>
         </li>
@@ -157,7 +155,7 @@
         </div>
       </div>
 
-      <script src="{% static 'assets/js/sales.js' %}"
+      <script src="{% static 'assets/js/purchase_draft.js' %}"
     defer 
     data-status="{{purchase.status.status}}"
     data-id="{{purchase.status.id}}">

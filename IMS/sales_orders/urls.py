@@ -19,7 +19,7 @@ urlpatterns = [
     
     path('<int:id>/package_draft/',views.package_draft,name='package_draft'),
     path('<int:id>/package/',views.package,name='package'),
-    path('/package/<int:id>/delete',views.delete_package,name='delete_package'),
+    path('package/<int:id>/delete',views.delete_package,name='delete_package'),
     path('<int:id>/ship/',views.ship,name='ship'),
     path('<int:id>/ship/create',views.create_ship,name='create_ship'),
     path('<int:id>/ship/cancel',views.cancel_ship,name='cancel_ship'),

@@ -1,5 +1,5 @@
 // form = document.querySelector('#sales_draft') 
-document.querySelector('#datein').value = new Date().toLocaleString()
+// document.querySelector('#datein').value = new Date().toLocaleString()
 // document.querySelector('#total').textContent = Number(document.querySelector('#sub').textContent) + Number(document.querySelector('#discount').val);
 // form.addEventListener('submit',(e) => {
 
@@ -20,21 +20,23 @@ status_elem.textContent = stat
 switch(Number(id)){
     case(1):
     status_elem.classList.add('bg-secondary');
-    btn.style.display('hidden')
+    btn.classList.add('d-block');
     break;
     case(2):
-    btn.style.display('hidden')
+    btn.classList.add('d-block');
     status_elem.classList.add('bg-info');
     break;
     case(3):
     status_elem.classList.add('bg-primary');
-    btn.style.display('block')
+    btn.classList.add('d-none');
     break;
     case(4):
     status_elem.classList.add('bg-success');
+    btn.classList.add('d-none');
     break;
     case(5):
     status_elem.classList.add('bg-danger');
+    btn.classList.remove('d-block');
     break;
     default:
         status_elem.classList.add('bg-primary')

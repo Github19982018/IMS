@@ -29,18 +29,18 @@ function add_items(items, extra=0){
     return sum
 }
 
-function price_calc(){
-    document.querySelector('#total').textContent=this.value*document.querySelector('#price').textContent;
-    items = document.querySelectorAll('.total')
-    var total = 0;
-    for(i of items){
-        total += Number(i.textContent)
-    }
-    document.querySelector('#sub').textContent = total
-    document.querySelector('#total_amount').textContent = total - document.querySelector('#offer').textContent 
-}
+// function price_calc(){
+//     document.querySelector('#total').textContent=this.value*document.querySelector('#price').textContent;
+//     items = document.querySelectorAll('.total')
+//     var total = 0;
+//     for(i of items){
+//         total += Number(i.textContent)
+//     }
+//     document.querySelector('#sub').textContent = total
+//     document.querySelector('#total_amount').textContent = total - document.querySelector('#offer').textContent 
+// }
 
-function offer_calc(){
-    tot = document.querySelector('#sub').textContent;
-    document.querySelector('#total_amount').textContent = tot - document.querySelector('#offer').textContent ;
-}
+// function offer_calc(){
+//     tot = document.querySelector('#sub').textContent;
+//     document.querySelector('#total_amount').textContent = tot - document.querySelector('#offer').textContent ;
+// }

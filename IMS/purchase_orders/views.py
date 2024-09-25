@@ -7,6 +7,7 @@ from supplier.models import Supplier
 from datetime import datetime, date
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
 from accounts.models import User
 import requests
 from core.utils import specialilst_check,user_passes_test
@@ -15,6 +16,7 @@ from django.contrib import messages
 from core.models import Notifications
 from django.urls import reverse_lazy
 import environ
+from django.contrib.auth.decorators import login_not_required
 
 env = environ.Env()
 environ.Env.read_env()
@@ -151,17 +153,27 @@ def cancel_purchase(request, id):
         purch = PurchaseOrder.objects.get(id=draft)
         status = Purchase_status(status='cancel')
         purch.status = status
-        items = PurchaseItems.objects.filter(purchase=draft)
-        data = {'items':items,
-                'order':draft,
-                'purchase':purch}
-        serializer = PurchasesSerializer(data)
-        url = env('BASE_URL')+'/purchases/update'
-        requests.post(url,serializer.data,timeout=1)
+        url = env('BASE_URL')+'/purchases/update/'
+        requests.post(url,{'ref':id},timeout=1)
         return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
         return redirect('purchase',id=id)
+    
+@user_passes_test(specialilst_check)
+def approve(request,id):
+    try:
+        draft = PurchaseDraft.objects.get(id=id)
+        purch = PurchaseOrder.objects.get(id=draft) 
+        if purch.status.id == 1:
+            return redirect(purchase_approve,id=id)
+        elif purch.status.id  == 2:
+            return redirect(supplier_approve, id=id)
+        else:
+            return render(request,'404.html',{})
+    except PurchaseDraft.DoesNotExist:
+            return render(request,'404.html',{})
+        
 
 @user_passes_test(specialilst_check)
 def purchase_approve(request,id):
@@ -170,15 +182,22 @@ def purchase_approve(request,id):
         items = PurchaseItems.objects.filter(purchase=draft)
         status = Purchase_status(id=2)
         purch = PurchaseOrder.objects.get(id=draft)
-        data = {'items':items,
+        data = {'ref':id,
+                'items':items,
                 'order':draft,
                 'purchase':purch}
         serializer = PurchasesSerializer(data)
-        purchase.status = status
-        url = env('BASE_URL')+'/purchases/approve'
-        requests.post(url,serializer.data)
-        purch.save()
-        return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch})
+        # json = JSONRenderer().render(serializer.data)
+        purch.status = status
+        url = env('BASE_URL')+'/purchases/approve/'
+        if serializer.is_valid:
+            response = requests.post(url,json=serializer.data)
+            if response.status_code == 201:
+                purch.save()
+                messages.add_message(request,messages.SUCCESS,'Data sent for approve')
+            else:
+                messages.add_message(request,messages.ERROR,'Invalid data or format')
+        return redirect(purchase,id)
     except PurchaseDraft.DoesNotExist:
         return redirect(purchase,id)
     except requests.exceptions.ConnectionError:
@@ -193,39 +212,46 @@ def supplier_approve(request,id):
         items = PurchaseItems.objects.filter(purchase=draft)
         status = Purchase_status(id=3)
         purch = PurchaseOrder.objects.get(id=draft)
-        data = {'items':items,
+        data = {'ref':id,
+                'items':items,
                 'order':draft,
                 'purchase':purch}
         serializer = PurchasesSerializer(data)
         purchase.status = status
-        url = env('BASE_URL')+'/suppliers/approve'
-        requests.post(url,serializer.data)
-        purch.save()
+        url = env('BASE_URL')+'/supplier/approve/'
+        response = requests.post(url,json=serializer.data)
+        if response.status_code == 201:
+            purch.save()
+            messages.add_message(request,messages.SUCCESS,'Data sent for approve')
+        else:
+            print(response)
+            messages.add_message(request,messages.ERROR,'Invalid data or format')
         return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch})
     except PurchaseDraft.DoesNotExist:
         return redirect(purchase,id)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
         return redirect(purchase,id)
-
+    
+@login_not_required
 @api_view(['POST'])
 def purchase_api(request):
     try:
         data = request.data
         ref = data['ref']
         draft = PurchaseDraft.objects.get(id=ref)
-        status = Purchase_status(id=3)
+        status = Purchase_status(id=2)
         purchase = PurchaseOrder.objects.get(id=draft)
         purchase.status = status
         purchase.save()
         n = Notifications.objects.create(title='Purchase Approval',
-        message=f'Purchase order {ref} approved by Purchase team',link = reverse_lazy('purchase',args=[ref]),)
-        n.user.add(User.objects.get(user_type=3),tag='success')
+        message=f'Purchase order {ref} approved by Purchase team',link = reverse_lazy('purchase',args=[ref]),tag='success')
+        n.user.add(User.objects.get(user_type=3))
         return Response({'data':'successfully updated'},status=201)
     except PurchaseDraft.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)
 
-    
+@login_not_required
 @api_view(['POST'])
 def supplier_api(request):
     try:
