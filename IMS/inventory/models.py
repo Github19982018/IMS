@@ -2,6 +2,7 @@ from django.db import models
 from datetime import datetime
 from supplier.models import Supplier,Supplier_rating
 from warehouse.models import Warehouse
+from django.utils import timezone
 
 # Create your models here.
 class Category(models.Model):
@@ -30,6 +31,10 @@ class Inventory(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        self.updated = timezone.now()
+        return super(Inventory,self).save(*args,**kwargs)
 
 
 class ShipMethod(models.Model):

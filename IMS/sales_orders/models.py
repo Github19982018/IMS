@@ -4,6 +4,7 @@ from inventory.models import ShipMethod,Inventory
 from customer.models import Customer
 from warehouse.models import Warehouse
 from datetime import datetime
+from django.utils import timezone
 
 # Create your models here.
 class SalesStatus(models.Model):
@@ -33,6 +34,12 @@ class Sales(models.Model):
     status = models.ForeignKey(to=SalesStatus,null=True,on_delete=models.PROTECT)
     updated = models.DateTimeField(default=datetime.now)
     offer = models.PositiveSmallIntegerField(default=0)
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created_date = timezone.now()
+        self.updated = timezone.now()
+        return super(Sales,self).save(*args,**kwargs)
 
 
 class  SalesItems(models.Model):
@@ -79,6 +86,12 @@ class Shipment(models.Model):
     shipment_date = models.DateTimeField(null=True)
     status = models.ForeignKey(null=True,to=ShipStatus,on_delete=models.PROTECT)
     updated = models.DateTimeField(default=datetime.now)
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created_date = timezone.now()
+        self.updated = timezone.now()
+        return super(Shipment,self).save(*args,**kwargs)
 
 class Package(models.Model):
     sales = models.ForeignKey(to=Sales,on_delete=models.CASCADE,related_name='package')
@@ -90,4 +103,8 @@ class Package(models.Model):
     ship = models.ForeignKey(to=Shipment,null=True,on_delete=models.PROTECT,related_name='package')
     updated = models.DateTimeField(default=datetime.now)
 
-
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created_date = timezone.now()
+        self.updated = timezone.now()
+        return super(Package,self).save(*args,**kwargs)

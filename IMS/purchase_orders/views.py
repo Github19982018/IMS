@@ -264,7 +264,7 @@ def supplier_api(request):
         purchase.status = status
         purchase.save()
         n = Notifications.objects.create(title='Supplier Update',
-        message=f'Purchase order {ref} status update: {status}',link = reverse_lazy('purchase',args=[ref]),
+        message=f'Purchase order {ref} status update: {status.status}',link = reverse_lazy('purchase',args=[ref]),
         tag='success')
         n.user.add(User.objects.get(user_type=3))
         return Response({'data':'successfully updated'},status=201)

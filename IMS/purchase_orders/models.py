@@ -3,6 +3,7 @@ from bulkmodel.models import BulkModel
 from inventory.models import Supplier,ShipMethod,Inventory
 from datetime import datetime
 from warehouse.models import Warehouse
+from django.utils import timezone
 
 
 # Create your models here.
@@ -26,11 +27,16 @@ class PurchaseOrder(models.Model):
     ship_method = models.ForeignKey(to=ShipMethod,on_delete=models.PROTECT)
     preferred_shipping_date = models.DateTimeField(default=datetime.now)
     created_by = models.CharField(max_length=100)
-    created_date = models.DateTimeField(default=datetime.now)
-    updated = models.DateTimeField(default=datetime.now)
+    created_date = models.DateTimeField(editable=False)
+    updated = models.DateTimeField()
     total_amount = models.DecimalField(decimal_places=2,max_digits=10)
     status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
 
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created_date = timezone.now()
+        self.updated = timezone.now()
+        return super(PurchaseOrder,self).save(*args,**kwargs)
 
 class PurchaseReceive(models.Model):
     created_date = models.DateTimeField(default=datetime.now)
