@@ -137,7 +137,7 @@ def purchase(request,id):
             p_date = request.POST['preferred_date']
             p_date = datetime.strptime(p_date,'%m/%d/%Y, %I:%M:%S %p')
             status = Purchase_status.objects.get(status='draft')
-            purchase = PurchaseOrder.objects.create(id=draft,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
+            purchase = PurchaseOrder.objects.create(id=draft,created_date=datetime.now() ,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
             return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})
         else:
             return render(request,'404.html',{})
@@ -151,10 +151,24 @@ def cancel_purchase(request, id):
     try:
         draft = PurchaseDraft.objects.get(id=id)
         purch = PurchaseOrder.objects.get(id=draft)
-        status = Purchase_status(status='cancel')
+        status = Purchase_status.objects.get(status='cancelled')
+        id_val = purch.status.id
         purch.status = status
-        url = env('BASE_URL')+'/purchases/update/'
-        requests.post(url,{'ref':id},timeout=1)
+        purch.save()
+        if id_val == 1:
+            purchase_approve(request,id=id)
+        elif id_val > 2:
+            supplier_approve(request,id=id)
+        return redirect('purchase',id=id)
+    except requests.exceptions.ConnectionError:
+        messages.add_message(request,messages.ERROR,'Cant connect to the server')
+        return redirect('purchase',id=id)
+    
+@user_passes_test(specialilst_check) 
+def update_purchase(request, id):
+    try:
+        purchase_approve(request,id=id)
+        supplier_approve(request,id=id)
         return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
@@ -224,7 +238,6 @@ def supplier_approve(request,id):
             purch.save()
             messages.add_message(request,messages.SUCCESS,'Data sent for approve')
         else:
-            print(response)
             messages.add_message(request,messages.ERROR,'Invalid data or format')
         return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch})
     except PurchaseDraft.DoesNotExist:

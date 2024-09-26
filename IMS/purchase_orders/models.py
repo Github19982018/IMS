@@ -27,16 +27,21 @@ class PurchaseOrder(models.Model):
     ship_method = models.ForeignKey(to=ShipMethod,on_delete=models.PROTECT)
     preferred_shipping_date = models.DateTimeField(default=datetime.now)
     created_by = models.CharField(max_length=100)
-    created_date = models.DateTimeField(editable=False)
+    created_date = models.DateTimeField()
     updated = models.DateTimeField()
     total_amount = models.DecimalField(decimal_places=2,max_digits=10)
     status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
 
     def save(self, *args, **kwargs):
-        if not self.id:
+        if not self.pk:
             self.created_date = timezone.now()
         self.updated = timezone.now()
         return super(PurchaseOrder,self).save(*args,**kwargs)
+    
+    def update(self, *args, **kwargs):
+        self.updated = timezone.now()
+        return super(PurchaseOrder,self).update(*args,**kwargs)
+    
 
 class PurchaseReceive(models.Model):
     created_date = models.DateTimeField(default=datetime.now)

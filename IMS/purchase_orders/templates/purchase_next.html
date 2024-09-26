@@ -5,7 +5,7 @@
     
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="purchase_orders.html">Purchase Order</a></li>
+          <li class="breadcrumb-item"><a href="{%url 'purchases'%}">Purchase Order</a></li>
           <li class="active breadcrumb-item">New purchase Order #{{number}}</li>
         </ol>
       </nav>
@@ -36,15 +36,15 @@
         </li>
         <li class="progress-step {% if purchase.status.id > 3 %}is-complete {% elif purchase.status.id == 4 %}is-active {% endif %}" >
             Order processing
-          <div class="progress-marker {% if purchase.status.id > 4 %}is-complete {% elif purchase.status.id == 4 %}is-active {% endif %}"></div>
+          <div class="progress-marker "></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 5 %}is-complete {% elif purchase.status.id == 5 %}is-active {% endif %}">
+        <li class="progress-step {% if purchase.status.id > 4 %}is-complete {% elif purchase.status.id == 4 %}is-active {% endif %}">
             Awaiting shipment
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if purchase.status.id > 6 %}is-complete {% elif purchase.status.id == 7 %}is-active {% endif %}">
+        <li class="progress-step {% if purchase.status.id > 5 %}is-complete {% elif purchase.status.id == 5 %}is-active {% endif %}">
             Order dispatched
-          <div class="progress-marker"></div>
+          <div class="progress-marker" ></div>
         </li>
       </ul>
  </div>
@@ -155,7 +155,7 @@
         </div>
       </div>
 
-      <script src="{% static 'assets/js/purchase_draft.js' %}"
+      <script src="{% static 'assets/js/purchase.js' %}"
     defer 
     data-status="{{purchase.status.status}}"
     data-id="{{purchase.status.id}}">

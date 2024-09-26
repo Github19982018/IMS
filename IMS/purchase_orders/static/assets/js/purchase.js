@@ -2,6 +2,7 @@ const data = document.currentScript.dataset
 const stat = data.status
 const id = data.id
 const status_elem = document.querySelector('#status')
+const btn = document.querySelector('#btn')
 status_elem.textContent = stat
 switch(Number(id)){
     case(1):
@@ -14,16 +15,15 @@ switch(Number(id)){
     status_elem.classList.add('bg-primary');
     break;
     case(4):
-    status_elem.classList.add('bg-warning');
-    break;
-    case(5):
     status_elem.classList.add('bg-success');
     break;
-    case(6):
-    document.querySelector(':root').style.setProperty('--progress-bg','rgb(233,0,0)');
-    status_elem.classList.add('bg-danger');
+    case(5):
+    status_elem.classList.add('bg-info');
+    break;
+    case(7):
+    status_elem.classList.add('bg-dark');
+    document.querySelector(':root').style.setProperty('--progress-bg','rgb(0,0,0)');
     break;
     default:
         status_elem.classList.add('bg-primary')
 }
-

@@ -4,7 +4,7 @@
 
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="purchase.html">Purchase Order</a></li>
+          <li class="breadcrumb-item"><a href="{%url 'purchases'%}">Purchase Order</a></li>
           <li class="active breadcrumb-item">New purcahse Order #{{number}}</li>
         </ol>
       </nav>
@@ -137,6 +137,6 @@
     </section>
     {% endblock %}
     {% load static %}
-    <!-- {% block code %}
+    {% block code %}
     <script src="{% static 'assets/js/purchase_draft.js' %}"></script>
-    {% endblock %} -->
+    {% endblock %} 

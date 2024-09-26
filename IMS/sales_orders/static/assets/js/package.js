@@ -19,6 +19,7 @@ switch(Number(id)){
     break;
     case(5):
     status_elem.classList.add('bg-danger');
+    document.querySelector(':root').style.setProperty('--progress-bg','rgb(233,0,0)');
     break;
     default:
         status_elem.classList.add('bg-primary')

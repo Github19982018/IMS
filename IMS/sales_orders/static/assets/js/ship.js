@@ -20,6 +20,7 @@ switch(Number(id)){
     status_elem.classList.add('bg-danger');
     break;
     case(6):
+    document.querySelector(':root').style.setProperty('--progress-bg','rgb(233,0,0)');
     status_elem.classList.add('bg-danger');
     break;
     default:
