@@ -34,7 +34,7 @@
           <div class="progress-marker"></div>
         </li>
         <li class="progress-step {% if sales.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %} ">
-            <a href="{%url 'get_package' sales.id%}" {% if sales.status.id < 2 %}style='pointer-events:none;color:black;'{%endif%}>Awaiting packing</a>
+            <a href="{%url 'package' sales.id%}" {% if sales.status.id < 2 %}style='pointer-events:none;color:black;'{%endif%}>Awaiting packing</a>
           <div class="progress-marker"></div>
         </li>
         <li class="progress-step {% if sales.status.id > 2 %}is-complete {% elif sales.status.id == 2 %}is-active {% endif %}">

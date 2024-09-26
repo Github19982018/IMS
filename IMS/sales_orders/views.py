@@ -100,10 +100,11 @@ def get_sales(request,id):
 def get_package(request,id):
     try:      
         pack = Package.objects.get(id=id)
-        if pack.status == 'draft':
-            return redirect(package_draft,id=id)
+        # pack = sale.package.first()
+        if pack.status.status == 'draft':
+            return redirect(package_draft,id=pack.id)
         else:
-            return redirect(package,id=id)
+            return redirect(package,id=pack.id)
     except Package.DoesNotExist:
         return render(request,'404.html',{})
     
@@ -180,7 +181,6 @@ def sales(request,id):
         sales = Sales.objects.get(id=id)
         draft = SalesItems.objects.filter(sales=sales)
         if request.method == 'GET':
-            print('get')
             return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
         elif request.method == 'POST' and specialilst_check:
             sales.bill_address = request.POST['bill_address']
@@ -231,8 +231,9 @@ def package_draft(request,id):
 @user_passes_test(specialilst_check)
 def package(request,id):
     try:
-        package = Package.objects.get(id=id)
-        package_approve(request,id)
+        sales = Sales.objects.get(id=id)
+        package = Package.objects.get(sales=sales)
+        package_approve(request,package.id)
         sales = package.sales
         items = SalesItems.objects.filter(sales=sales)
         return render(request,'sales_orders/package.html',{'package':package,'items':items, 'sales':sales})
@@ -301,7 +302,7 @@ def ship(request,id):
             # ship.sales.add(sales)
             pack = request.POST.getlist('package')
             packages = Package.objects.filter(id__in=pack)
-            packages.update(ship=sh)
+            packages.update(ship=sh,status=PackageStatus(id=3))
             items = sale.items.all()
             return render(request,'sales_orders/ship.html',{'number':id, 'sales':sale,'ship':sh, 'packages':packages, 'items':items})
         # items = sales.items
@@ -338,18 +339,18 @@ def cancel_sales(request,id):
         s = Sales.objects.get(id=id)
         if not s.status:
             s.delete()
-            messages.info(request,f"sales {s.id} deleted")
+            messages.info(request,f"sales order deleted")
             return redirect('sales')
         elif s.status.id < 5:
             s.status = SalesStatus.objects.get(status='cancelled')
             try:
                 s.package.all().delete()
                 s.shipment.all().update(status=ShipStatus(status='cancelled'))
+                s.save()
+                messages.info(request,f"sales {s.id} cancelled")
             except:
-                pass
-            s.save()
-            messages.info(request,f"sales {s.id} cancelled")
-            return redirect('sales')
+                messages.warning(request,f"sales {s.id} can't be cancelled operational error")
+            return redirect('sales')      
         else:
             messages.warning(request,f"sales {s.id} cant be cancelled")
             return redirect('get_sale',id=id)
@@ -362,7 +363,7 @@ def create_ship(request,id):
     try:
         sales = Sales.objects.get(id=id)
         shipment = Shipment.objects.get(sales=sales)
-        if shipment.status.id == 1:
+        if sales.status.id == 2 and shipment.status.id == 1:
             packages = shipment.package.all()
             items = sales.items.all()
             data = {'ref':shipment.id,
@@ -379,8 +380,12 @@ def create_ship(request,id):
                 return redirect(ship,id=id)
             except requests.exceptions.ConnectionError:
                 messages.add_message(request,messages.ERROR,'Cant connect to the server')
-        else:
+        elif sales.status.id > 3:
             messages.add_message(request,messages.WARNING,'Already shiped!')
+        elif sales.status.id < 2:
+            messages.add_message(request,messages.WARNING,'No packages to be shipped!')   
+        else:
+            messages.add_message(request,messages.WARNING,'Already sent for shipment')   
         return redirect(ship,id=id)
     except Sales.DoesNotExist:
         return render(request,'404.html',{})
