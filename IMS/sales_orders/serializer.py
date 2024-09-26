@@ -12,7 +12,8 @@ class PackageSerializer(serializers.ModelSerializer):
 class ItemsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SalesItems
-        fields = '__all__'
+        fields = ['item','price','quantity','units','discount']
+        depth = 2
         
 class SaleSerializer(serializers.ModelSerializer):
     items = ItemsSerializer(many=True)

@@ -72,7 +72,7 @@
                   <td>
                     {{i.total_amount}}
                   </td>
-                  <td><span class="badge bg-success">{{i.status.status}}</span></td>
+                  <td><span class="badge {%if i.status.id == 1%}bg-secondary{%elif i.status.id == 2%}bg-info{%elif i.status.id == 3%}bg-warning{%elif i.status.id == 4%}bg-danger{%elif i.status.id == 5%}bg-success {%elif i.status.id == 6%}bg-primary{%endif%}">{{i.status.status}}</span></td>
                 </tr>
                 {% endfor %}
                 

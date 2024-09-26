@@ -2,52 +2,53 @@
 {% load static %}
 {% block main %}
     
-    <nav style="--bs-breadcrumb-divider: '>';">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="ship_orders.html">Sales Order</a></li>
-          <li class="breadcrumb-item">sales Order #{{ship.sales.id}}</li>
-          <li class="active breadcrumb-item">shipment #{{ship.id}}</li>
-        </ol>
-      </nav>
+<nav style="--bs-breadcrumb-divider: '>';">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'sales' %}">Sales Order</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'sale' sales.id %}">Sales Order #{{sales.id}}</a></li>
+    <li class="active breadcrumb-item">Shipment #{{ship.id}}</li>
+  </ol>
+</nav>
 
 <!-- status -->
  <div class="row">
     <div class="col-4 row">
         <div class="col w-10" >Status</div>
-        <div class="col w-10 badge bg-secondary rounded-pill" id="status">{{ship.status.status}}</div>
+        <div class="col w-10 badge bg-secondary rounded-pill" id="status"></div>
     </div>
 {%if employee.role == 'specialist' %}
     <div class="col-8 row">
         <!-- <a href="{%url 'ship' sales.id%}" class="btn btn-sm col">Edit shipment</a> -->
         <a href="{% url 'cancel_ship' ship.id %}" class="btn btn-sm col">Cancel ship</a>
+        {%if ship.status.id < 3 %}
         <form class="col" action="{% url 'create_ship' sales.id %}" method="post">
           {%csrf_token%}
-          <input hidden type="number" value="{{package.id}} name=package">
-          <input type="submit" id="btn" class="btn  btn-success" value="ship">
+          <input hidden type="number" value="{{package.id}}" name="package">
+          <input type="submit" id="btn" class="btn  btn-success" value="Ship order">
         </form>
-          
+        {%endif%}
     </div>
 {%endif%}
     <ul class="progress-tracker">
-        <li class="progress-step {% if ship.status.id > 1 %}is-complete {% elif ship.status.id == 1 %}is-active {% endif %}">
+        <li class="progress-step {% if ship.status.id > 0 %}is-complete {% elif ship.status.id == 0 %}is-active {% endif %}">
             Draft ship slip creation {{ship.status.id }}
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if ship.status.id > 2 %}is-complete {% elif ship.status.id == 2 %}is-active {% endif %} ">
-            Awaiting packing
+        <li class="progress-step {% if ship.status.id > 1 %}is-complete {% elif ship.status.id == 1 %}is-active {% endif %} ">
+            Shipment order sent to the fleet manager
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if ship.status.id > 3 %}is-complete {% elif ship.status.id == 3 %}is-active {% endif %}">
-            Ready for shipping
+        <li class="progress-step {% if ship.status.id > 2 %}is-complete {% elif ship.status.id == 2 %}is-active {% endif %}">
+            Waiting to be picked up by the carrier
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if ship.status.id > 4 %}is-complete {% elif ship.status.id == 4 %}is-active {% endif %}" >
-            shipped
-          <div class="progress-marker {% if ship.status.id > 5 %}is-complete {% elif ship.status.id == 5 %}is-active {% endif %}"></div>
+        <li class="progress-step {% if ship.status.id > 3 %}is-complete {% elif ship.status.id == 3 %}is-active {% endif %}" >
+            Received by the customer
+          <div class="progress-marker {% if ship.status.id > 4 %}is-complete {% elif ship.status.id == 4 %}is-active {% endif %}"></div>
         </li>
       </ul>
  </div>
- <div class="row pt-4">
+ <div class="row pt-3">
     <div class="col-lg-6">
       <div class="card p-2">
         <h6 class="card-title p-1 ">From</h6>

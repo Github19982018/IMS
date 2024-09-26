@@ -3,13 +3,13 @@
 
 {% block main %}
 
-    <nav style="--bs-breadcrumb-divider: '>';">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="sales_orders/sales.html">Sales Order</a></li>
-          <li class="breadcrumb-item">Sales Order #{{sales.id}}</li>
-          <li class="active breadcrumb-item">New Package #{{number}}</li>
-        </ol>
-      </nav>
+<nav style="--bs-breadcrumb-divider: '>';">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'sales' %}">Sales Order</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'sale' sales.id %}">Sales Order #{{sales.id}}</a></li>
+    <li class="active breadcrumb-item">Package #{{package.id}}</li>
+  </ol>
+</nav>
 
       <div class="row">
         <div class="col">

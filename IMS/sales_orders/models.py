@@ -52,8 +52,7 @@ class  SalesItems(models.Model):
     @property
     def total_price(self):
         return (self.quantity*self.price)-(self.price*self.quantity*self.discount/100)
-    def __str__(self):
-        return self.item
+    
 class SaleItems(BulkModel):
     sales = models.ForeignKey(to=Sales,on_delete=models.CASCADE)
     item = models.ForeignKey(to=Inventory,null=True,on_delete=models.CASCADE)

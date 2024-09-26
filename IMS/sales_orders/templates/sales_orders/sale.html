@@ -6,7 +6,7 @@
     
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="sales_orders.html">sales Order</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'sales' %}">Sales Order</a></li>
           <li class="active breadcrumb-item">New sales Order #{{number}}</li>
         </ol>
       </nav>
@@ -20,30 +20,34 @@
   {%if employee.role == 'specialist'%}
     <div class="col-8 row">
         <a class="btn btn-sm col" href="{%url 'edit_sale' sales.id%}">Edit order</a>
+        {%if sales.status.id < 5 %}
         <a href="{%url 'cancel_sales' sales.id %}" class="btn btn-sm col" >Cancel order</a>
+        {%endif%}
+        {%if sales.status.id == 1%}
         <a href="{%url  'package_draft' number %}" class="btn btn-sm col btn-success">create package</a>
+        {%endif%}
     </div>
     {%endif%}
     <ul class="progress-tracker">
-        <li class="progress-step {% if sales.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %}">
+        <li class="progress-step {% if sales.status.id > 0 %}is-complete {% elif sales.status.id == 0 %}is-active {% endif %}">
             Draft sales creation {{sales.status.id }}
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if sales.status.id > 2 %}is-complete {% elif sales.status.id == 2 %}is-active {% endif %} ">
+        <li class="progress-step {% if sales.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %} ">
             <a href="{%url 'get_package' sales.id%}" {% if sales.status.id < 2 %}style='pointer-events:none;color:black;'{%endif%}>Awaiting packing</a>
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if sales.status.id > 3 %}is-complete {% elif sales.status.id == 3 %}is-active {% endif %}">
+        <li class="progress-step {% if sales.status.id > 2 %}is-complete {% elif sales.status.id == 2 %}is-active {% endif %}">
             <a href="{%url 'ship' sales.id%}"  {% if sales.status.id < 3 %}style='pointer-events:none;color:black;'{%endif%}>Awaiting shipment</a>
             
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if sales.status.id > 4 %}is-complete {% elif sales.status.id == 4 %}is-active {% endif %}" >
+        <li class="progress-step {% if sales.status.id > 3 %}is-complete {% elif sales.status.id == 3 %}is-active {% endif %}" >
             Received by the customer
-          <div class="progress-marker {% if sales.status.id > 5 %}is-complete {% elif sales.status.id == 5 %}is-active {% endif %}"></div>
-        </li>
-        <li class="progress-step {% if sales.status.id > 6 %}is-complete {% elif sales.status.id == 6 %}is-active {% endif %}">
+          </li>
+          <li class="progress-step {% if sales.status.id > 4 %}is-complete {% elif sales.status.id == 4 %}is-active {% endif %}">
             Payed by the customer
+            <div class="progress-marker {% if sales.status.id == 5 %}is-complete {% endif %}"></div>
           <div class="progress-marker"></div>
         </li>
         <!-- <li class="progress-step {% if sales.status.id > 7 %}is-complete {% elif sales.status.id == 7 %}is-active {% endif %}">

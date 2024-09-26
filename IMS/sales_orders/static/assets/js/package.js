@@ -7,15 +7,12 @@ status_elem.textContent = stat
 switch(Number(id)){
     case(1):
     status_elem.classList.add('bg-secondary');
-    btn.style.display('hidden')
     break;
     case(2):
-    btn.style.display('hidden')
-    status_elem.classList.add('bg-info');
+    status_elem.classList.add('bg-secondary');
     break;
     case(3):
     status_elem.classList.add('bg-primary');
-    btn.style.display('block')
     break;
     case(4):
     status_elem.classList.add('bg-success');

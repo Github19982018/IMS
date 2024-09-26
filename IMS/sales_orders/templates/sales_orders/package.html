@@ -4,8 +4,8 @@
     
     <nav style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="sales_orders.html">sales Order</a></li>
-          <li class="breadcrumb-item">sales Order #{{number}}</li>
+          <li class="breadcrumb-item"><a href="{% url 'sales' %}">Sales Order</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'sale' sales.id %}">Sales Order #{{sales.id}}</a></li>
           <li class="active breadcrumb-item">package #{{package.id}}</li>
         </ol>
       </nav>
@@ -19,7 +19,9 @@
 {%if employee.role == 'specialist'%}
     <div class="col-8 row">
         <a class="btn btn-sm col" href="{%url 'package_draft' sales.id %}">Edit package</a>
+        {%if pacakge.id <= 2%}
         <a href="{% url 'delete_package' package.id %}" class="btn btn-sm col">Delete package</a>
+        {%endif%}
         <form class="col" action="{% url 'ship' sales.id  %}" method="post">
           {%csrf_token%}
           <input type="number" name="package" id="" hidden value="{{package.id}}">
@@ -28,21 +30,21 @@
     </div>
 {%endif%}
     <ul class="progress-tracker">
-        <li class="progress-step {% if package.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %}">
+        <li class="progress-step {% if package.status.id > 0 %}is-complete {% elif sales.status.id == 0 %}is-active {% endif %}">
             Draft package slip creation {{package.status.id }}
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if package.status.id > 2 %}is-complete {% elif package.status.id == 2 %}is-active {% endif %} ">
+        <li class="progress-step {% if package.status.id > 1 %}is-complete {% elif package.status.id == 1 %}is-active {% endif %} ">
             Awaiting packing
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if package.status.id > 3 %}is-complete {% elif package.status.id == 3 %}is-active {% endif %}">
+        <li class="progress-step {% if package.status.id > 2 %}is-complete {% elif package.status.id == 2 %}is-active {% endif %}">
             Ready for shipping
           <div class="progress-marker"></div>
         </li>
-        <li class="progress-step {% if package.status.id > 4 %}is-complete {% elif package.status.id == 4 %}is-active {% endif %}" >
+        <li class="progress-step {% if package.status.id > 3 %}is-complete {% elif package.status.id == 3 %}is-active {% endif %}" >
             shipped
-          <div class="progress-marker {% if package.status.id > 5 %}is-complete {% elif package.status.id == 5 %}is-active {% endif %}"></div>
+          <div class="progress-marker {% if package.status.id > 4 %}is-complete {% elif package.status.id == 4 %}is-active {% endif %}"></div>
         </li>
       </ul>
  </div>
@@ -126,7 +128,7 @@
 {% block code %}
 <script src="{% static 'assets/js/package.js' %}"
     defer 
-    data-status="{{sales.status.status}}"
-    data-id="{{sales.status.id}}">
+    data-status="{{package.status.status}}"
+    data-id="{{pacakge.status.id}}">
   </script>
 {% endblock %}

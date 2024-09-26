@@ -3,12 +3,12 @@
 
 {% block main %}
 
-    <nav style="--bs-breadcrumb-divider: '>';">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="purchase.html">Sales Order</a></li>
-          <li class="active breadcrumb-item">Sales Order#{{sales.id}}</li>
-        </ol>
-      </nav>
+<nav style="--bs-breadcrumb-divider: '>';">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'sales' %}">Sales Order</a></li>
+    <li class="active breadcrumb-item"><a href="{% url 'sale' sales.id %}">Sales Order #{{sales.id}}</a></li>
+  </ol>
+</nav>
   <form action="{% url 'sale' sales.id %}"  method="post">
     <section class="section">
       <div class="row">
