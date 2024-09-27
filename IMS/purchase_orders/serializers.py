@@ -12,8 +12,7 @@ class PurchaseDraftSerializer(serializers.ModelSerializer):
 class ItemsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseItems
-        fields = '__all__'
-        depth=2
+        fields = ['id','price','quantity','units','item__sku','item__description','item__brand','item__dimensions','item__weight']
         
 class PurchaseSrializer(serializers.ModelSerializer):
     class Meta:
@@ -24,7 +23,6 @@ class PurchaseSrializer(serializers.ModelSerializer):
 class PurchasesSerializer(serializers.Serializer):
     ref = serializers.IntegerField()
     items = ItemsSerializer(many=True)
-    order = PurchaseDraftSerializer()
     purchase = PurchaseSrializer()
 
 
