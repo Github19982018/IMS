@@ -10,7 +10,7 @@ class Notifications(models.Model):
             ('success','success'),
             ('danger','danger'),
             ('primary','primary'))
-    title = models.CharField(max_length=20)
+    title = models.CharField(max_length=100)
     message = models.TextField(default='')
     tag = models.CharField(choices=TAGS,max_length=20)
     link = models.URLField(null=True)

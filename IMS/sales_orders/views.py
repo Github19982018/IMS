@@ -189,10 +189,10 @@ def sales(request,id):
 @user_passes_test(specialilst_check)
 def edit_sales(request,id):
     try:
+        sale = Sales.objects.get(id=id)
         if sale.status.id < 5:
             ship_method = ShipMethod.objects.all()
             customers = Customer.objects.all()
-            sale = Sales.objects.get(id=id)
             items = SalesItems.objects.filter(sales=sale)
             return render(request,'sales_orders/sales_edit.html',{'items':items,'sales':sale,'ship_method':ship_method, 'customers':customers})
         else:
@@ -405,19 +405,27 @@ def sales_api(request):
         data = request.data
         id =  data['ref']
         status = data['status']
-        draft = Sales.objects.get(id=id)
+        draft = Shipment.objects.get(id=id)
+        sale = draft.sales
         status = SalesStatus(id=status)
-        if status.id == PAYED:
-            draft.status = status
-            draft.save()
+        if int(status.id) == PAYED:
+            sale.status = status
+            sale.save()
             n = Notifications.objects.create(title='Sales team Update',
-            message=f'Sales order {data['ref']} status update: {status.status}',link = reverse_lazy('sale',args=[data['ref']]),
+            message=f'Sales order {data['ref']} status update: Payed by customer',link = reverse_lazy('get_sale',args=[sale.id]),
             tag='success')
             n.user.add(User.objects.get(user_type=3))
-        return Response({'data':'successfully updated'},status=201)
-
-    except Sales.DoesNotExist:
+            return Response({'data':'successfully updated'},status=201)
+        else:
+            n = Notifications.objects.create(title='Sales team Update Error',
+            message=f'Sales order {data['ref']} Update error',link = reverse_lazy('get_sale',args=[sale.id]),
+            tag='danger')
+            n.user.add(User.objects.get(user_type=3))
+            return Response({'error':'invalid status'},status=403)
+    except Shipment.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)
+            
+
 
 
 
@@ -433,12 +441,10 @@ def package_api(request):
         package.save()
         sales.save()
         n = Notifications.objects.create(title='Sales team Update',
-        message=f'Sales order {data['ref']} status update: {package.status.status}',link = reverse_lazy('package',args=[data['ref']]),
+        message=f'Package {data['ref']} status update: Item packed',link = reverse_lazy('get_package',args=[data['ref']]),
         tag='success')
         n.user.add(User.objects.get(user_type=3))
         return Response({'data':'successfully updated'},status=201)
-    except KeyError:
-            return Response({'error':'Invalid data'},status=404)
     except Package.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)
 
@@ -448,26 +454,31 @@ def ship_api(request):
     try:
         data = request.data
         draft = Shipment.objects.get(id=data['ref'])
-        status = ShipStatus(id=int(data['status']))
+        status = ShipStatus(id=data['status'])
         package = draft.package.all()
         sales = draft.sales
         draft.status = status
-        if status.id == CARRIER_PICKED:
+        st = ''
+        if int(status.id) == CARRIER_PICKED:
             sales.status = SalesStatus(SALE_SHIPPED)
-            package.update(status=PackageStatus(SALE_SHIPPED))
-        elif status.id == CUSTOMER_RECEIVED:
+            package.update(status=PackageStatus(PACKAGE_SHIPPED))
+            st = 'Order picked by carrier'
+        elif int(status.id) == CUSTOMER_RECEIVED:
             sales.status = SalesStatus(SALE_DELIVERED)
+            st = 'Order received by customer'
         else:
+            n = Notifications.objects.create(title='Sales team Update Error',
+            message=f'Ship order {data['ref']} update error ',link = reverse_lazy('get_ship',args=[data['ref']]),
+            tag='danger')
+            n.user.add(User.objects.get(user_type=3))
             return Response({'data':'cant be updated'},status=403)
         draft.save()
         sales.save()
         n = Notifications.objects.create(title='Sales team Update',
-        message=f'Sales order {data['ref']} status update: {draft.status.status}',link = reverse_lazy('ship',args=[data['ref']]),
+        message=f'Ship order {data['ref']} status update: {st}',link = reverse_lazy('get_ship',args=[data['ref']]),
         tag='success')
         n.user.add(User.objects.get(user_type=3))
         return Response({'data':'successfully updated'},status=201)
-    except KeyError:
-            return Response({'error':'Invalid data'},status=404)
     except Shipment.DoesNotExist:
             return HttpResponse({'error':'order does not exist'},status=404)
     except ShipStatus.DoesNotExist:

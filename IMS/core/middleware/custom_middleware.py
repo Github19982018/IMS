@@ -39,7 +39,7 @@ class Warehouse_middleware:
                     'name':user.username,
                     'user':user
                 }
-            notifications = Notifications.objects.filter(user=request.user)[:5]
+            notifications = Notifications.objects.filter(user=request.user)[:4]
             seen = Notifications.objects.filter(user=request.user,seen=False)
             count = seen.count()
             if response.context_data:
