@@ -139,6 +139,7 @@ def save_quantity(request):
             item = request.POST.getlist('item')
             sales_list = []
             items = Inventory.objects.filter(id__in=item)
+            total = 0
             for i in range(len(items)):
                 sales_list.append(SaleItems(
                     sales = sale,
@@ -147,6 +148,9 @@ def save_quantity(request):
                     quantity = quantity[i],
                     units = items[i].units
                 ))
+                total += float(quantity[i])*float(items[i].selling_price)
+            sale.total_amount = total
+            sale.save()
             draft = SalesItems.objects.bulk_create(sales_list)
             return sales(request,sale.id)
         else:
