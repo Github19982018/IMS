@@ -156,9 +156,11 @@ def cancel_purchase(request, id):
         purch.status = status
         purch.save()
         if id_val == 1:
-            purchase_approve(request,id=id)
+            url = env('BASE_URL')+'/purchases/cancel/'
+            requests.post(url,json={'ref':id})
         elif id_val > 2:
-            supplier_approve(request,id=id)
+            url = env('BASE_URL')+'/supplier/cancel/'
+            requests.post(url,json={'ref':id})
         return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
@@ -194,24 +196,28 @@ def purchase_approve(request,id):
     try:
         draft = PurchaseDraft.objects.get(id=id)
         items = PurchaseItems.objects.filter(purchase=draft)
-        status = Purchase_status(id=2)
+        status = Purchase_status(id=1)
         purch = PurchaseOrder.objects.get(id=draft)
-        data = {'ref':id,
-                'items':items,
-                'order':draft,
-                'purchase':purch}
-        serializer = PurchasesSerializer(data)
-        # json = JSONRenderer().render(serializer.data)
-        purch.status = status
-        url = env('BASE_URL')+'/purchases/approve/'
-        if serializer.is_valid:
-            response = requests.post(url,json=serializer.data)
-            if response.status_code == 201:
-                purch.save()
-                messages.add_message(request,messages.SUCCESS,'Data sent for approve')
-            else:
-                messages.add_message(request,messages.ERROR,'Invalid data or format')
-        return redirect(purchase,id)
+        if purch.status.id != 7:
+            data = {'ref':id,
+                    'items':items,
+                    'order':draft,
+                    'purchase':purch}
+            serializer = PurchasesSerializer(data)
+            # json = JSONRenderer().render(serializer.data)
+            purch.status = status
+            url = env('BASE_URL')+'/purchases/approve/'
+            if serializer.is_valid:
+                response = requests.post(url,json=serializer.data)
+                if response.status_code == 201:
+                    purch.save()
+                    messages.add_message(request,messages.SUCCESS,'Data sent for approve')
+                else:
+                    messages.add_message(request,messages.ERROR,'Invalid data or format')
+            return redirect(purchase,id)
+        else:
+            messages.add_message(request,messages.WARNING,'already cancelled order')
+            return render(request,'404.html',{})
     except PurchaseDraft.DoesNotExist:
         return redirect(purchase,id)
     except requests.exceptions.ConnectionError:
