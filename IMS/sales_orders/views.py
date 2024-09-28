@@ -173,6 +173,10 @@ def sales(request,id):
             sales.save()
             print(sales.ship_method)
             return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
+        else: 
+            sales = Sales.objects.get(id=id)
+            draft = SalesItems.objects.filter(sales=sales)
+            return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
     except Sales.DoesNotExist:
         return  render(request,'404.html',{})
     except SalesItems.DoesNotExist:
