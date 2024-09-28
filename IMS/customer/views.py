@@ -29,3 +29,8 @@ def get_customer(request,id):
         return HttpResponseRedirect('')
     else:
         return render(request,'Customer.html',{'customer':customer,'orders':orders})
+    
+def customer_orders(request,id):
+    customer = Customer.objects.get(id=id)
+    orders = Sales.objects.filter(customer=customer)
+    return render(request,'sales_orders/sales.html',{'sales':orders})
