@@ -1,7 +1,7 @@
 from django.template.response import TemplateResponse as render
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from supplier.models import Supplier,Supplier_rating
-from purchase_orders.models import PurchaseDraft
+from purchase_orders.models import PurchaseDraft,PurchaseOrder
 from core.utils import specialilst_check
 # Create your views here.
 
@@ -29,3 +29,9 @@ def get_supplier(request,id):
         return HttpResponseRedirect('')
     else:
         return render(request,'supplier.html',{'supplier':supplier,'orders':orders})
+    
+    
+def supplier_orders(request,id):
+    supplier = Supplier.objects.get(id=id)
+    purchases = PurchaseOrder.objects.filter(id__supplier=supplier)
+    return render(request,'purchases.html',{'purchases':purchases})
