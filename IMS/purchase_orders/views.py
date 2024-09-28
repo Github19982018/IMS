@@ -45,28 +45,28 @@ def view_purchases(request):
 #     return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
 
 # making purchase from inventory
-@user_passes_test(specialilst_check)
-def make_purchase(request):
-    if request.method == 'GET':
-        id_list =  request.GET.getlist('item') 
-        items = Inventory.objects.filter(id__in=id_list)
-        if len(items)>=1:
-            purchase_list = []
-            purchase = PurchaseDraft.objects.create()
-            for i in items:
-                purchase_list.append(PurchasesItems(
-                    purchase = purchase,
-                    item = i,
-                    price = i.selling_price,
-                    quantity = 1,
-                    units = i.units
-                ))
-            draft = PurchaseItems.objects.bulk_create(purchase_list)
-            return redirect(draft_purchase,id=purchase.id,permanent=True)
-        else:
-            return redirect('inventories')
-    else:
-        return render(request,'404.html',{})
+# @user_passes_test(specialilst_check)
+# def make_purchase(request):
+#     if request.method == 'GET':
+#         id_list =  request.GET.getlist('item') 
+#         items = Inventory.objects.filter(id__in=id_list)
+#         if len(items)>=1:
+#             purchase_list = []
+#             purchase = PurchaseDraft.objects.create()
+#             for i in items:
+#                 purchase_list.append(PurchasesItems(
+#                     purchase = purchase,
+#                     item = i,
+#                     price = i.selling_price,
+#                     quantity = 1,
+#                     units = i.units
+#                 ))
+#             draft = PurchaseItems.objects.bulk_create(purchase_list)
+#             return redirect(draft_purchase,id=purchase.id,permanent=True)
+#         else:
+#             return redirect('inventories')
+#     else:
+#         return render(request,'404.html',{})
     
 @user_passes_test(specialilst_check)
 def make_purchase(request,id):
@@ -79,7 +79,7 @@ def make_purchase(request,id):
                     price = i.selling_price,
                     quantity = 1,
                     units = i.units)
-            return redirect(draft_purchase,id=purchase.id,permanent=True)
+            return redirect(draft_purchase,id=purchase.id)
         else:
             return redirect('inventories')
     except Inventory.DoesNotExist:
@@ -281,6 +281,13 @@ def supplier_api(request):
         status = Purchase_status(id=status)
         purchase = PurchaseOrder.objects.get(id=draft)
         purchase.status = status
+        if int(status.id) == 6:
+            items = PurchaseItems.objects.filter(purchase=draft)
+            print(items)
+            for i in items:
+                print(i)
+                i.item.on_hand += i.quantity
+                i.item.save()
         purchase.save()
         n = Notifications.objects.create(title='Supplier Update',
         message=f'Purchase order {ref} status update: {status.status}',link = reverse_lazy('purchase',args=[ref]),
