@@ -102,16 +102,19 @@ def draft_purchase(request,id):
             draft = PurchaseItems.objects.filter(purchase=id)
             suppliers = Supplier.objects.all()
             ship_method = ShipMethod.objects.all()
-            supplier = ''
-            s = request.GET.get('supplier')
-            if s:
-                supplier = Supplier.objects.get(id=s)
-            elif draft.first().item.preferred_supplier:
-                supplier = draft.first().item.preferred_supplier
-            else:
-                supplier = suppliers.first()
-            purchase.supplier = supplier
-            purchase.save()
+            def set_supplier():
+                supplier = ''
+                s = request.GET.get('supplier')
+                if s:
+                    supplier = Supplier.objects.get(id=s)
+                elif draft.first().item.preferred_supplier:
+                    supplier = draft.first().item.preferred_supplier
+                else:
+                    supplier = suppliers.first()
+                purchase.supplier = supplier
+                purchase.save()
+                return supplier
+            supplier = set_supplier()
             return render(request,'purchase.html',{'number':id,'items':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
     except KeyError:
         return render(request,'404.html',{})
@@ -121,11 +124,9 @@ def draft_purchase(request,id):
 def purchase(request,id):
     try:
         draft = PurchaseDraft.objects.get(id=id)
-        items = PurchaseItems.objects.filter(purchase=draft)
+        items = draft.items.all()
         purchase = PurchaseOrder.objects.filter(id=draft)
-        if purchase:
-            return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()})
-        elif specialilst_check and request.method == 'POST':
+        if specialilst_check and request.method == 'POST':
             total = 0
             for i in items:
                 total += i.total_price
@@ -137,8 +138,14 @@ def purchase(request,id):
             p_date = request.POST['preferred_date']
             p_date = datetime.strptime(p_date,'%m/%d/%Y, %I:%M:%S %p')
             status = Purchase_status.objects.get(status='draft')
-            purchase = PurchaseOrder.objects.create(id=draft,created_date=datetime.now() ,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
-            return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})
+            if purchase:
+                purchase.update(bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,total_amount=total)
+                return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()})
+            else:
+                purchase = PurchaseOrder.objects.create(id=draft,created_date=datetime.now() ,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
+                return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})
+        elif purchase:
+            return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()})
         else:
             return render(request,'404.html',{})
     except PurchaseDraft.DoesNotExist:
@@ -149,8 +156,7 @@ def purchase(request,id):
 @user_passes_test(specialilst_check) 
 def cancel_purchase(request, id):
     try:
-        draft = PurchaseDraft.objects.get(id=id)
-        purch = PurchaseOrder.objects.get(id=draft)
+        purch = PurchaseDraft.objects.get(id=id).order
         status = Purchase_status.objects.get(status='cancelled')
         id_val = purch.status.id
         purch.status = status

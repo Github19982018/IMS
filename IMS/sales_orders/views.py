@@ -41,56 +41,46 @@ PACKAGE_PACKED = 2
 PACKAGE_READY_SHIP = 3
 PACKAGE_SHIPPED = 4
 
+def date_filter(date,queryset):
+    day = datetime.now().day
+    year = datetime.now().year
+    month = datetime.now().month
+    if date=='today':
+        queryset = queryset.filter(updated__day=day,updated__month=month,updated__year=year)
+    if date == 'month':
+        queryset = queryset.filter(updated__month=month,updated__year=year)
+    elif date == 'year':
+        queryset = queryset.filter(updated__year=year)
+    return queryset
+
 # Create your views here.
 def view_sales(request):
     date = request.GET.get('date','month')
     orderby = request.GET.get('orderby','id')
     sales = Sales.objects.filter(warehouse=request.w).order_by(orderby)
-    day = datetime.now().day
-    year = datetime.now().year
-    month = datetime.now().month
-    if date=='today':
-        sales = sales.filter(updated__day=day,updated__month=month,updated__year=year)
-    if date == 'month':
-        sales = sales.filter(updated__month=month,updated__year=year)
-    elif date == 'year':
-        sales = sales.filter(updated__year=year)
+    sales = date_filter(date, sales)
     return render(request,'sales_orders/sales.html',{'sales':sales})
 
 def view_packages(request):
     date = request.GET.get('date','month')
     orderby = request.GET.get('orderby','id')
     packages = Package.objects.filter(sales__warehouse=request.w).order_by(orderby)
-    day = datetime.now().day
-    year = datetime.now().year
-    month = datetime.now().month
-    if date=='today':
-        packages = packages.filter(updated__day=day,updated__month=month,updated__year=year)
-    if date == 'month':
-        packages = packages.filter(updated__month=month,updated__year=year)
-    elif date == 'year':
-        packages = packages.filter(updated__year=year)
+    packages = date_filter(date,packages)
     return render(request,'sales_orders/packages.html',{'packages':packages})
+
 
 def view_ships(request):
     date = request.GET.get('date','month')
     orderby = request.GET.get('orderby','id')
     ships = Shipment.objects.filter(sales__warehouse=request.w).order_by(orderby)
-    day = datetime.now().day
-    year = datetime.now().year
-    month = datetime.now().month
-    if date=='today':
-        ships = ships.filter(updated__day=day,updated__month=month,updated__year=year)
-    if date == 'month':
-        ships = ships.filter(updated__month=month,updated__year=year)
-    elif date == 'year':
-        ships = ships.filter(updated__year=year)
+    ships = date_filter(date,ships)
     return render(request,'sales_orders/ships.html',{'ships':ships})
 
 def get_sales(request,id):
     try:
-        Sales.objects.get(id=id)
-        return redirect(sales,id=id)
+        sales = Sales.objects.get(id=id)
+        draft = SalesItems.objects.filter(sales=sales)
+        return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
     except Sales.DoesNotExist:
         return render(request,'404.html',{})
 
@@ -130,7 +120,7 @@ def draft_sales(request):
             return redirect('inventories')
 
 @user_passes_test(specialilst_check)
-def save_quantity(request):
+def save_items(request):
     try:
         if request.method == 'POST':
             warehouse = Warehouse.objects.get(id=request.w)
@@ -163,14 +153,12 @@ def save_quantity(request):
 
 
         
-# @user_passes_test(specialilst_check)
+@user_passes_test(specialilst_check)
 def sales(request,id):
     try: 
-        sales = Sales.objects.get(id=id)
-        draft = SalesItems.objects.filter(sales=sales)
-        if request.method == 'GET':
-            return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
-        elif request.method == 'POST' and specialilst_check:
+        if request.method == 'POST':
+            sales = Sales.objects.get(id=id)
+            draft = SalesItems.objects.filter(sales=sales)
             sales.bill_address = request.POST['bill_address']
             sales.ship_address = request.POST['ship_address']
             customer = request.POST['customer']
@@ -248,24 +236,18 @@ def package_approve(request,id):
             }  
             url = env('BASE_URL')+'/sales/packages/approve/'
             data = PackSerializer(data)
-            try:
-                status = PackageStatus(id=2)
-                package.status = status
-                requests.post(url,json=data.data)
-                package.save()
-                messages.add_message(request,messages.SUCCESS,'Package send to sales team')
-            except requests.exceptions.ConnectionError:
-                messages.add_message(request,messages.ERROR,'Cant connect to the server')
-            return
-        else:
-            return
+            status = PackageStatus(id=2)
+            package.status = status
+            requests.post(url,json=data.data)
+            package.save()
+            messages.add_message(request,messages.SUCCESS,'Package send to sales team')
     except Sales.DoesNotExist:
         messages.add_message(request,messages.ERROR,'Invalid data input')
-        return 
     except SalesItems.DoesNotExist:
         messages.add_message(request,messages.ERROR,'Invalid data input')
-        return
-
+    except requests.exceptions.ConnectionError:
+        messages.add_message(request,messages.ERROR,'Cant connect to the server')
+    
   
 @user_passes_test(specialilst_check)  
 def delete_package(request,id):
@@ -342,22 +324,19 @@ def cancel_sales(request,id):
             return redirect('sales')
         elif s.status.id < SALE_SHIPPED:
             s.status = SalesStatus.objects.get(status='cancelled')
-            try:
-                p = s.package.all()
-                url = env('BASE_URL')+'/sales/packages/cancel/'
-                res = requests.post(url,json={'ref':list(p.values_list('id',flat=True))})
-                if res.status_code == 201:
-                    p.delete()
-                sh = s.shipment
-                url = env('BASE_URL')+'/sales/ships/cancel/'
-                res = requests.post(url,json={'ref':[sh.id]})
-                if res.status_code == 201:
-                    sh.status = ShipStatus(status='cancelled')
-                    sh.save()
-                s.save()
-                messages.info(request,f"sales {s.id} cancelled")
-            except requests.ConnectionError:
-                messages.warning(request,f"sales {s.id} can't be cancelled operational error")
+            p = s.package.all()
+            url = env('BASE_URL')+'/sales/packages/cancel/'
+            res = requests.post(url,json={'ref':list(p.values_list('id',flat=True))})
+            if res.status_code == 201:
+                p.delete()
+            sh = s.shipment
+            url = env('BASE_URL')+'/sales/ships/cancel/'
+            res = requests.post(url,json={'ref':[sh.id]})
+            if res.status_code == 201:
+                sh.status = ShipStatus(status='cancelled')
+                sh.save()
+            s.save()
+            messages.info(request,f"sales {s.id} cancelled")
             return render(request,'sales_orders/sales.html',{})
      
         else:
@@ -365,6 +344,9 @@ def cancel_sales(request,id):
             return redirect('get_sale',id=id)
     except Sales.DoesNotExist:
         return render(request,'404.html',{})
+    except requests.ConnectionError:
+        messages.warning(request,f"sales {s.id} can't be cancelled operational error")
+        return render(request,'sales_orders/sales.html',{})
     
 
 @user_passes_test(specialilst_check)
@@ -383,12 +365,9 @@ def create_ship(request,id):
             shipment.save()
             url = env('BASE_URL')+'/sales/ships/approve/'
             serializer = ShipSerializer(data)
-            try:
-                requests.post(url,json=serializer.data)
-                messages.add_message(request,messages.SUCCESS,'Successfully send for approval')
-                return redirect(ship,id=id)
-            except requests.exceptions.ConnectionError:
-                messages.add_message(request,messages.ERROR,'Cant connect to the server')
+            requests.post(url,json=serializer.data)
+            messages.add_message(request,messages.SUCCESS,'Successfully send for approval')
+            return redirect(ship,id=id)
         elif sales.status.id >= SALE_SHIPPED:
             messages.add_message(request,messages.WARNING,'Already shiped!')
         elif sales.status.id < SALE_PACKED:
@@ -400,6 +379,9 @@ def create_ship(request,id):
         return render(request,'404.html',{})
     except Shipment.DoesNotExist:
         return HttpResponseRedirect('')
+    except requests.exceptions.ConnectionError:
+        messages.add_message(request,messages.ERROR,'Cant connect to the server')
+        return redirect(ship,id=id)
 
 
 @login_not_required

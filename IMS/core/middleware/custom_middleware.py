@@ -4,7 +4,7 @@ from core.models import Notifications
 
 
 class Warehouse_middleware:
-    wa = Warehouse.objects.all().first().id
+    wa = Warehouse.objects.first().id
     with open('data/warehouse.txt','+w') as wfile:
         wfile.write(str(wa))
 

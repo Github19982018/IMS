@@ -38,9 +38,9 @@ class PurchaseOrder(models.Model):
         self.updated = timezone.now()
         return super(PurchaseOrder,self).save(*args,**kwargs)
     
-    def update(self, *args, **kwargs):
-        self.updated = timezone.now()
-        return super(PurchaseOrder,self).update(*args,**kwargs)
+    # def update(self, *args, **kwargs):
+    #     self.updated = timezone.now()
+    #     return super(PurchaseOrder,self).update(*args,**kwargs)
     
 
 class PurchaseReceive(models.Model):

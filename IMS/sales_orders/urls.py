@@ -13,7 +13,7 @@ urlpatterns = [
     path('draft/',views.draft_sales,name='make_sales'),
     # path('create/',views.make_sales,name='create_sales'),
     # path('<int:id>/draft/',views.draft_sales,name='draft_sales'),
-    path('save/',views.save_quantity,name='save_sales'),
+    path('save/',views.save_items,name='save_sales'),
     path('<int:id>/save/',views.sales,name='sale'),
     path('<int:id>/edit/',views.edit_sales,name='edit_sale'),
     
