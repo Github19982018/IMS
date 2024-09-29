@@ -3,7 +3,7 @@ from sales_orders.models import Package,PackageStatus,Sales,SalesStatus,Shipment
 from inventory.models import Inventory
 from django.db.models.lookups import GreaterThan,LessThan
 from django.db.models import Sum
-from purchase_orders.models import PurchaseOrder,Purchase_status,PurchaseItems,PurchaseDraft
+from purchase_orders.models import PurchaseOrder,PurchaseStatus,PurchaseItems,PurchaseDraft
 from django.db import connection
 cursor = connection.cursor()
 

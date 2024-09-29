@@ -7,7 +7,13 @@ from django.utils import timezone
 
 
 # Create your models here.
-class Purchase_status(models.Model):
+class PurchaseStatus(models.Model):
+    id = models.SmallIntegerField(primary_key=True)
+    status = models.CharField(max_length=50)
+
+    def __str__(self) -> str:
+        return self.status
+class ReceiveStatus(models.Model):
     id = models.SmallIntegerField(primary_key=True)
     status = models.CharField(max_length=50)
 
@@ -30,12 +36,12 @@ class PurchaseOrder(models.Model):
     created_date = models.DateTimeField()
     updated = models.DateTimeField()
     total_amount = models.DecimalField(decimal_places=2,max_digits=10)
-    status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
+    status = models.ForeignKey(to=PurchaseStatus,on_delete=models.PROTECT)
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.created_date = timezone.now()
-        self.updated = timezone.now()
+            self.created_date = datetime.now()
+        self.updated = datetime.now()
         return super(PurchaseOrder,self).save(*args,**kwargs)
     
     # def update(self, *args, **kwargs):
@@ -44,11 +50,18 @@ class PurchaseOrder(models.Model):
     
 
 class PurchaseReceive(models.Model):
+    updated = models.DateTimeField()
     created_date = models.DateTimeField(default=datetime.now)
-    order = models.OneToOneField(to=PurchaseOrder,related_name='order',on_delete=models.CASCADE)
+    ref = models.OneToOneField(to=PurchaseDraft,related_name='receive',on_delete=models.CASCADE)
     delivered_date = models.DateTimeField(null=True)
-    status = models.ForeignKey(to=Purchase_status,on_delete=models.PROTECT)
-
+    status = models.ForeignKey(to=ReceiveStatus,on_delete=models.PROTECT)
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.created_date = datetime.now()
+        self.updated = datetime.now()
+        return super(PurchaseReceive,self).save(*args,**kwargs)
+    
 class  PurchaseItems(models.Model):
     purchase = models.ForeignKey(to=PurchaseDraft,on_delete=models.CASCADE,related_name='items')
     item = models.ForeignKey(to=Inventory,related_name='purchase',on_delete=models.CASCADE)

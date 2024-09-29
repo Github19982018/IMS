@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+    <div class="pagetitle">
+        <h1>Purchase Recieved</h1>
+      </div><!-- End Page Title -->
+
+      <div class="col">
+        <div class="col-12">
+          <div class="col">
+            <button type="button" class="bi bi-sliders btn btn-primary" data-bs-toggle="modal" data-bs-target="#verticalycentered">
+              Filter
+            </button>
+    
+              </div>
+              <div class="modal fade" id="verticalycentered" tabindex="-1">
+                <form class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Filter</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="filter">
+                        <select name="date" class=" form-select">
+                          <option disabled selected>Date</option>
+                          <option value="today">Today</option>
+                          <option value="month">This Month</option>
+                          <option value="year">This Year</option>
+                        </select>
+                      </div>
+                      <div class="filter">
+                        <select name="orderby" class=" form-select">
+                          <option disabled selected>Sort by</option>
+                          <option value="id">Order</option>
+                          <option value="updated">Updated</option>
+                          <option value="total_amount">Price</option>
+                          <option value="status">Status</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">Apply</button>
+                    </div>
+                  </div>
+                </form>
+              </div><!-- End Vertically centered Modal-->
+        </div>
+        <div class="card top-selling overflow-auto ">
+
+          <h5 class="card-title"> <span>| Today</span></h5>
+          <div class="card-body ">
+
+            <table class="table datatable">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Purchase order</th>
+                  <th scope="col">Supplier</th>
+                  <th scope="col">Updated</th>
+                  <th scope="col">Delivered</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for i in recieved %}
+                <tr>
+                <td>{{i.id}}</td>
+                <th scope="row"><a href="{% url 'purchase' i.ref.id %}">#{{i.ref.id}}</a></th>
+                <td>{{i.ref.supplier}}</td>
+                  <td>{{i.updated}}</td>
+                  <td>
+                    {{i.delivered_date}}
+                  </td>
+                  <td><span class="badge {%if i.status.id == 1%}bg-secondary{%elif i.status.id == 2%}bg-info{%elif i.status.id == 3%}bg-warning{%elif i.status.id == 4%}bg-danger{%elif i.status.id == 5%}bg-success {%elif i.status.id == 6%}bg-primary{%elif i.status.id == 7 %}bg-dark{%endif%}">{{i.status.status}}</span></td>
+                </tr>
+                {% endfor %}
+                
+              </tbody>
+            </table>
+
+          </div>
+
+        </div>
+      </div><!-- End Recent Sales -->
+      </div>  
+
+{% endblock %}

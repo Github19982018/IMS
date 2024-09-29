@@ -1,7 +1,7 @@
 from django.template.response import TemplateResponse as render
 from django.db.models import Sum,Avg,F
 # Create your views here.
-from purchase_orders.models import Purchase_status,PurchaseOrder,PurchaseItems
+from purchase_orders.models import PurchaseStatus,PurchaseOrder,PurchaseItems
 from sales_orders.models import SalesItems,Sales,SalesStatus,Shipment,Package,PackageStatus,ShipStatus
 from inventory.models import Inventory
 from customer.models import Customer

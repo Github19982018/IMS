@@ -90,11 +90,13 @@ def get_package(request,id):
     try:      
         pack = Package.objects.get(id=id)
         # pack = sale.package.first()
-        if pack.status.status == 'draft':
+        if pack.status and pack.status.status == 'draft':
             return redirect(package_draft,id=pack.sales.id)
         else:
             return redirect(package,id=pack.sales.id)
     except Package.DoesNotExist:
+        return render(request,'404.html',{})
+    except AttributeError:
         return render(request,'404.html',{})
     
 def get_ship(request,id):
@@ -102,6 +104,8 @@ def get_ship(request,id):
         sh = Shipment.objects.get(id=id)
         return redirect(ship,id=sh.sales.id)
     except Shipment.DoesNotExist:
+        return render(request,'404.html',{})
+    except AttributeError:
         return render(request,'404.html',{})
 
 

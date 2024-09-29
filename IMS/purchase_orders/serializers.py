@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from purchase_orders.models import PurchaseItems,PurchaseOrder,Purchase_status,PurchaseDraft
+from purchase_orders.models import PurchaseItems,PurchaseOrder,PurchaseStatus,PurchaseDraft
 from inventory.models import Inventory
 
 

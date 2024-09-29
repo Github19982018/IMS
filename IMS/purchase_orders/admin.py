@@ -1,5 +1,5 @@
 from django.contrib import admin
-from purchase_orders.models import Purchase_status
+from purchase_orders.models import PurchaseStatus,ReceiveStatus
 
 # Register your models here.
-admin.site.register(Purchase_status)
+admin.site.register([PurchaseStatus,ReceiveStatus])
