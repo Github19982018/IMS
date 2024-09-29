@@ -408,33 +408,33 @@
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'dashboard' %}">
+      <li class="nav-item ">
+        <a class="nav-link {% block nav_dashboard %}collapsed{%endblock%}" href="{% url 'dashboard' %}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
       </li><!-- End Dashboard Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'inventories'%}">
+        <a class="nav-link {% block nav_inventory %}collapsed{%endblock%}" href="{% url 'inventories'%}">
           <i class="bi bi-person"></i>
           <span>Inventory</span>
         </a>
       </li><!-- End Inventory Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link " data-bs-target="#purchase-nav" data-bs-toggle="collapse" href="#">
+        <a class="nav-link {% block nav_p_p %}collapsed{%endblock%}" data-bs-target="#purchase-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-layout-text-window-reverse"></i><span>Purchase</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="purchase-nav" class="nav-content collapse show" data-bs-parent="#sidebar-nav">
+      <ul id="purchase-nav" class="nav-content {% block nav_purchase %}collapse{%endblock%} " data-bs-parent="#sidebar-nav">
           <li class="nav-item">
-            <a class="nav-link collapsed" href="{% url 'purchases'%}">
+            <a class="nav-link  {% block nav_p_order %}collapsed{%endblock%}" href="{% url 'purchases'%}">
               <i class="bi bi-question-circle"></i>
               <span>Purchase Orders</span>
             </a>
           </li><!-- End Purchase Order Nav -->
           <li class="nav-item">
-            <a class="nav-link collapsed" href="{% url 'recieved'%}">
+            <a class="nav-link  {% block nav_p_recieve %}collapsed{%endblock%}" href="{% url 'recieved'%}">
               <i class="bi bi-question-circle"></i>
               <span>Purchase Recieved</span>
             </a>
@@ -444,40 +444,40 @@
 
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'suppliers'%}">
+        <a class="nav-link  {% block nav_supplier %}collapsed{%endblock%}" href="{% url 'suppliers'%}">
           <i class="bi bi-envelope"></i>
           <span>Suppliers</span>
         </a>
       </li><!-- End Suppliers Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'customers'%}">
+        <a class="nav-link  {% block nav_customer %}collapsed{%endblock%}"  href="{% url 'customers'%}">
           <i class="bi bi-envelope"></i>
           <span>Customers</span>
         </a>
       </li><!-- End Customers Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link " data-bs-target="#sales-nav" data-bs-toggle="collapse" href="#">
+        <a class="nav-link {% block nav_sales_p %}collapsed{%endblock%}" data-bs-target="#sales-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-layout-text-window-reverse"></i><span>Sales</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="sales-nav" class="nav-content collapse show" data-bs-parent="#sidebar-nav">
+        <ul id="sales-nav" class="nav-content {% block nav_sales_c %}collapse{%endblock%}" data-bs-parent="#sidebar-nav">
           <li class="nav-item">
-            <a class="nav-link collapsed" href="{% url 'sales' %}">
+            <a class="{% block nav_sales %}collapsed{%endblock%}" href="{% url 'sales' %}">
               <i class="bi bi-card-list"></i>
               <span>Sales Orders</span>
             </a>
           </li><!-- End Sales Ordrs Page Nav -->
 
           <li class="nav-item">
-            <a class="nav-link collapsed" href="{% url 'packages' %}">
+            <a class="nav-link {% block nav_packages %}collapsed{%endblock%}" href="{% url 'packages' %}">
               <i class="bi bi-card-list"></i>
               <span>Packages</span>
             </a>
           </li><!-- End Packages Page Nav -->
 
           <li class="nav-item">
-            <a class="nav-link collapsed" href="{% url 'ships' %}">
+            <a class="nav-link {% block nav_ships %}collapsed{%endblock%}" href="{% url 'ships' %}">
               <i class="bi bi-card-list"></i>
               <span>Shipments</span>
             </a>
@@ -488,7 +488,7 @@
 
   {% if employee.role == 'manager'%}
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'reports'%}">
+        <a class="nav-link {% block nav_reports %}collapse{%endblock%}" href="{% url 'reports'%}">
           <i class="bi bi-box-arrow-in-right"></i>
           <span>Reports</span>
         </a>
@@ -510,7 +510,8 @@
         <!-- </ul> -->
 {% if employee.role == 'manager'%}
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'warehouses' %}">
+        <a class="nav-link {% block nav_warehouse %}collapsed{%endblock%}
+        " href="{% url 'warehouses' %}">
           <i class="bi bi-box-arrow-in-right"></i>
           <span>Manage Warehouses</span>
         </a>
@@ -520,7 +521,7 @@
       <li class="nav-heading">Pages</li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'profile' %}">
+        <a class="nav-link {% block nav_profile %}collapsed{%endblock%}" href="{% url 'profile' %}">
           <i class="bi bi-person"></i>
           <span>Profile</span>
         </a>
