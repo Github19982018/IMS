@@ -2,9 +2,116 @@
 {% block nav_warehouse %}{%endblock%}
 
 {% block main %}
-<form action="" method="post">
-    {% csrf_token %}
-    {{form.as_table}}
-    <input type="submit" value="save">
-</form>
+<div class="section profile">
+    <div class="col-xl-8">
+
+        <div class="card">
+        <div class="card-body pt-3">
+            <!-- Bordered Tabs -->
+            <ul class="nav nav-tabs nav-tabs-bordered">
+
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#warehouse-overview">Warehouse</button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#warehouse-edit">Edit warehouse</button>
+            </li>
+
+            </ul>
+            <div class="tab-content pt-2">
+
+            <div class="tab-pane fade show active profile-overview" id="warehouse-overview">
+                <h5 class="card-title">warehouse Details</h5>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label ">Warehouse</div>
+                <div class="col-lg-9 col-md-8">{{form.name.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Contact Person</div>
+                <div class="col-lg-9 col-md-8">{{form.contact_person.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Address</div>
+                <div class="col-lg-9 col-md-8">{{form.address.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Contact Phone</div>
+                <div class="col-lg-9 col-md-8">{{form.phone.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Email</div>
+                <div class="col-lg-9 col-md-8">{{form.email.value}}</div>
+                </div>
+
+            </div>
+
+            <div class="tab-pane fade profile-edit pt-3" id="warehouse-edit">
+
+                <!-- warehouse Edit Form -->
+                <form method="post" action="" >
+                {%csrf_token%}
+                
+
+                    
+                <div class="row mb-3">
+                <label for="username" class="col-md-4 col-lg-3 col-form-label">Warehouse name</label>
+                <div class="col-md-8 col-lg-9">
+                    <input name="name" user_type="text" class="form-control" id="username" value={{form.name.value}}>
+                </div>
+                </div>
+                
+
+                <div class="row mb-3">
+                    <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="address" user_type="text" class="form-control" id="Address" value="{{form.address.value}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Contact Person</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="contact_phone" user_type="text" class="form-control" id="Phone" value="{{form.contact_person.value}}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="contact_phone" user_type="text" class="form-control" id="Phone" value="{{form.contact_phone.value}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label for="Email" class="col-md-4 col-lg-3 col-form-label">Email</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="email" user_type="email" class="form-control" id="Email" value="{{form.email.value}}">
+                    </div>
+                </div>
+
+                
+                {{form.errors}}
+
+                <div class="text-center">
+                    <button user_type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+
+                </form><!-- End warehouse Edit Form -->
+
+            </div>
+
+            </div><!-- End Bordered Tabs -->
+
+        </div>
+        </div>
+
+    </div>
+</div>
 {% endblock %}
+
+

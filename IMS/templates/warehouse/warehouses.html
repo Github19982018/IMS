@@ -46,7 +46,6 @@
               <table class="table datatable">
                 <thead>
                   <tr>
-                    <th>Edit</th>
                     <th>
                       Name
                     </th>
@@ -60,9 +59,8 @@
                   {% for i in warehouses %}
                   <tr>
                     <td><a href="{% url 'updatewarehouse' i.id %} " class="link">
-                      Edit</a>
+                      {{i.name}}</a>
                     </td>
-                    <td><a href="#">{{i.name}}</a></td>
                     <td>{{i.address}}</td>
                     <td>{{i.contact_person}}</td>
                     <td>{{i.contact_phone}}</td>
