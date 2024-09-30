@@ -175,7 +175,6 @@ def cancel_purchase(request, id):
     try:
         draft = PurchaseDraft.objects.get(id=id)
         purch = draft.order
-        status = PurchaseStatus.objects.get(status='cancelled')
         id_val = purch.status.id
         if id_val == 1:
             draft.delete()
@@ -186,7 +185,10 @@ def cancel_purchase(request, id):
         elif id_val > 2:
             url = env('BASE_URL')+'/supplier/cancel/'
             requests.post(url,json={'ref':id})
-        purch.status = status
+            if draft.recieve:
+                draft.recieve.cancel = True
+                draft.recieve.save()
+        purch.cancel = True
         purch.save()
         return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
@@ -221,7 +223,7 @@ def purchase_approve(request,id):
         items = PurchaseItems.objects.filter(purchase=draft)
         status = PurchaseStatus(id=1)
         purch = PurchaseOrder.objects.get(id=draft)
-        if purch.status.id != 7:
+        if not purch.cancel:
             data = {'ref':id,
                     'items':items,
                     'order':draft,
@@ -253,20 +255,21 @@ def supplier_approve(request,id):
         items = PurchaseItems.objects.filter(purchase=draft)
         status = PurchaseStatus(id=3)
         purch = PurchaseOrder.objects.get(id=draft)
-        data = {'ref':id,
-                'items':items,
-                'order':draft,
-                'purchase':purch}
-        serializer = PurchasesSerializer(data)
-        purchase.status = status
-        url = env('BASE_URL')+'/supplier/approve/'
-        response = requests.post(url,json=serializer.data)
-        if response.status_code == 201:
-            purch.save()
-            messages.add_message(request,messages.SUCCESS,'Data sent for approve')
-        else:
-            messages.add_message(request,messages.ERROR,'Invalid data or format')
-        return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch})
+        if not purch.cancel:
+            data = {'ref':id,
+                    'items':items,
+                    'order':draft,
+                    'purchase':purch}
+            serializer = PurchasesSerializer(data)
+            purchase.status = status
+            url = env('BASE_URL')+'/supplier/approve/'
+            response = requests.post(url,json=serializer.data)
+            if response.status_code == 201:
+                purch.save()
+                messages.add_message(request,messages.SUCCESS,'Data sent for approve')
+            else:
+                messages.add_message(request,messages.ERROR,'Invalid data or format')
+            return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch})
     except PurchaseDraft.DoesNotExist:
         return redirect(purchase,id)
     except requests.exceptions.ConnectionError:
@@ -302,7 +305,7 @@ def supplier_api(request):
         status = PurchaseStatus(id=status)
         purchase = PurchaseOrder.objects.get(id=draft)
         purchase.status = status
-        if int(status.id) == 6:
+        if int(status.id) == 6 and not purchase.cancel:
             items = PurchaseItems.objects.filter(purchase=draft)
             for i in items:
                 i.item.on_hand += i.quantity
@@ -326,7 +329,7 @@ def recieve_api(request):
         ref = data['ref']
         status = data['status']
         draft = PurchaseDraft.objects.get(id=ref)
-        if draft.order.status.id == 6:
+        if draft.order.status.id == 6 and not draft.order.cancel:
             status = ReceiveStatus(id=status)
             if status.id == 1:
                 PurchaseReceive.objects.create(status=status,ref=draft)

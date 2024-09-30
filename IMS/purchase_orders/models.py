@@ -37,6 +37,7 @@ class PurchaseOrder(models.Model):
     updated = models.DateTimeField()
     total_amount = models.DecimalField(decimal_places=2,max_digits=10)
     status = models.ForeignKey(to=PurchaseStatus,on_delete=models.PROTECT)
+    cancel = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -52,9 +53,10 @@ class PurchaseOrder(models.Model):
 class PurchaseReceive(models.Model):
     updated = models.DateTimeField()
     created_date = models.DateTimeField(default=datetime.now)
-    ref = models.OneToOneField(to=PurchaseDraft,related_name='receive',on_delete=models.CASCADE)
+    ref = models.OneToOneField(to=PurchaseDraft,related_name='recieve',on_delete=models.CASCADE)
     delivered_date = models.DateTimeField(null=True)
     status = models.ForeignKey(to=ReceiveStatus,on_delete=models.PROTECT)
+    cancel = models.BooleanField(default=False)
     
     def save(self, *args, **kwargs):
         if not self.pk:
