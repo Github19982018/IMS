@@ -34,33 +34,35 @@ class RegistrationView(CreateView):
 
 @login_not_required
 def logins(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user_type = request.POST['user_type']
-        #authenticate method checks the provided username and password against the database
-        userpass = authenticate(request,username=username,password=password)
-        if userpass:
-            if user_type == '1' and userpass.is_superuser:
-                user = User.objects.get(id=userpass.id)
-                login(request,userpass)
-                request.session['user']=userpass.id
-                return redirect(to=reverse_lazy('admin:index'),context={'user':request.user})
-            elif userpass.is_active:
-                user = User.objects.get(id=userpass.id)
-                if user_type=='2' and  user.user_type == 2:
-                    login(request,user)
-                    request.session['manager_id']=userpass.id
-                    return redirect('dashboard')
-                elif user_type == '3' and user.user_type == 3:
+    try:
+        if request.method == 'POST':
+            username = request.POST['username']
+            password = request.POST['password']
+            user_type = request.POST['user_type']
+            #authenticate method checks the provided username and password against the database
+            userpass = authenticate(request,username=username,password=password)
+            if userpass:
+                if user_type == '1' and userpass.is_superuser:
+                    user = User.objects.get(id=userpass.id)
                     login(request,userpass)
-                    request.session['specialist_id']=userpass.id
-                    return redirect('inventories')
-        
-        return HttpResponse('invalid login')
-        
-    else:
-        return render(request,'accounts/login.html')
+                    request.session['user']=userpass.id
+                    return redirect(to=reverse_lazy('admin:index'),context={'user':request.user})
+                elif userpass.is_active:
+                    user = User.objects.get(id=userpass.id)
+                    if user_type=='2' and  user.user_type == 2:
+                        login(request,user)
+                        request.session['manager_id']=userpass.id
+                        return redirect('dashboard')
+                    elif user_type == '3' and user.user_type == 3:
+                        login(request,userpass)
+                        request.session['specialist_id']=userpass.id
+                        return redirect('inventories')
+            
+            return HttpResponse('invalid login') 
+        else:
+            return render(request,'accounts/login.html')
+    except KeyError:
+        return render(request,'accounts/login.html',status=401)
     
 
 def profile(request):

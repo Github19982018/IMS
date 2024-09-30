@@ -29,7 +29,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['testserver']
 
 
 # Application definition
@@ -157,4 +157,5 @@ LOGOUT_REDIRECT_URL = 'login'
 
 CORS_ALLOWED_ORIGINS=[
     "http://localhost:8080",
+    
 ]
