@@ -187,10 +187,13 @@ def edit_sales(request,id):
     try:
         sale = Sales.objects.get(id=id)
         if sale.status.id < 5:
-            ship_method = ShipMethod.objects.all()
-            customers = Customer.objects.all()
-            items = SalesItems.objects.filter(sales=sale)
-            return render(request,'sales_orders/sales_edit.html',{'items':items,'sales':sale,'ship_method':ship_method, 'customers':customers})
+            if request.method == 'POST':
+                return redirect(sales,id=id)
+            else:
+                ship_method = ShipMethod.objects.all()
+                customers = Customer.objects.all()
+                items = SalesItems.objects.filter(sales=sale)
+                return render(request,'sales_orders/sales_edit.html',{'items':items,'sales':sale,'ship_method':ship_method, 'customers':customers})
         else:
             return render(request,'404.html',{})
     except Sales.DoesNotExist:
@@ -352,7 +355,7 @@ def cancel_ship(request,id):
             requests.post(url,json={'ref':sh.status.id})
             sh.save()
             messages.info(request,f"shipment {sh.id} cancelled")
-            return render(request,'sales_orders/ships.html',{})
+            return redirect('ships')
         else:
             messages.warning(request,f"shipment {sh.id} cant be cancelled already received")
             return redirect('get_ship',id=id)
@@ -386,7 +389,7 @@ def cancel_sales(request,id):
                     i.item.on_hand += i.quantity
                     i.item.save()
                 messages.info(request,f"sales {s.id} cancelled")
-            return render(request,'sales_orders/sales.html',{})
+            return redirect('sales')
         else:
             messages.warning(request,f"sales {s.id} cant be cancelled")
             return redirect('get_sale',id=id)
@@ -409,8 +412,6 @@ def create_ship(request,id):
                     'shipment':shipment,
                     'packages':packages,
                     'items':items}
-            shipment.status = ShipStatus(id=2)
-            shipment.save()
             url = env('BASE_URL')+'/sales/ships/approve/'
             serializer = ShipSerializer(data)
             requests.post(url,json=serializer.data)
@@ -469,13 +470,17 @@ def package_api(request):
     try:
         data =  request.data
         package = Package.objects.get(id=data['ref'])
+        status = PackageStatus.objects.get(id=data['status'])
         sales = package.sales
         items = sales.items.all()
         for i in items:
             i.item.on_hand -= i.quantity
             i.item.save()
-        package.status = PackageStatus(PACKAGE_PACKED)
-        sales.status = SalesStatus(SALE_PACKED)
+        if status.id == PACKAGE_PACKED:
+            package.status = PackageStatus(PACKAGE_PACKED)
+            sales.status = SalesStatus(SALE_PACKED)
+        elif status.id == PACKAGE_READY_SHIP:
+            package.status = PackageStatus(PACKAGE_READY_SHIP)
         package.save()
         sales.save()
         n = Notifications.objects.create(title='Sales team Update',
@@ -492,7 +497,7 @@ def ship_api(request):
     try:
         data = request.data
         draft = Shipment.objects.get(id=data['ref'])
-        status = ShipStatus(id=data['status'])
+        status = ShipStatus.objects.get(id=data['status'])
         package = draft.package.all()
         sales = draft.sales
         draft.status = status
@@ -500,10 +505,8 @@ def ship_api(request):
         if int(status.id) == CARRIER_PICKED:
             sales.status = SalesStatus(SALE_SHIPPED)
             package.update(status=PackageStatus(PACKAGE_SHIPPED))
-            st = 'Order picked by carrier'
         elif int(status.id) == CUSTOMER_RECEIVED:
             sales.status = SalesStatus(SALE_DELIVERED)
-            st = 'Order received by customer'
         else:
             n = Notifications.objects.create(title='Sales team Update Error',
             message=f'Ship order {data['ref']} update error ',link = reverse_lazy('get_ship',args=[data['ref']]),
@@ -513,7 +516,7 @@ def ship_api(request):
         draft.save()
         sales.save()
         n = Notifications.objects.create(title='Sales team Update',
-        message=f'Ship order {data['ref']} status update: {st}',link = reverse_lazy('get_ship',args=[data['ref']]),
+        message=f'Ship order {data['ref']} status update: {status.status}',link = reverse_lazy('get_ship',args=[data['ref']]),
         tag='success')
         n.user.add(User.objects.get(user_type=3))
         return Response({'data':'successfully updated'},status=201)
