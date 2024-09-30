@@ -13,7 +13,7 @@ urlpatterns = [
     path('cancel/<int:id>',views.cancel_purchase,name='cancel_purchase'),
     path('supplier/',views.supplier_api,name='supplier_api'),
     path('purchase/',views.purchase_api,name='purchase_api'),
-    path('recieve/',views.recieve_api,name='recieve_api'),
+    path('supplier/recieve/',views.recieve_api,name='recieve_api'),
     path('approve/<int:id>/',views.approve,name='p_approve'),
 ]
  

@@ -177,14 +177,17 @@ def cancel_purchase(request, id):
         purch = draft.order
         status = PurchaseStatus.objects.get(status='cancelled')
         id_val = purch.status.id
-        purch.status = status
-        purch.save()
         if id_val == 1:
+            draft.delete()
+            return redirect('purchases')
+        elif id_val == 2:
             url = env('BASE_URL')+'/purchases/cancel/'
             requests.post(url,json={'ref':id})
         elif id_val > 2:
             url = env('BASE_URL')+'/supplier/cancel/'
             requests.post(url,json={'ref':id})
+        purch.status = status
+        purch.save()
         return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
@@ -345,8 +348,8 @@ def recieve_api(request):
         else:
             return Response({'error':'order is either cancelled or not dispached yet'},status=401)
     except PurchaseDraft.DoesNotExist:
-        return Response({'error':'order does not exist'},status=404)
+        return Response({'error':'order does not exist'},status=403)
     except ReceiveStatus.DoesNotExist:
         return Response({'error':'invalid status value'},status=404)
-    # except IntegrityError:
-    #     return Response({'data':'Already updated'},status=200)
+    except IntegrityError:
+        return Response({'data':'Already updated'},status=200)
