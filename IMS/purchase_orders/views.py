@@ -156,7 +156,7 @@ def purchase(request,id):
             status = PurchaseStatus.objects.get(status='draft')
             if purchase:
                 purchase.update(bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,total_amount=total)
-                approve(request,purchase.first().id)
+                approve(request,purchase.first().id.id)
                 return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()})
             else:
                 purchase = PurchaseOrder.objects.create(id=draft,created_date=datetime.now() ,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
@@ -302,7 +302,7 @@ def supplier_api(request):
         ref = data['ref']
         status = data['status']
         draft = PurchaseDraft.objects.get(id=ref)
-        status = PurchaseStatus(id=status)
+        status = PurchaseStatus.objects.get(id=status)
         purchase = PurchaseOrder.objects.get(id=draft)
         purchase.status = status
         if int(status.id) == 6 and not purchase.cancel:
@@ -311,7 +311,7 @@ def supplier_api(request):
                 i.item.on_hand += i.quantity
                 i.item.save()
         purchase.save()
-        n = Notifications.objects.create(title='Supplier Update',
+        n = Notifications.objects.create(title=f'Supplier Update: {status.status}',
         message=f'Purchase order {ref} status update: {status.status}',link = reverse_lazy('purchase',args=[ref]),
         tag='success')
         n.user.add(User.objects.get(user_type=3))
@@ -330,7 +330,7 @@ def recieve_api(request):
         status = data['status']
         draft = PurchaseDraft.objects.get(id=ref)
         if draft.order.status.id == 6 and not draft.order.cancel:
-            status = ReceiveStatus(id=status)
+            status = ReceiveStatus.objects.get(id=status)
             if status.id == 1:
                 PurchaseReceive.objects.create(status=status,ref=draft)
             elif status.id == 2:
@@ -343,7 +343,7 @@ def recieve_api(request):
                 [p,] = PurchaseReceive.objects.filter(ref=draft)
                 p.status = status
                 p.save()         
-            n = Notifications.objects.create(title='Supplier Update',
+            n = Notifications.objects.create(title=f'Supplier Update {status.status}',
             message=f'Purchase order {ref} status update: {status.status}',link = reverse_lazy('recieved'),
             tag='success')
             n.user.add(User.objects.get(user_type=3))

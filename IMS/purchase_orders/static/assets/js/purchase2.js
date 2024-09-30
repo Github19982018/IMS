@@ -1,10 +1,11 @@
 const data = document.currentScript.dataset
 const stat = data.status
 const id = data.id
-const cancel = data.cancel
+const cancel = data.cancel=='True'?true:false;
 const status_elem = document.querySelector('#status')
 const btn = document.querySelector('#btn')
-status_elem.textContent = data.cancel? 'cancelled': stat;
+console.log(cancel)
+status_elem.textContent = cancel? 'cancelled': stat;
 if(cancel){
     status_elem.classList.add('bg-dark');
     document.querySelector(':root').style.setProperty('--progress-bg','rgb(0,0,0)');
