@@ -200,7 +200,7 @@
         <div>
           <h4>{{i.title}}</h4>
           <p>{{i.message}}</p>
-          <p>{{i.created}}</p>
+          <p>{{i.created|timesince}}</p>
         </div>
       </li>
       {%elif i.tag == 'warning'%}
