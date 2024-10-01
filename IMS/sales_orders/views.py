@@ -413,6 +413,8 @@ def create_ship(request,id):
                     'packages':packages,
                     'items':items}
             url = env('BASE_URL')+'/sales/ships/approve/'
+            shipment.status = ShipStatus(id=SENT_TO_FLEET)
+            shipment.save()
             serializer = ShipSerializer(data)
             requests.post(url,json=serializer.data)
             messages.add_message(request,messages.SUCCESS,'Successfully send for approval')
@@ -469,14 +471,15 @@ def sales_api(request):
 def package_api(request):
     try:
         data =  request.data
+        print(data['ref'])
         package = Package.objects.get(id=data['ref'])
         status = PackageStatus.objects.get(id=data['status'])
         sales = package.sales
         items = sales.items.all()
-        for i in items:
-            i.item.on_hand -= i.quantity
-            i.item.save()
         if status.id == PACKAGE_PACKED:
+            for i in items:
+                i.item.on_hand -= i.quantity
+                i.item.save()
             package.status = PackageStatus(PACKAGE_PACKED)
             sales.status = SalesStatus(SALE_PACKED)
         elif status.id == PACKAGE_READY_SHIP:
@@ -502,7 +505,9 @@ def ship_api(request):
         sales = draft.sales
         draft.status = status
         st = ''
-        if int(status.id) == CARRIER_PICKED:
+        if int(status.id) == SENT_TO_CARRIER:
+            pass
+        elif int(status.id) == CARRIER_PICKED:
             sales.status = SalesStatus(SALE_SHIPPED)
             package.update(status=PackageStatus(PACKAGE_SHIPPED))
         elif int(status.id) == CUSTOMER_RECEIVED:
