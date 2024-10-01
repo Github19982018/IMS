@@ -1,12 +1,233 @@
+
+
 {% extends 'base.html' %}
 {% block nav_inventory %}{%endblock%}
 
 {% block main %}
-<form action="" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{form.as_p}}
-    {{form.errors}}
-    {{form.non_field_errors}}
-    <input type="submit" value="save">
-</form>
+<div class="section profile">
+    <div class="col-xl-8">
+
+        <div class="card">
+        <div class="card-body pt-3">
+            <!-- Bordered Tabs -->
+            <ul class="nav nav-tabs nav-tabs-bordered">
+
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#warehouse-overview">Item</button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#warehouse-edit">Edit Item</button>
+            </li>
+
+            </ul>
+            <div class="tab-content pt-2">
+
+            <div class="tab-pane fade show active profile-overview" id="warehouse-overview">
+                <h5 class="card-title">Item Details</h5>
+
+                <img src="{%if form.photo.value%} {{form.photo.value.url}} {%endif%}" alt="Profile" class="rounded-circle" width="100" height="100">
+
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label ">Item</div>
+                <div class="col-lg-9 col-md-8">{{form.name.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">SKU</div>
+                <div class="col-lg-9 col-md-8">{{form.sku.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Purchasing Price</div>
+                <div class="col-lg-9 col-md-8">{{form.purchasing_price.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Selling Price</div>
+                <div class="col-lg-9 col-md-8">{{form.selling_price.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">On hand</div>
+                <div class="col-lg-9 col-md-8">{{form.on_hand.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Description</div>
+                <div class="col-lg-9 col-md-8">{{form.description.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Units</div>
+                <div class="col-lg-9 col-md-8">{{form.units.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Dimensions</div>
+                <div class="col-lg-9 col-md-8">{{form.dimensions.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Weight</div>
+                <div class="col-lg-9 col-md-8">{{form.weight.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Updated</div>
+                <div class="col-lg-9 col-md-8">{{form.updated.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Brand</div>
+                <div class="col-lg-9 col-md-8">{{form.brand.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Warehouse</div>
+                <div class="col-lg-9 col-md-8">{{form.warehouse.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Preferred Supplier</div>
+                <div class="col-lg-9 col-md-8">{{form.prefered_supplier.value}}</div>
+                </div>
+
+                <div class="row">
+                <div class="col-lg-3 col-md-4 label">Reorder Point</div>
+                <div class="col-lg-9 col-md-8">{{form.reorder_point.value}}</div>
+                </div>
+
+            </div>
+
+            <div class="tab-pane fade profile-edit pt-3" id="warehouse-edit">
+
+                <!-- warehouse Edit Form -->
+                <form method="post" action="" enctype="multipart/form-data">
+                {%csrf_token%}
+                
+                <div class="row mb-3">
+                    <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Item Image</label>
+                    <div class="col-md-8 col-lg-9">
+                      <img src="{%if form.photo%} {{form.photo.value.url}} {%endif%}" alt="Profile">
+                      <div class="pt-2">
+                        <input type="file" name="photo"></input>
+                        <!-- <a href="#" class="btn btn-danger btn-sm" title="Remove my profile image"><i class="bi bi-trash"></i></a> -->
+                      </div>
+                    </div>
+                  </div>
+                    
+                <div class="row mb-3">
+                <label for="username" class="col-md-4 col-lg-3 col-form-label">Item name</label>
+                <div class="col-md-8 col-lg-9">
+                    <input name="name" user_type="text" class="form-control" id="username" value={{form.name.value}}>
+                </div>
+                </div>
+                
+
+                <div class="row mb-3">
+                    <label for="Address" class="col-md-4 col-lg-3 col-form-label">SKU</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="sku" user_type="text" class="form-control" id="Address" value="{{form.sku.value}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Purchasing Price</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="purchasing_price" type="number" user_type="number" class="form-control" id="Phone" value="{{form.purchasing_price.value}}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Selling Price</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="selling_price" type="number" user_type="text" class="form-control" id="Phone" value="{{form.selling_price.value}}">
+                    </div>
+                </div>
+
+
+                <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">On Hand</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="on_hand" type="number" user_type="number" class="form-control" id="Phone" value="{{form.on_hand.value}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Description</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="description" type="text" user_type="text" class="form-control" id="Phone" value="{{form.description.value}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Units</label>
+                    <div class="col-md-8 col-lg-9">
+                        {{form.units}}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Dimensions</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="dimensions" user_type="text" class="form-control" id="Phone" value="{{form.dimensions.value}}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Weight</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="weight" type="number" user_type="text" class="form-control" id="Phone" value="{{form.weight.value}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label for="Email" class="col-md-4 col-lg-3 col-form-label">Brand</label>
+                    <div class="col-md-8 col-lg-9">
+                    {{form.brand}}
+                    </div>
+                    
+                </div>
+            
+                <div class="row mb-3">
+                    <label for="Email" class="col-md-4 col-lg-3 col-form-label">Warehouse</label>
+                    <div class="col-md-8 col-lg-9">
+                    {{form.warehouse}}
+                    </div>
+                </div>
+            
+                <div class="row mb-3">
+                    <label for="Email" class="col-md-4 col-lg-3 col-form-label">Preferred Supplier</label>
+                    <div class="col-md-8 col-lg-9">
+                        {{form.prefered_supplier}}
+                    </div>
+                </div>
+
+                
+                <div class="row mb-3">
+                    <label for="Email" class="col-md-4 col-lg-3 col-form-label">Reorder Point</label>
+                    <div class="col-md-8 col-lg-9">
+                    <input name="reorder_point" type="number" user_type="email" class="form-control" id="Email" value="{{form.reorder_point.value}}">
+                    </div>
+                </div>
+
+                
+                {{form.errors}}
+
+                <div class="text-center">
+                    <button user_type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+
+                </form><!-- End warehouse Edit Form -->
+
+            </div>
+
+            </div><!-- End Bordered Tabs -->
+
+        </div>
+        </div>
+
+    </div>
+</div>
 {% endblock %}
+
+

@@ -24,9 +24,10 @@ def sales(request):
     filterby = request.GET.get('by')
     if filterby == 'item':
         sales = SalesItems.objects.values('item','item__name').annotate(amount=Sum('price'),price=Avg('price'),quantity=Sum('quantity'))
+        return render(request,'report_sales.html',{'sales':sales})
     elif filterby == 'customer':
         sales = SalesItems.objects.values('sales__customer','item__name','sales__customer__name').annotate(amount=Sum('price'),price=Avg('price'),quantity=Sum('quantity'))
-    return render(request,'report_sales_customer.html',{'sales':sales})
+        return render(request,'report_sales_customer.html',{'sales':sales})
 
 
 @user_passes_test(manager_check)

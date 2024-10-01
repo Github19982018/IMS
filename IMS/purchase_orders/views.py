@@ -315,6 +315,7 @@ def supplier_api(request):
         status = data['status']
         draft = PurchaseDraft.objects.get(id=ref)
         status = PurchaseStatus.objects.get(id=status)
+        status = PurchaseStatus.objects.get(id=status)
         purchase = PurchaseOrder.objects.get(id=draft)
         if not purchase.cancel:
             if int(status.id) == 6:
@@ -350,6 +351,7 @@ def recieve_api(request):
         draft = PurchaseDraft.objects.get(id=ref)
         if draft.order.status.id == 6 and not draft.order.cancel:
             status = ReceiveStatus.objects.get(id=status)
+            status = ReceiveStatus.objects.get(id=status)
             if status.id == 1:
                 PurchaseReceive.objects.create(status=status,ref=draft)
             elif status.id == 2:
@@ -362,7 +364,7 @@ def recieve_api(request):
                 p = PurchaseReceive.objects.get(ref=draft)
                 p.status = status
                 p.save()         
-            n = Notifications.objects.create(title='Supplier Update',
+            n = Notifications.objects.create(title=f'Supplier Update {status.status}',
             message=f'Purchase order {ref} status update: {status.status}',link = reverse_lazy('recieved'),
             tag='success')
             n.user.add(User.objects.get(user_type=3))

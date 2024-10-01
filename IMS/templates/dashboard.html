@@ -147,7 +147,7 @@
                               <tr>
                                 <th scope="row"><a href="#"><img src="{%if i.item.photo%} {{i.item.photo.url}} {%endif%}" alt="{{i.item.name}} image"></a></th>
                                 <td><a href="#" class="text-primary fw-bold">{{i.item.name}}</a></td>
-                                <td class="fw-bold ">{{i.price}}
+                                <td class="fw-bold ">{{i.item.selling_price}}
                                 <td class="fw-bold">${{i.amount}}</td>
                                     <td class="fw-bold ">{{i.item.on_hand}}
                                 </td>
@@ -317,7 +317,8 @@
                                 </td>
                                 <td><a href="#" class="text-primary">{{i.created_date}}</a></td>
                                 <td>${{i.total_amount}}</td>
-                                <td><span class="badge bg-success">{{i.status}}</span></td>
+                                <td><span class="badge {%if i.status.id == 0%}bg-info{%elif i.status.id == 1%}bg-secondary{%elif i.status.id == 2%}bg-primary{%elif i.status.id == 3%}bg-success{%elif i.status.id == 4%}bg-info{%elif i.status.id == 5%}bg-primary{%elif i.status.id == 6%}bg-danger{%endif%}">{{i.status.status}}</span></td>
+
                               </tr>
                               {% endfor %}
                               <!-- <tr>
@@ -374,27 +375,29 @@
               </div>
 
               <div class="card-body">
-                <h5 class="card-title">Reports <span>/Today</span></h5>
+                <h5 class="card-title">Reports Purchases and Sales in K<span>/Today</span></h5>
 
                 <!-- Line Chart -->
                 <div id="reports" style="min-height: 400px;" class="echart"></div>
 
 
-                <script data-data="{{total_sales}}">
+                <script data-data="{{total_sales}}"
+                data-purchases="{{total_purchases}}">
                   const data = document.currentScript.dataset;
                   const sales=data.data
+                  const purchases=data.purchases
                   document.addEventListener("DOMContentLoaded", () => {
                     echarts.init(document.querySelector("#reports")).setOption({
-                    
   xAxis: {
-    data: ['A', 'B', 'C', 'D', 'E']
+    data: ['Week1', 'Week2', 'Week3', 'Week4']
   },
   legend: {
           top: '5%',
           left: 'center',
           show:true
         },
-  yAxis: {},
+  yAxis: {
+  },
   
   series: [
     {
@@ -404,7 +407,7 @@
       areaStyle: {}
     },
     {
-      data: [5, 4, 3, 5, 10],
+      data: purchases,
       type: 'line',
       stack: 'x',
       areaStyle: {}

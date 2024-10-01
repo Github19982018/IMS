@@ -18,15 +18,22 @@
     </div>
 {%if employee.role == 'specialist'%}
     <div class="col-8 row">
-        <a class="btn btn-sm col" href="{%url 'package_draft' sales.id %}">Edit package</a>
-        {%if pacakge.id <= 2%}
+        {%if package.status.id <= 2%}
         <a href="{% url 'delete_package' package.id %}" class="btn btn-sm col">Delete package</a>
         {%endif%}
+        {%if package.status.id == 1%}
+        <form class="col" action="{% url 'package' package.id  %}" method="post">
+          {%csrf_token%}
+          <input type="number" name="package" id="" hidden value="{{package.id}}">
+          <button href="" id="btn" class="btn btn-success">send for purchase team approvel</button>
+        </form>
+        {%else%}
         <form class="col" action="{% url 'ship' sales.id  %}" method="post">
           {%csrf_token%}
           <input type="number" name="package" id="" hidden value="{{package.id}}">
           <button href="" id="btn" class="btn btn-success">ship a package</button>
         </form>
+        {%endif%}
     </div>
 {%endif%}
     <ul class="progress-tracker">
@@ -105,7 +112,7 @@
                       <td>{{i.item.name}}</td>
                       <td>{{i.item.sku}}</td>
                       <td>{{i.item.weight}}</td>
-                      <td>{{i.item.dimension}}</td>
+                      <td>{{i.item.dimensions}}</td>
                       <td>{{i.units}}</td>
                       <td>{{i.quantity}}</td>
                     </tr>
