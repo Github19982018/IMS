@@ -125,6 +125,14 @@ class PurchaseTests(TestCase):
         res = views.purchase(req,id=self.draft.id)
         self.assertEqual(res.status_code,201)
         
+    def test_purchase_post_with_cancelled_order(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,cancel=True,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,warehouse=self.warehouse,contact_phone=3242)
+        req = self.factory.post(reverse('purchase',args=[self.draft.id]),data={'bill_address':'ab cd','ship_address':'ef gh','ship_method':self.shipmethod.id,'preferred_date':'4/2/2023, 2:34:34 PM'})
+        req.user = self.specialist
+        req.w = self.warehouse.id
+        res = views.purchase(req,id=self.draft.id)
+        self.assertEqual(res.status_code,201)
+        
     def test_cancel_purchase_fake_id(self):
         res = self.client.get(reverse('cancel_purchase',args=[7867]))
         self.assertEqual(res.status_code,404)
@@ -138,6 +146,56 @@ class PurchaseTests(TestCase):
         res = self.client.get(reverse('cancel_purchase',args=[self.draft.id]))
         self.assertEqual(res.status_code,302)
         
+    def test_cancel_purchase_id_2(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=PurchaseStatus.objects.get(id=2),warehouse=self.warehouse,contact_phone=3242)
+        res = self.client.get(reverse('cancel_purchase',args=[self.draft.id]))
+        self.assertEqual(res.status_code,302)
+        
+    def test_purchase_approve_fake_id(self):
+        res = self.client.get(reverse('purchase_approve',args=[7867]))
+        self.assertEqual(res.status_code,404)
+        
+    def test_purchase_approve_no_order(self):
+        res = self.client.get(reverse('purchase_approve',args=[self.draft.id]))
+        self.assertEqual(res.status_code,404)
+        
+    def test_purchase_approve_with_status_draft_and_order(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,warehouse=self.warehouse,contact_phone=3242)
+        res = self.client.get(reverse('purchase_approve',args=[self.draft.id]))
+        self.assertEqual(res.status_code,302)
+        
+    def test_purchase_approve_status_not_draft(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=PurchaseStatus.objects.get(id=2),warehouse=self.warehouse,contact_phone=3242)
+        res = self.client.get(reverse('purchase_approve',args=[self.draft.id]))
+        self.assertEqual(res.status_code,401)
+        
+    def test_purchase_approve_cancelled(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,cancel=True,warehouse=self.warehouse,contact_phone=3242)
+        res = self.client.post(reverse('purchase_approve',args=[self.draft.id]))
+        self.assertEqual(res.status_code,401)    
+        
+    def test_supplier_approve_fake_id(self):
+        res = self.client.get(reverse('supplier_approve',args=[7867]))
+        self.assertEqual(res.status_code,404)
+        
+    def test_supplier_approve_no_order(self):
+        res = self.client.get(reverse('supplier_approve',args=[self.draft.id]))
+        self.assertEqual(res.status_code,404)
+        
+    def test_supplier_approve_with_status_draft_and_order(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,warehouse=self.warehouse,contact_phone=3242)
+        res = self.client.get(reverse('supplier_approve',args=[self.draft.id]))
+        self.assertEqual(res.status_code,401)
+        
+    def test_supplier_approve_status_purchase_approved(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=PurchaseStatus.objects.get(id=2),warehouse=self.warehouse,contact_phone=3242)
+        res = self.client.get(reverse('supplier_approve',args=[self.draft.id]))
+        self.assertEqual(res.status_code,302)
+        
+    def test_supplier_approve_cancelled(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,cancel=True,warehouse=self.warehouse,contact_phone=3242)
+        res = self.client.post(reverse('supplier_approve',args=[self.draft.id]))
+        self.assertEqual(res.status_code,401)    
     
     def test_recieve_api_invalid_request(self):
         res = self.client.post(reverse('recieve_api'),data={'a':'g'})
@@ -214,3 +272,29 @@ class PurchaseTests(TestCase):
         self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,cancel=True,warehouse=self.warehouse,contact_phone=3242)
         res = self.client.post(reverse('supplier_api'),data={'ref':self.draft.id,'status':19})
         self.assertEqual(res.status_code,400)
+        
+    
+    def test_purchase_api_invalid_request(self):
+        res = self.client.post(reverse('purchase_api'),data={'a':'g'})
+        self.assertEqual(res.status_code,400)
+        
+    def test_purchase_api_fake_ref(self):
+        res = self.client.post(reverse('purchase_api'),data={'ref':453,'status':2})
+        self.assertEqual(res.status_code,404)
+        
+    def test_purchase_api_no_order(self):
+        res = self.client.post(reverse('purchase_api'),data={'ref':self.draft.id})
+        self.assertEqual(res.status_code,404)
+        
+    def test_purchase_api_status_draft(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,warehouse=self.warehouse,contact_phone=3242)
+        res = self.client.post(reverse('purchase_api'),data={'ref':self.draft.id})
+        self.assertEqual(res.status_code,201)
+        
+    def test_purchase_api_status_not_draft(self):
+        self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=PurchaseStatus.objects.get(id=6),warehouse=self.warehouse,contact_phone=3242)
+        res = self.client.post(reverse('purchase_api'),data={'ref':self.draft.id})
+        self.assertEqual(res.status_code,400)
+        
+        
+    

@@ -28,8 +28,8 @@ class PurchaseSrializer(serializers.ModelSerializer):
         depth=2
 
 class PurchasesSerializer(serializers.Serializer):
-    ref = serializers.IntegerField()
-    items = ItemsSerializer(many=True)
-    purchase = PurchaseSrializer()
+    ref = serializers.IntegerField(required=True)
+    items = ItemsSerializer(many=True,required=True)
+    purchase = PurchaseSrializer(required=True)
 
 
