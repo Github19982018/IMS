@@ -8,13 +8,14 @@ urlpatterns = [
     path('save/',sales.save_items,name='save_sales'),
     path('<int:id>/save/',sales.sales,name='sale'),
     path('<int:id>/edit/',sales.edit_sales,name='edit_sale'),
-    path('<int:mid>/cancel/',sales.cancel_sales,name='cancel_sales'),
-    path('sales_api/',sales.sales_api,name='sales_api'),
+    path('<int:id>/cancel/',sales.cancel_sales,name='cancel_sales'),
+    path('sales_api/',ships.sales_api,name='sales_api'),
     
     path('packages/',packages.view_packages,name='packages'),
     path('packages/<int:id>/',packages.get_package,name='get_package'),
     path('<int:id>/package_draft/',packages.package_draft,name='package_draft'),
     path('<int:id>/package/',packages.package,name='package'),
+    path('packages/<int:id>/edit/',packages.edit_package,name='edit_package'),
     path('packages/<int:id>/delete/',packages.delete_package,name='delete_package'),
     path('package_api/',packages.package_api,name='package_api'),
     
