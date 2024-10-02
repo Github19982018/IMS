@@ -188,39 +188,42 @@
       {%if i.tag == 'danger'%}
       <li class="notification-item">
         <i class="bi bi-x-circle text-danger"></i>
-        <div>
-          <h4>{{i.title}}</h4>
-          <p>{{i.message}}</p>
-          <p>{{i.created}}</p>
-        </div>
-      </li>
-      {%elif i.tag == 'info'%}
-      <li class="notification-item">
-        <i class="bi bi-info-circle text-primary"></i>
-        <div>
+        <a href="{{i.link}}"><div>
           <h4>{{i.title}}</h4>
           <p>{{i.message}}</p>
           <p>{{i.created|timesince}}</p>
         </div>
+        </a>
+      </li>
+      {%elif i.tag == 'info'%}
+      <li class="notification-item">
+        <i class="bi bi-info-circle text-primary"></i>
+        <a href="{{i.link}}"><div>
+          <h4>{{i.title}}</h4>
+          <p>{{i.message}}</p>
+          <p>{{i.created|timesince}}</p>
+        </div>
+        </a>
       </li>
       {%elif i.tag == 'warning'%}
     <li class="notification-item">
       <i class="bi bi-exclamation-circle text-warning"></i>
-      <div>
+      <a href="{{i.link}}"><div>
         <h4>{{i.title}}</h4>
         <p>{{i.message}}</p>
-        <p>{{i.created}}</p>
+        <p>{{i.created|timesince}}</p>
       </div>
+      </a>
     </li>
     {%elif i.tag == 'success'%}
     <li class="notification-item">
       <i class="bi bi-check-circle text-success"></i>
-      <div>
+      <a href="{{i.link}}"><div>
         <h4>{{i.title}}</h4>
         <p>{{i.message}}</p>
-        <a href="{{i.link}}">order</a>
-        <p>{{i.created}}</p>
+        <p>{{i.created|timesince}}</p>
       </div>
+      </a>
     </li>
     {%endif%}
     {%endfor%}
