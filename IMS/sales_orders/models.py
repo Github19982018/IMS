@@ -30,7 +30,7 @@ class Sales(models.Model):
     created_by = models.CharField(max_length=100)
     created_date = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(default=datetime.now)
-    status = models.ForeignKey(to=SalesStatus,null=True,on_delete=models.PROTECT)
+    status = models.ForeignKey(to=SalesStatus,on_delete=models.PROTECT)
     updated = models.DateTimeField(default=datetime.now)
     offer = models.PositiveSmallIntegerField(default=0)
     total_amount = models.DecimalField(null=True, max_digits=10,decimal_places=2)
