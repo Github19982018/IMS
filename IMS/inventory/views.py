@@ -12,9 +12,25 @@ def error_response_handler(request, exception=None):
 
 ""
 
+def date_filter(date,queryset):
+    day = datetime.now().day
+    year = datetime.now().year
+    month = datetime.now().month
+    week = datetime.now().isocalendar()[1]
+    if date=='today':
+        queryset = queryset.filter(updated__day=day,updated__month=month,updated__year=year)
+    if date == 'month':
+        queryset = queryset.filter(updated__month=month,updated__year=year)
+    elif date == 'year':
+        queryset = queryset.filter(updated__year=year)
+    elif date == 'week':
+        queryset = queryset.filter(updated__week=week)
+    return queryset
+
 
 def view_inventory(request):
     w = request.w
+    date = request.GET.get('date','year')
     warehouse = Warehouse.objects.get(id=w)
     order_by = request.GET.get('orderby')
     filter = request.GET.get('filter')
@@ -23,6 +39,7 @@ def view_inventory(request):
         inventory = inventory.filter(filter)
     if order_by:
         inventory = inventory.order_by(order_by)
+    inventory = date_filter(date,inventory)
     return render(request,'inventory/inventory.html',{'inventory':inventory})
 
 def get_inventory(request,id):
