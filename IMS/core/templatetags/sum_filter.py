@@ -26,4 +26,6 @@ def date_filter(date, extra=0):
         return 'This month'
     elif date == 'year':
         return 'This year'
+    elif date == 'week':
+        return 'This week'
 
