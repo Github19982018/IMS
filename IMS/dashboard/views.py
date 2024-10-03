@@ -1,8 +1,9 @@
 from django.template.response import TemplateResponse as render
 from sales_orders.models import Package,PackageStatus,Sales,SalesStatus,Shipment,ShipStatus,SalesItems
-from inventory.models import Inventory
+from inventory.models import Inventory,Warehouse
 from django.db.models.lookups import GreaterThan,LessThan
-from django.db.models import Sum
+from django.db.models import Sum,Q
+from datetime import datetime
 from purchase_orders.models import PurchaseOrder,PurchaseStatus,PurchaseItems,PurchaseDraft
 from django.db import connection
 cursor = connection.cursor()
@@ -26,51 +27,66 @@ PACKAGE_PACKED = 2
 PACKAGE_READY_SHIP = 3
 PACKAGE_SHIPPED = 4
 
+def date_filter(date,queryset):
+    day = datetime.now().day
+    year = datetime.now().year
+    month = datetime.now().month
+    if date=='today':
+        queryset = queryset.filter(updated__day=day,updated__month=month,updated__year=year)
+    if date == 'month':
+        queryset = queryset.filter(updated__month=month,updated__year=year)
+    elif date == 'year':
+        queryset = queryset.filter(updated__year=year)
+    return queryset
 # Create your views here.
 def dashboard(request):
-    pack = Package.objects.filter(status=PackageStatus(id=PACKAGE_DRAFT)).count()
-    ship = Shipment.objects.filter(status__in=ShipStatus.objects.filter(id__in=[0,1,2])).count()
-    deliver = Shipment.objects.filter(status=ShipStatus(id=CARRIER_PICKED)).count()
-    on_hand = Inventory.objects.aggregate(on_hand=Sum('on_hand'))
-    # to_receive = PurchaseItems.objects.aggregate(Sum('quantity'))
-    cursor.execute( """select sum(quantity) from purchase_orders_purchaseitems pi join purchase_orders_purchasedraft pd on pi.purchase_id=pd.id join purchase_orders_purchaseorder po on pd.id=po.id_id where po.status_id<7; """)
+    date = request.GET.get('date','month')
+    warehouse = Warehouse.objects.get(id=request.w)
+    pack = Package.objects.filter(status=PackageStatus.objects.get(id=PACKAGE_DRAFT))
+    pack = date_filter(date,pack).count()
+    ship = Sales.objects.filter(warehouse=warehouse,status=SalesStatus.objects.get(id=SALE_PACKED))
+    ship = date_filter(date,ship).count()
+    deliver = Sales.objects.filter(warehouse=warehouse,status=SalesStatus.objects.get(id=SALE_SHIPPED))
+    deliver = date_filter(date,deliver).count()
+    on_hand = Inventory.objects.filter(warehouse=warehouse,).aggregate(on_hand=Sum('on_hand'))
+    cursor.execute( """select sum(quantity) from purchase_orders_purchaseitems pi join purchase_orders_purchasedraft pd on pi.purchase_id=pd.id join purchase_orders_purchaseorder po on pd.id=po.id_id where po.status_id=6 and po.cancel=false and po.warehouse_id=%s; """,(request.w,))
     ((to_receive,),) = cursor.fetchall()
     
-    purchase_items = PurchaseItems.objects.values('item').distinct().count()
-    purchase_quantity = PurchaseItems.objects.aggregate(purchase_quantity=Sum('quantity'))
-    purchase_amount = PurchaseOrder.objects.aggregate(purchase_amount=Sum('total_amount'))
-    # print(purchase_amount,purchase_quantity)
+    cursor.execute( """select count(distinct pi.id), sum(quantity),sum(total_amount) from purchase_orders_purchaseitems pi join purchase_orders_purchasedraft pd on pi.purchase_id=pd.id join purchase_orders_purchaseorder po on pd.id=po.id_id where po.status_id<7 and po.status_id>2 and po.cancel=false and po.warehouse_id=%s; """,(request.w,))
+    ((purchase_items,purchase_quantity,purchase_amount),) = cursor.fetchall()
     total_stock = Inventory.objects.all().count()
-    draft = Sales.objects.filter(status=SalesStatus(id=SALE_DRAFT)).count()
-    packed = Sales.objects.filter(status__in=SalesStatus.objects.filter(id__in=[2,3,4,5])).count()
-    shipped = Sales.objects.filter(status__in=SalesStatus.objects.filter(id__in=[3,4,5])).count()
-    # cursor.execute('''SELECT count(id) FROM purchase where id>0 and id<)
+    draft = Sales.objects.filter(status=SalesStatus(id=SALE_DRAFT))
+    draft = date_filter(date,draft).count()
+    packed = Sales.objects.filter(status__in=SalesStatus.objects.filter(id__in=[2,3,4,5]))
+    packed = date_filter(date,packed).count()
+    shipped = Sales.objects.filter(status__in=SalesStatus.objects.filter(id__in=[3,4,5]))
+    shipped = date_filter(date,shipped).count()
 
-    cursor.execute('''SELECT count(id) FROM inventory_inventory where on_hand<(reorder_point) and (on_hand>0)''')
-    # low_stock = Inventory.objects.raw('''SELECT count(id) FROM inventory_inventory where on_hand<(reorder_point) and (on_hand>0)''')
-    # low_stock = Inventory.objects.aaggregate(F('on_hand'))
+    cursor.execute('''SELECT count(i.id) FROM inventory_inventory i join inventory_inventory_warehouse iw on iw.inventory_id=i.id where on_hand<(reorder_point) and (on_hand>0) and iw.warehouse_id=%s''',(warehouse.id,))
     ((low_stock,),) = cursor.fetchall()
-    cursor.execute('''SELECT count(id) FROM inventory_inventory where on_hand<=0''')
+    cursor.execute('''SELECT count(i.id) FROM inventory_inventory i join inventory_inventory_warehouse iw on iw.inventory_id=i.id where on_hand<=0 and iw.warehouse_id=%s''',(warehouse.id,))
     # no_stock = Inventory.objects.raw('''SELECT count(id) FROM inventory_inventory where on_hand<=0''')
     ((no_stock,),)= cursor.fetchall()
     in_stock = total_stock - (low_stock + no_stock)
-    sales = Sales.objects.all().order_by('-updated')
-    purchases = PurchaseOrder.objects.all().order_by('-updated')
-    total_purchases = [int(i.total_amount) if i.total_amount is not None else 0 for i in purchases ]
-    total_sales = [int(i.total_amount) if i.total_amount is not None else 0 for i in sales ]
+    sales = Sales.objects.filter(warehouse=warehouse).order_by('-updated')
+    sales=date_filter(date,sales)
+    purchases = PurchaseOrder.objects.filter(warehouse=warehouse).order_by('-updated')
+    purchases=date_filter(date,purchases)
+    total_purchases = [int(i.total_amount) if i.total_amount is not None else None for i in purchases ]
+    total_sales = [int(i.total_amount) if i.total_amount is not None else None for i in sales ]
     # total_sales = [i for i in range(3,56,2)]
     recent_sales = sales[:4]
-    top_selling = SalesItems.objects.raw("""SELECT *,(sum(quantity*price)) as amount from sales_orders_salesitems  group by item_id ORDER BY amount desc LIMIT 5 ;""")
+    top_selling = SalesItems.objects.raw("""SELECT *,(sum(quantity*price)) as amount from sales_orders_salesitems si join sales_orders_sales s on si.sales_id=s.id where s.warehouse_id=%s group by item_id ORDER BY amount desc LIMIT 5 ;""",(request.w,))
     import json
     stock = json.dumps({'Low Stock':low_stock, 'No Stock':no_stock,'In Stock':in_stock})
     # stock=[43,56,22]
     sales = json.dumps({'Packed':packed,'shipped':shipped,'draft':draft})
-    return render(request,'dashboard.html',{'sales_activity':{'pack':pack,'ship':ship,'deliver':deliver},'sales':sales,
-                                            'inventory':{'on_hand':on_hand,'recieve':to_receive,
-                                                         'top_selling':top_selling},'stock': stock,'purchase':{'items':purchase_items,
-                                                                            'quantity':purchase_quantity['purchase_quantity'],
-                                                                            'amount':purchase_amount['purchase_amount']},
-                                            'recent_sales':recent_sales, 'total_sales':total_sales,'total_purchases':total_purchases,'sales_orders':{
+    return render(request,'dashboard.html',{'sales_activity':{'pack':pack or 0,'ship':ship or 0,'deliver':deliver or 0},'sales':sales,
+                                            'inventory':{'on_hand':on_hand or 0,'recieve':to_receive or 0,
+                                                         'top_selling':top_selling},'stock': stock,'purchase':{'items':purchase_items or 0,
+                                                                            'quantity':purchase_quantity or 0,
+                                                                            'amount':purchase_amount or 0},
+                                            'recent_sales':recent_sales,'date':date, 'total_sales':total_sales,'total_purchases':total_purchases or 0,'sales_orders':{
 
                                             }})
     
