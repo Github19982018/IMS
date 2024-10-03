@@ -17,3 +17,13 @@ def add_p_items(items, extra=0):
     sum += extra
     return sum
 
+
+@register.filter
+def date_filter(date, extra=0):
+    if date =='today':
+        return "Today"
+    elif date == 'month':
+        return 'This month'
+    elif date == 'year':
+        return 'This year'
+
