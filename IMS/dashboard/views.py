@@ -1,9 +1,10 @@
+import json
 from django.template.response import TemplateResponse as render
 from sales_orders.models import Package,PackageStatus,Sales,SalesStatus,Shipment,ShipStatus,SalesItems
 from inventory.models import Inventory,Warehouse
 from django.db.models.lookups import GreaterThan,LessThan
 from django.db.models import Sum,Q
-from datetime import datetime
+from datetime import datetime,timedelta
 from purchase_orders.models import PurchaseOrder,PurchaseStatus,PurchaseItems,PurchaseDraft
 from django.db import connection
 cursor = connection.cursor()
@@ -31,17 +32,20 @@ def date_filter(date,queryset):
     day = datetime.now().day
     year = datetime.now().year
     month = datetime.now().month
+    week = datetime.now().isocalendar()[1]
     if date=='today':
         queryset = queryset.filter(updated__day=day,updated__month=month,updated__year=year)
     if date == 'month':
         queryset = queryset.filter(updated__month=month,updated__year=year)
     elif date == 'year':
         queryset = queryset.filter(updated__year=year)
+    elif date == 'week':
+        queryset = queryset.filter(updated__week=week)
     return queryset
 # Create your views here.
 def dashboard(request):
     date = request.GET.get('date','month')
-    warehouse = Warehouse.objects.get(id=request.w)
+    warehouse = Warehouse.objects.get(id=request.w) or Warehouse.objects.first()
     pack = Package.objects.filter(status=PackageStatus.objects.get(id=PACKAGE_DRAFT))
     pack = date_filter(date,pack).count()
     ship = Sales.objects.filter(warehouse=warehouse,status=SalesStatus.objects.get(id=SALE_PACKED))
@@ -74,11 +78,36 @@ def dashboard(request):
     purchases=date_filter(date,purchases)
     total_purchases = [int(i.total_amount) if i.total_amount is not None else None for i in purchases ]
     total_sales = [int(i.total_amount) if i.total_amount is not None else None for i in sales ]
+    report_date = []
+    # global p_last,s_last
+    # if purchases.last():
+    #     p_last = purchases.last() 
+    #     s_last = sales.last()
+    # else:
+    #     p_last.updated.hour = float('inf')
+    #     s_last.updated.hour = float('inf')
+    if date == 'today':
+        start = 0
+        end = datetime.now().hour
+        report_date = [12 if i==12 else i-12 if i//12==1 else i for i in range(start,end+1,1)]
+    elif date=='month':
+        start = min(purchases.last().updated.day,sales.last().updated.day)
+        end = max(purchases[0].updated.day,sales[0].updated.day)
+        report_date = [i for i in range(start,end+1,1)]
+    elif date=='year':
+        start = min(purchases.last().updated.month,sales.last().updated.month)
+        end = max(purchases[0].updated.month,sales[0].updated.month)
+        report_date = [i for i in range(start,end+1,1)]
+    elif date=='week':
+        start = min(purchases.last().updated.weekday(),sales.last().updated.weekday())
+        end = max(purchases[0].updated.weekday(),sales[0].updated.weekday())
+        report_date = [i for i in range(start,end+1,1)]
     # total_sales = [i for i in range(3,56,2)]
+    report_date = json.dumps(report_date)
     recent_sales = sales[:4]
     top_selling = SalesItems.objects.raw("""SELECT *,(sum(quantity*price)) as amount from sales_orders_salesitems si join sales_orders_sales s on si.sales_id=s.id where s.warehouse_id=%s group by item_id ORDER BY amount desc LIMIT 5 ;""",(request.w,))
-    import json
     stock = json.dumps({'Low Stock':low_stock, 'No Stock':no_stock,'In Stock':in_stock})
+    # total_purchases = json.dumps(total_purchases)
     # stock=[43,56,22]
     sales = json.dumps({'Packed':packed,'shipped':shipped,'draft':draft})
     return render(request,'dashboard.html',{'sales_activity':{'pack':pack or 0,'ship':ship or 0,'deliver':deliver or 0},'sales':sales,
@@ -86,7 +115,7 @@ def dashboard(request):
                                                          'top_selling':top_selling},'stock': stock,'purchase':{'items':purchase_items or 0,
                                                                             'quantity':purchase_quantity or 0,
                                                                             'amount':purchase_amount or 0},
-                                            'recent_sales':recent_sales,'date':date, 'total_sales':total_sales,'total_purchases':total_purchases or 0,'sales_orders':{
+                                            'recent_sales':recent_sales,'date':date, 'total_sales':total_sales,'total_purchases':total_purchases,'reports_y':report_date ,'sales_orders':{
 
                                             }})
     

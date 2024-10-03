@@ -2,6 +2,7 @@
 {% load static %}
 {% block nav_dashboard %}{%endblock%}
 {% block main %}
+{%load sum_filter %}
 <div class="pagetitle">
     <h1>Dashboard</h1>
     <nav>
@@ -21,11 +22,33 @@
   <section class="section dashboard">
 
    
+    <form action="">
+      <div class="row">
+        <select class="form-select col" name="warehouse" id="warehouse" onchange="this.form.submit()">
+          {% for i in warehouses %}
+          <option class="bi bi-menu-button-wide" value="{{i.id}}" {% if i.id == w %} selected {% endif %}>{{i.name}}</option>
+          {% endfor %}
+          <!-- <option class="bi bi-menu-button-wide"  selected>sf</option>
+          <option class="bi bi-menu-button-wide"  >dfsf</option> -->
+  
+        </select>
+        <div class="col">
+            <select name="date" class=" form-select" onchange="this.form.submit()">
+              <option value="today" {% if date == 'today' %} selected {% endif %}>Today</option>
+              <option value="month" {% if date == 'month' %} selected {% endif %}>This Month</option>
+              <option value="year" {% if date == 'year' %} selected {% endif %}>This Year</option>
+              <option value="week" {% if date == 'week' %} selected {% endif %}>This Week</option>
+            </select>
+        </div>
+      </div>
+     
+    </form>
+
 
 
     <div class="row">
 
- 
+     
       <!-- Left side columns -->
       <div class="col-lg-8">
         <div class="row">
@@ -35,7 +58,7 @@
 
         <!-- sales activity -->
         <div class="card p-1 my-3 border bg-white" >
-          <h5 class="card-title ps-2 ">Sales activity<span>| Today</span></h5>
+          <h5 class="card-title ps-2 ">Sales activity<span>| {{date|date_filter}}</span></h5>
         
           <div class="d-flex align-items-center p-2">
            <a class="link" href="{% url 'sales' %}">
@@ -66,7 +89,7 @@
             <div class="col-4">
         <!-- inventory summary -->
         <div class="card p-1 my-3 border bg-white" >
-          <h5 class="card-title ps-2">Inventory Summary <span>| Today</span></h5>
+          <h5 class="card-title ps-2">Inventory Summary </h5>
         
           <div class="d-flex flex-column align-items-center ">
            
@@ -90,7 +113,7 @@
         
           <div class="col-4">
         <div class="p-1 my-2 border card " >
-            <h5 class="card-title ps-1">Purchase Order <span>| Today</span></h5>
+            <h5 class="card-title ps-1">Purchase Order <span>| {{date|date_filter}}</span></h5>
         
             <div class="d-flex flex-column align-items-center ">
              
@@ -123,14 +146,15 @@
                               <h6>Filter</h6>
                             </li>
           
-                            <li><a class="dropdown-item" href="#">Today</a></li>
-                            <li><a class="dropdown-item" href="#">This Month</a></li>
-                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                            <li><a class="dropdown-item" href="?date=today">Today</a></li>
+                            <li><a class="dropdown-item" href="?date=week">This Week</a></li>
+                            <li><a class="dropdown-item" href="?date=month">This Month</a></li>
+                            <li><a class="dropdown-item" href="?date=year">This Year</a></li>
                           </ul>
                         </div>
           
                         <div class="card-body pb-0">
-                          <h5 class="card-title">Top Selling <span>| Today</span></h5>
+                          <h5 class="card-title">Top Selling <span>| {{date|date_filter}}</span></h5>
           
                           <table class="table table-borderless">
                             <thead>
@@ -190,7 +214,7 @@
               </div>
 
               <div class="card-body">
-                <h5 class="card-title">Sales <span>| Today</span></h5>
+                <h5 class="card-title">Sales <span>| {{date|date_filter}}</span></h5>
 
                 <div class="d-flex align-items-center">
                   <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
@@ -290,14 +314,15 @@
                               <h6>Filter</h6>
                             </li>
           
-                            <li><a class="dropdown-item" href="#">Today</a></li>
-                            <li><a class="dropdown-item" href="#">This Month</a></li>
-                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                            <li><a class="dropdown-item" href="?date=today">Today</a></li>
+                            <li><a class="dropdown-item" href="?date=week">This Week</a></li>
+                            <li><a class="dropdown-item" href="?date=month">This Month</a></li>
+                            <li><a class="dropdown-item" href="?date=year">This Year</a></li>
                           </ul>
                         </div>
           
                         <div class="card-body">
-                          <h5 class="card-title">Recent Sales <span>| Today</span></h5>
+                          <h5 class="card-title">Recent Sales <span>| {{date|date_filter}}</span></h5>
           
                           <table class="table table-borderless datatable">
                             <thead>
@@ -367,29 +392,32 @@
                   <li class="dropdown-header text-start">
                     <h6>Filter</h6>
                   </li>
-
-                  <li><a class="dropdown-item" href="#">Today</a></li>
-                  <li><a class="dropdown-item" href="#">This Month</a></li>
-                  <li><a class="dropdown-item" href="#">This Year</a></li>
+                  <li><a class="dropdown-item" href="?date=today">Today</a></li>
+                  <li><a class="dropdown-item" href="?date=week">This Week</a></li>
+                  <li><a class="dropdown-item" href="?date=month">This Month</a></li>
+                  <li><a class="dropdown-item" href="?date=year">This Year</a></li>
                 </ul>
               </div>
 
               <div class="card-body">
-                <h5 class="card-title">Reports Purchases and Sales in K<span>/Today</span></h5>
+                <h5 class="card-title">Purchases and Sales in K<span>/{{date|date_filter}}</span></h5>
 
                 <!-- Line Chart -->
                 <div id="reports" style="min-height: 400px;" class="echart"></div>
 
 
-                <script data-data="{{total_sales}}"
-                data-purchases="{{total_purchases}}">
+                <script data-data="{{total_sales|safe}}"
+                data-purchases="{{total_purchases|safe}}"
+                data-x="{{reports_y|safe}}">
                   const data = document.currentScript.dataset;
                   const sales=data.data
                   const purchases=data.purchases
+                  const x = JSON.parse(data.x)
+                  console.log(x)
                   document.addEventListener("DOMContentLoaded", () => {
                     echarts.init(document.querySelector("#reports")).setOption({
   xAxis: {
-    data: ['Week1', 'Week2', 'Week3', 'Week4']
+    data: x
   },
   legend: {
           top: '5%',
@@ -520,15 +548,15 @@
                 <li class="dropdown-header text-start">
                   <h6>Filter</h6>
                 </li>
-  
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
+                <li><a class="dropdown-item" href="?date=today">Today</a></li>
+                <li><a class="dropdown-item" href="?date=week">This Week</a></li>
+                <li><a class="dropdown-item" href="?date=month">This Month</a></li>
+                <li><a class="dropdown-item" href="?date=year">This Year</a></li>
               </ul>
             </div>
   
             <div class="card-body pb-0">
-              <h5 class="card-title">Sales Orders<span>| Today</span></h5>
+              <h5 class="card-title">Sales Orders<span>| {{date|date_filter}}</span></h5>
               <div class="row">
                 <div id="salesChart" style="min-height: 400px;" class="echart"></div>
   
@@ -636,14 +664,15 @@
         <h6>Filter</h6>
       </li>
 
-      <li><a class="dropdown-item" href="#">Today</a></li>
-      <li><a class="dropdown-item" href="#">This Month</a></li>
-      <li><a class="dropdown-item" href="#">This Year</a></li>
+      <li><a class="dropdown-item" href="?date=today">Today</a></li>
+                            <li><a class="dropdown-item" href="?date=week">This Week</a></li>
+                            <li><a class="dropdown-item" href="?date=month">This Month</a></li>
+                            <li><a class="dropdown-item" href="?date=year">This Year</a></li>
     </ul>
   </div>
 
   <div class="card-body pb-0">
-    <h5 class="card-title">News &amp; Updates <span>| Today</span></h5>
+    <h5 class="card-title">News &amp; Updates <span>| {{date|date_filter}}</span></h5>
 
     <div class="news">
       <div class="post-item clearfix">
@@ -701,7 +730,7 @@
   </div>
 
   <div class="card-body">
-    <h5 class="card-title">Recent Activity <span>| Today</span></h5>
+    <h5 class="card-title">Recent Activity <span>| {{date|date_filter}}</span></h5>
 
     <div class="activity">
 
