@@ -51,9 +51,9 @@
                         <tbody>
                           {% for i in orders %}
                           <tr>
-                            <td><a href="#">{{i.id}}</a></td>
+                            <td><a href="{%url 'purchase' i.id%}">{{i.id}}</a></td>
                             <td>{{i.order.created_date}}</td>
-                            <td>{{i.order.total_amount}}</td>
+                            <td>₹{{i.order.total_amount}}</td>
                             <td>{{i.order.status}}</td>
                           </tr>
                           {% endfor %}

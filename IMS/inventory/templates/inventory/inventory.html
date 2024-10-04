@@ -88,8 +88,8 @@
                     <td><a class="bi bi-pen" href="{% url 'updateinventory' i.id %}">{{i.name}} </a></td>
                     <td>{{i.sku}}</td>
                     <td>{{i.dimensions}}</td>
-                    <td>{{i.purchasing_price}}</td>
-                    <td>{{i.selling_price}}</td>
+                    <td>₹{{i.purchasing_price}}</td>
+                    <td>₹{{i.selling_price}}</td>
                     <td><a href="{% url 'make_purchase' i.id%}" class="link btn  bi bi-plus-circle {%if i.on_hand < i.reorder_point%} text-danger{%else%}text-primary{%endif%}">
                       {{i.on_hand}} </a></form></td>
                     <td>{{i.units}}</td>
