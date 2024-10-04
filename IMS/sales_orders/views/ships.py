@@ -66,10 +66,12 @@ def view_ships(request):
 def get_ship(request,id):
     try:      
         sh = Shipment.objects.get(id=id)
-        return redirect(ship,id=sh.sales.id)
+        sale = sh.sales
+        packages = sh.package.all()
+        items = [items.items for items in packages]
+        return render(request,'sales_orders/ship.html',{'number':id, 'sales':sale,'ship':sh, 'packages':packages, 'items':items})
+
     except Shipment.DoesNotExist:
-        return render(request,'404.html',{})
-    except AttributeError:
         return render(request,'404.html',{})
     
 
@@ -83,12 +85,12 @@ def ship(request,id):
             if shiplist:
                 [sh,] = shiplist
             else:            
-                status = ShipStatus(id=READY_TO_SHIP)
+                status = ShipStatus.objects.get(id=READY_TO_SHIP)
                 import random
                 track=random.randint(100000000000,9999999999999)
                 sh = Shipment.objects.create(status=status, sales=sale,tracking_number=track,ship_method=sale.ship_method,customer=sale.customer,shipment_address=sale.ship_address)
                 # ship.sales.add(sales)
-                packages.update(ship=sh,status=PackageStatus(id=PACKAGE_READY_SHIP))
+                packages.update(ship=sh)
             items = sale.items.all()
             return render(request,'sales_orders/ship.html',{'number':id, 'sales':sale,'ship':sh, 'packages':packages, 'items':items})
         # items = sales.items
@@ -114,7 +116,9 @@ def cancel_ship(request,id):
             sh.status = ShipStatus.objects.get(status='cancelled')
             url = env('BASE_URL')+'/sales/ships/cancel/'
             requests.post(url,json={'ref':sh.status.id})
+            sh.sales.status = SalesStatus.objects.get(status='cancelled')
             sh.save()
+            sh.sales.save()
             messages.info(request,f"shipment {sh.id} cancelled")
             return redirect('ships')
         else:
@@ -138,7 +142,7 @@ def create_ship(request,id):
                     'packages':packages,
                     'items':items}
             url = env('BASE_URL')+'/sales/ships/approve/'
-            shipment.status = ShipStatus(id=SENT_TO_FLEET)
+            shipment.status = ShipStatus.objects.get(id=SENT_TO_FLEET)
             shipment.save()
             serializer = ShipSerializer(data)
             requests.post(url,json=serializer.data)
@@ -154,7 +158,7 @@ def create_ship(request,id):
     except Sales.DoesNotExist:
         return render(request,'404.html',{})
     except Shipment.DoesNotExist:
-        return HttpResponseRedirect('')
+        return render(request,'404.html',{})
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
         return redirect(ship,id=id)
@@ -173,14 +177,15 @@ def ship_api(request):
         package = draft.package.all()
         sales = draft.sales
         draft.status = status
+        draft.shipment_date = datetime.now()
         st = ''
         if int(status.id) == SENT_TO_CARRIER:
             pass
         elif int(status.id) == CARRIER_PICKED:
-            sales.status = SalesStatus(SALE_SHIPPED)
-            package.update(status=PackageStatus(PACKAGE_SHIPPED))
+            sales.status = SalesStatus.objects.get(id=SALE_SHIPPED)
+            package.update(status=PackageStatus.objects.get(id=PACKAGE_SHIPPED))
         elif int(status.id) == CUSTOMER_RECEIVED:
-            sales.status = SalesStatus(SALE_DELIVERED)
+            sales.status = SalesStatus.objects.get(id=SALE_DELIVERED)
         else:
             n = Notifications.objects.create(title='Sales team Update Error',
             message=f'Ship order {data['ref']} update error ',link = reverse_lazy('get_ship',args=[data['ref']]),
@@ -198,3 +203,35 @@ def ship_api(request):
             return HttpResponse({'error':'order does not exist'},status=404)
     except ShipStatus.DoesNotExist:
             return HttpResponse({f'error':'invalid data: status:{status}'},status=404)
+        
+    
+
+
+@login_not_required
+@api_view(['POST'])
+def sales_api(request):
+    try:
+        data = request.data
+        id =  data['ref']
+        status = data['status']
+        draft = Shipment.objects.get(id=id)
+        sale = draft.sales
+        status = SalesStatus.objects.get(id=status)
+        if int(status.id) == PAYED:
+            sale.status = status
+            sale.save()
+            n = Notifications.objects.create(title='Sales team Update',
+            message=f'Sales order {data['ref']} status update: Payed by customer',link = reverse_lazy('get_sale',args=[sale.id]),
+            tag='success')
+            n.user.add(User.objects.get(user_type=3))
+            return Response({'data':'successfully updated'},status=201)
+        else:
+            n = Notifications.objects.create(title='Sales team Update Error',
+            message=f'Sales order {data['ref']} Update error',link = reverse_lazy('get_sale',args=[sale.id]),
+            tag='danger')
+            n.user.add(User.objects.get(user_type=3))
+            return Response({'error':'invalid status'},status=403)
+    except Shipment.DoesNotExist:
+        return Response({'error':'order does not exist'},status=404)
+    except SalesStatus.DoesNotExist:
+        return Response({'error':'Invalid status'},status=400)
