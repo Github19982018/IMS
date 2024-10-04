@@ -44,12 +44,15 @@ def date_filter(date,queryset):
     day = datetime.now().day
     year = datetime.now().year
     month = datetime.now().month
+    week = datetime.now().isocalendar()[1]
     if date=='today':
-        queryset = queryset.filter(updated__day=day,updated__month=month,updated__year=year)
+        queryset = queryset.filter(updated__day=day)
     if date == 'month':
-        queryset = queryset.filter(updated__month=month,updated__year=year)
+        queryset = queryset.filter(updated__month=month)
     elif date == 'year':
         queryset = queryset.filter(updated__year=year)
+    elif date == 'week':
+        queryset = queryset.filter(updated__week=week)
     return queryset
 
 # Create your views here.
@@ -71,7 +74,7 @@ def get_sales(request,id):
 
 @user_passes_test(specialilst_check)
 def draft_sales(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
         id_list =  request.POST.getlist('item') 
         items = Inventory.objects.filter(id__in=id_list)
         if items:
@@ -83,7 +86,7 @@ def draft_sales(request):
             messages.add_message(request,messages.WARNING,'please select a valid item to order')    
             return redirect('inventories')
     else:
-        return render(request,'404.html',status=404)
+        return render(request,'404.html',status=405)
 
 @user_passes_test(specialilst_check)
 def save_items(request):
@@ -113,7 +116,7 @@ def save_items(request):
         # return sales(request,sale.id)
         return sales(request=request,id=sale.id)
     else:
-        return render(request,'404.html',status=404)
+        return render(request,'404.html',status=405)
 
 
         
@@ -152,22 +155,21 @@ def sales(request,id):
 def edit_sales(request,id):
     try:
         sale = Sales.objects.get(id=id)
-        if sale.status.id < 5:
-            if request.method == 'POST':
-                quantity = request.POST.getlist('quantity')
-                item = request.POST.getlist('item')
-                for i in range(len(item)):
-                    sale = SalesItems.objects.get(id=item[i])
-                    sale.quantity = quantity[i]
-                    sale.save()
-                return sales(request,id)
-            else:
-                ship_method = ShipMethod.objects.all()
-                customers = Customer.objects.all()
-                items = SalesItems.objects.filter(sales=sale)
-                return render(request,'sales_orders/sales_edit.html',{'items':items,'sales':sale,'ship_method':ship_method, 'customers':customers})
-        else:
+        if sale.status.id >= 5:
             return render(request,'404.html',{})
+        if request.method == 'POST':
+            quantity = request.POST.getlist('quantity')
+            item = request.POST.getlist('item')
+            for i in range(len(item)):
+                sale = SalesItems.objects.get(id=item[i])
+                sale.quantity = quantity[i]
+                sale.save()
+            return sales(request,id)
+        else:
+            ship_method = ShipMethod.objects.all()
+            customers = Customer.objects.all()
+            items = SalesItems.objects.filter(sales=sale)
+            return render(request,'sales_orders/sales_edit.html',{'items':items,'sales':sale,'ship_method':ship_method, 'customers':customers})
     except Sales.DoesNotExist:
         return render(request,'404.html',{},status=404)
     except SalesItems.DoesNotExist:
@@ -177,116 +179,73 @@ import threading
 @user_passes_test(specialilst_check)
 def cancel_sales(request,id):
     try:
-        s = Sales.objects.get(id=id)
-        p = Package.objects.filter(sales=s)
-        if not p:
-            s.delete()
+        sale = Sales.objects.get(id=id)
+        packages = Package.objects.filter(sales=sale)
+        if not packages:
+            sale.delete()
             n = Notifications.objects.create(title='Sales team Update: Cancel Success',
             message=f'sales {id} deleted',link = reverse_lazy('sales'),
             tag='success')
             n.user.add(User.objects.get(user_type=3))
             return redirect('sales')
         else:
-            t = threading.Thread(target=sales_cancel,args=[id])
-            t.start()
+            thread = threading.Thread(target=sales_cancel,args=[sale])
+            thread.start()
             messages.info(request,f"Sales order {id} is set for cancel will be updated on completion")
             return HttpResponseRedirect(request.META['HTTP_REFERER'])
     except Sales.DoesNotExist:
         messages.error(request,f"sales {id} can't be cancelled invalid order")
         return render(request,'404.html',{},status=404)
 
+def cancel_error(id,message):
+    n = Notifications.objects.create(title='Sales team Update: Cancel Error',
+    message=f'sales {id} {message}',link = reverse_lazy('get_sale',args=[id]),
+    tag='danger')
+    n.user.add(User.objects.get(user_type=3))
+    return
+
+def cancel_packages(sale):
+    p = sale.package.all()
+    url = env('BASE_URL')+'/sales/packages/cancel/'
+    res = requests.post(url,json={'ref':list(p.values_list('id',flat=True))})
+    if res.status_code != 201:
+        cancel_error(id,'cant be cancelled try again later')
+        raise(AssertionError)
+    p.delete()
+    
+def cancel_ships(sale):
+    sh = Shipment.objects.filter(sales=sale)
+    if not sh:
+        return
+    url = env('BASE_URL')+'/sales/ships/cancel/'
+    res = requests.post(url,json={'ref':[sh.id]})
+    if res.status_code != 201:
+        cancel_error(id,'cant be cancelled try again later')
+        raise(AssertionError)
+    sh.status = ShipStatus.objects.get(status='cancelled')
+    sh.save()
+
 @user_passes_test(specialilst_check)
-def sales_cancel(id):
+def sales_cancel(sale):
     try:
-        s = Sales.objects.get(id=id)
-        if s.status.id < SALE_SHIPPED :
-            s.status = SalesStatus.objects.get(status='cancelled')
-            p = s.package.all()
-            url = env('BASE_URL')+'/sales/packages/cancel/'
-            res = requests.post(url,json={'ref':list(p.values_list('id',flat=True))})
-            if res.status_code == 201:
-                p.delete()
-            else:
-                n = Notifications.objects.create(title='Sales team Update: Cancel Error',
-                message=f'sales {s.id} cant be cancelled try again later',link = reverse_lazy('get_sale',args=[id]),
-                tag='danger')
-                n.user.add(User.objects.get(user_type=3))
-                return
-            sh = Shipment.objects.filter(sales=s)
-            if sh:
-                url = env('BASE_URL')+'/sales/ships/cancel/'
-                res = requests.post(url,json={'ref':[sh.id]})
-                if res.status_code == 201:
-                    sh.status = ShipStatus.objects.get(status='cancelled')
-                    sh.save()
-                else:
-                    n = Notifications.objects.create(title='Sales team Update: Cancel Error',
-                    message=f'sales {s.id} cant be cancelled try again later',link = reverse_lazy('get_sale',args=[id]),
-                    tag='danger')
-                    n.user.add(User.objects.get(user_type=3))
-                    return
-            if s.status > SALE_PACKED:
-                items = s.items.all()
-                for i in items:
-                    i.item.on_hand += i.quantity
-                    i.item.save()
-            s.save()
-            n = Notifications.objects.create(title='Sales team Update: Cancel Success',
-            message=f'sales {s.id} cancelled',link = reverse_lazy('get_sale',args=[id]),
-            tag='success')
-            n.user.add(User.objects.get(user_type=3))
-        else:
-            n = Notifications.objects.create(title='Sales team Update: Cancel error',
-            message=f'sales {s.id} cant be cancelled invalid order',link = reverse_lazy('get_sale',args=[id]),
-            tag='warning')
-            n.user.add(User.objects.get(user_type=3))
-   
-    except requests.ConnectionError:
-        n = Notifications.objects.create(title='Sales team Update: Cancel Error',
-        message=f'sales {s.id} cant be cancelled connection error',link = reverse_lazy('get_sale',args=[id]),
-        tag='danger')
+        if sale.status.id >= SALE_SHIPPED :
+            return cancel_error(id,'cant be cancelled invalid order')   
+        cancel_packages(sale)
+        cancel_ships(sale)
+        if sale.status > SALE_PACKED:
+            items = sale.items.all()
+            for i in items:
+                i.item.on_hand += i.quantity
+                i.item.save()
+        sale.status = SalesStatus.objects.get(status='cancelled')
+        sale.save()
+        n = Notifications.objects.create(title='Sales team Update: Cancel Success',
+        message=f'sales {id} cancelled',link = reverse_lazy('get_sale',args=[id]),
+        tag='success')
         n.user.add(User.objects.get(user_type=3))
-# async def sales_cancel(request,id):
-#     try:
-#         s = Sales.objects.get(id=id)
-#         if not s.status or s.status.id == SALE_DRAFT:
-#             s.delete()
-#             messages.info(request,f"sales order deleted")
-#             return Response(data={'data':'Order deleted'},status=201)
-#         elif s.status.id < SALE_SHIPPED:
-#             s.status = SalesStatus.objects.get(status='cancelled')
-#             p = s.package.all()
-#             url = env('BASE_URL')+'/sales/packages/cancel/'
-#             res = requests.post(url,json={'ref':list(p.values_list('id',flat=True))})
-#             if res.status_code == 201:
-#                 p.delete()
-#                 return redirect('get_sale',id=id)
-#             else:
-#                 messages.warning(request,f"sales {s.id} cant be cancelled try later")
-#             sh = s.shipment
-#             url = env('BASE_URL')+'/sales/ships/cancel/'
-#             res = requests.post(url,json={'ref':[sh.id]})
-#             if res.status_code == 201:
-#                 sh.status = ShipStatus.objects.get(status='cancelled')
-#                 sh.save()
-#                 s.save()
-#                 items = s.items.all()
-#                 for i in items:
-#                     i.item.on_hand += i.quantity
-#                     i.item.save()
-#                 messages.info(request,f"sales {s.id} cancelled")
-#             else:
-#                 messages.warning(request,f"sales {s.id} cant be cancelled try later")
-#                 return redirect('get_sale',id=id)
-#             return redirect('sales')
-#         else:
-#             messages.warning(request,f"sales {s.id} cant be cancelled")
-#             return Response(data={'error':'cant be cancelled'},status=400)
-#     except Sales.DoesNotExist:
-#         return Response(data={'error':'cant be cancelled'},status=404)
-#     except requests.ConnectionError:
-#         messages.warning(request,f"sales {s.id} can't be cancelled connection error")
-#         return Response(data={'error':'cant be cancelled, connection error'},status=500)
-            
-
-
+    except requests.ConnectionError:
+        return cancel_error(id,'cant be cancelled connection error')
+    except AssertionError:
+        return 
+    
+    
