@@ -78,14 +78,10 @@ def edit_package(request,id):
             ship = request.POST.get('ship_address')
             quantity = request.POST.getlist('quantity')
             item = request.POST.getlist('item')
-            items = PackageItems.objects.filter(id__in=item)
             for i in range(len(item)):
                 sale = PackageItems.objects.get(id=item[i])
                 sale.quantity = quantity[i]
                 sale.save()
-            # for i in range(len(items)):
-            #     items[i].quantity = quantity[i]
-            #     items[i].save()
             try:
                 p.customer = Customer.objects.get(id=customer)
                 p.shipping_address = ship
