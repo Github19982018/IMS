@@ -19,6 +19,9 @@
 {%if employee.role == 'specialist'%}
     <div class="col-8 row">
         {%if package.status.id <= 2%}
+        <a href="{% url 'edit_package' package.id %}" class="btn btn-sm col">Edit package</a>
+        {%endif%}
+        {%if package.status.id <= 2%}
         <a href="{% url 'delete_package' package.id %}" class="btn btn-sm col">Delete package</a>
         {%endif%}
         {%if package.status.id == 1%}
@@ -27,7 +30,7 @@
           <input type="number" name="package" id="" hidden value="{{package.id}}">
           <button href="" id="btn" class="btn btn-success">send for purchase team approvel</button>
         </form>
-        {%else%}
+        {%elif package.status.id != 2%}
         <form class="col" action="{% url 'ship' sales.id  %}" method="post">
           {%csrf_token%}
           <input type="number" name="package" id="" hidden value="{{package.id}}">
@@ -74,11 +77,11 @@
                       <div class="card p-2">
                         <div class="row">
                             <div class="col-4">company: </div>
-                            <div class="col-8">{{sales.customer}}</div>
+                            <div class="col-8">{{package.customer}}</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Address: </div>
-                            <div class="col-8">{{sales.ship_address}}</div>
+                            <div class="col-8">{{package.shipping_address}}</div>
                         </div>
                         <div class="row">
                             <div class="col-4">Linked to sales order: </div>

@@ -18,7 +18,7 @@
         </div>
         <div class="col">
             <p class="label">Created at</p>
-            <p class="form-control">{{created_date}}</p>
+            <p class="form-control">{{package.created_at}}</p>
         </div>
       </div>
 
@@ -83,7 +83,7 @@
                     <td>{{i.item.dimensions}}</td>
                      <td>{{i.units}}</td>
                     <!-- <td>{{i.quantity}}</td>  -->
-                    <td><input type="text" hidden name="item" value="{{i.item.id}}">
+                    <td><input type="text" hidden name="item" value="{{i.id}}">
                       <input type="number" value="{{i.quantity}}" name="quantity"></td>
                     </tr>
                     {% endfor %}
@@ -106,7 +106,7 @@
                   {% csrf_token %}
                   <select class="form-select" name="customer" id="supplier"  onchange="customerform.submit();">
                   {% for i in customers %}
-                  <option value="{{i.id}}" {% if sales.customer.id == i.id %}selected
+                  <option value="{{i.id}}" {% if package.customer.id == i.id %}selected
                   {% endif %}>{{i.name}}</option>
                   {% endfor %}
                   <!-- option value="1">One</option>
@@ -134,8 +134,7 @@
                 <div class="col-lg-6">
                     <select class="form-select" name="ship_method" aria-label="Default select example">
                       {% for i in ship_methods %}
-                      <option value="{{i.id}}" {% if sales.ship_method.id == i.id %}selected
-                      {% endif %}>{{i.method}}</option>
+                      <option value="{{i.id}}" {%if i.id == sales.shipmethod.id%}selected{%endif%}>{{i.method}}</option>
                       {% endfor %}
                   </select>
                 </div>
