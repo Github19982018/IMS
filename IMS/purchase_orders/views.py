@@ -105,7 +105,12 @@ def make_purchase(request,id):
 @user_passes_test(specialilst_check)
 def draft_purchase(request,id):
     try:
+        purchase = PurchaseDraft.objects.get(id=id)
+        draft = PurchaseItems.objects.filter(purchase=id)
+        order = PurchaseOrder.objects.filter(id=purchase) 
         if request.method == 'POST':
+            if not draft or (order and (order.first().cancel or order.first().status.id>=6)):
+                return HttpResponseRedirect(request.path_info)
             quantity = request.POST.getlist('quantity')
             item = request.POST.getlist('item')
             for i in range(len(item)):
@@ -113,9 +118,6 @@ def draft_purchase(request,id):
                 sale.quantity = quantity[i]
                 sale.save()
             return HttpResponseRedirect(request.path_info)
-        purchase = PurchaseDraft(id=id)
-        draft = PurchaseItems.objects.filter(purchase=id)
-        order = PurchaseOrder.objects.filter(id=purchase) 
         suppliers = Supplier.objects.all()
         if not draft or (order and (order.first().cancel or order.first().status.id>=6)):
             return render(request,'404.html',{},status=404)
