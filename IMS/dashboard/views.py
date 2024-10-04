@@ -34,9 +34,9 @@ def date_filter(date,queryset):
     month = datetime.now().month
     week = datetime.now().isocalendar()[1]
     if date=='today':
-        queryset = queryset.filter(updated__day=day,updated__month=month,updated__year=year)
+        queryset = queryset.filter(updated__day=day)
     if date == 'month':
-        queryset = queryset.filter(updated__month=month,updated__year=year)
+        queryset = queryset.filter(updated__month=month)
     elif date == 'year':
         queryset = queryset.filter(updated__year=year)
     elif date == 'week':
@@ -87,9 +87,12 @@ def dashboard(request):
     #     p_last.updated.hour = float('inf')
     #     s_last.updated.hour = float('inf')
     if date == 'today':
-        start = 0
-        end = datetime.now().hour
-        report_date = [12 if i==12 else i-12 if i//12==1 else i for i in range(start,end+1,1)]
+        if purchases:
+            start = min(purchases.last().updated.hour,sales.last().updated.hour)
+            end = max(purchases[0].updated.hour,sales[0].updated.hour)
+            report_date = [i for i in range(start,end+1,1)]
+        else:
+            report_date =[0]
     elif date=='month':
         start = min(purchases.last().updated.day,sales.last().updated.day)
         end = max(purchases[0].updated.day,sales[0].updated.day)
