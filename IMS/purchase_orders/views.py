@@ -113,32 +113,29 @@ def draft_purchase(request,id):
                 sale.quantity = quantity[i]
                 sale.save()
             return HttpResponseRedirect(request.path_info)
+        purchase = PurchaseDraft(id=id)
+        draft = PurchaseItems.objects.filter(purchase=id)
+        order = PurchaseOrder.objects.filter(id=purchase) 
+        suppliers = Supplier.objects.all()
+        if not draft or (order and (order.first().cancel or order.first().status.id>=6)):
+            return render(request,'404.html',{},status=404)
+        ship_method = ShipMethod.objects.all()
+        supplier = ''
+        s = request.GET.get('supplier')
+        if s:
+            supplier = Supplier.objects.get(id=s)
+        elif draft.first().item.preferred_supplier:
+            supplier = draft.first().item.preferred_supplier
         else:
-            purchase = PurchaseDraft(id=id)
-            draft = PurchaseItems.objects.filter(purchase=id)
-            suppliers = Supplier.objects.all()
-            if draft:
-                ship_method = ShipMethod.objects.all()
-                def set_supplier():
-                    supplier = ''
-                    s = request.GET.get('supplier')
-                    if s:
-                        supplier = Supplier.objects.get(id=s)
-                    elif draft.first().item.preferred_supplier:
-                        supplier = draft.first().item.preferred_supplier
-                    else:
-                        supplier = suppliers.first()
-                    purchase.supplier = supplier
-                    purchase.save()
-                    return supplier
-                supplier = set_supplier()
-                return render(request,'purchase.html',{'number':id,'items':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
-            else:     
-                return render(request,'404.html',{},status=404)
+            supplier = suppliers.first()
+        purchase.supplier = supplier
+        purchase.save()
+        return render(request,'purchase.html',{'number':id,'items':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
     except KeyError:
         return render(request,'404.html',{})
     except PurchaseDraft.DoesNotExist:
         return render(request, '404.html',{},status=404)
+    
 
 def purchase(request,id):
     try:
@@ -157,14 +154,18 @@ def purchase(request,id):
             p_date = request.POST['preferred_date']
             p_date = datetime.strptime(p_date,'%m/%d/%Y, %I:%M:%S %p')
             status = PurchaseStatus.objects.get(status='draft')
-            if purchase:
-                purchase.update(bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,total_amount=total)
-                approve(request,id)
-                return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()},status=201)
-            else:
+            if not purchase:
                 purchase = PurchaseOrder.objects.create(id=draft,created_date=datetime.now() ,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
                 return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase},status=201)
-        elif purchase:
+            if purchase.first().cancel:
+                return render(request,'404.html',status=400)
+            purchase.update(bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,total_amount=total)
+            if purchase[0].status.id >= 2:
+                purchase_approve(request=request,id=id)
+            if purchase[0].status.id  > 2:
+                supplier_approve(request=request,id=id)
+            return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()},status=201)
+        elif purchase :
             return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()},status=200)
         else:
             return render(request,'404.html',{},status=404)
@@ -172,17 +173,23 @@ def purchase(request,id):
         return render(request,'404.html',{},status=404)
     except ShipMethod.DoesNotExist:
         return HttpResponseRedirect(request.path_info,status=400)
-    except KeyError:
-        return HttpResponseRedirect(request.path_info,status=400)
-    except ValueError:
-        return HttpResponseRedirect(request.path_info,status=400)
+    # except KeyError:
+    #     return HttpResponseRedirect(request.path_info,status=400)
+    # except ValueError:
+    #     return HttpResponseRedirect(request.path_info,status=400)
    
 @user_passes_test(specialilst_check) 
 def cancel_purchase(request, id):
     try:
         draft = PurchaseDraft.objects.get(id=id)
         purch = draft.order
+        supplier = draft.supplier.id
+        items = draft.items.all()
         id_val = purch.status.id
+        recieve = PurchaseReceive.objects.filter(ref=draft)
+        if recieve and recieve.first().status.id >= 2:
+            messages.add_message(request,messages.ERROR,'Cant cancel the order')
+            return redirect('purchase',id=id)
         if id_val == 1:
             draft.delete()
             return redirect('purchases')
@@ -190,12 +197,13 @@ def cancel_purchase(request, id):
             url = env('BASE_URL')+'/purchases/cancel/'
             requests.post(url,json={'ref':id})
         elif id_val > 2:
-            url = env('BASE_URL')+'/supplier/cancel/'
+            url = env('BASE_URL')+f'/supplier/{supplier}/cancel/'
             requests.post(url,json={'ref':id})
-            if draft.recieve:
-                draft.recieve.cancel = True
-                draft.recieve.save()
+            if recieve:
+                recieve.first().recieve.cancel = True    
+                recieve.save()
         purch.cancel = True
+        items.delete()
         purch.save()
         return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
@@ -205,9 +213,6 @@ def cancel_purchase(request, id):
         return render(request,'404.html',{},status=404)
     except PurchaseOrder.DoesNotExist:
         return render(request,'404.html',{},status=404)
-    except AttributeError:
-        messages.add_message(request,messages.WARNING,'Cant connect to the server')
-        return redirect('purchase',id=id)
         
     
     
@@ -234,24 +239,25 @@ def purchase_approve(request,id):
         draft = PurchaseDraft.objects.get(id=id)
         items = draft.items.all()
         purch = draft.order
-        if not purch.cancel and purch.status.id==1:
-            data = {'ref':id,
-                    'items':items,
-                    'order':draft,
-                    'purchase':purch}
-            serializer = PurchasesSerializer(data)
-            # json = JSONRenderer().render(serializer.data)
-            url = env('BASE_URL')+'/purchases/approve/'
-            response = requests.post(url,json=serializer.data)
-            if response.status_code == 201:
-                purch.save()
-                messages.add_message(request,messages.SUCCESS,'Data sent for approve')
-            else:
-                messages.add_message(request,messages.ERROR,'Invalid data or format')
-            return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch},status=201)
+        if purch.status.id >= 3:
+            return redirect(purchase,id)
+        if purch.cancel:
+            messages.add_message(request,messages.WARNING,'already cancelled')
+            return redirect(purchase,id)
+        data = {'ref':id,
+                'items':items,
+                'order':draft,
+                'purchase':purch}
+        serializer = PurchasesSerializer(data)
+        # json = JSONRenderer().render(serializer.data)
+        url = env('BASE_URL')+'/purchases/approve/'
+        response = requests.post(url,json=serializer.data)
+        if response.status_code == 201:
+            purch.save()
+            messages.add_message(request,messages.SUCCESS,'Data sent for approve')
         else:
-            messages.add_message(request,messages.WARNING,'already cancelled order or order invalid at the moment')
-            return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch},status=401)
+            messages.add_message(request,messages.ERROR,'Invalid data or format')
+        return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purch},status=201)
     except PurchaseDraft.DoesNotExist:
         return render(request,'404.html',{},status=404)
     except PurchaseOrder.DoesNotExist:
@@ -267,28 +273,27 @@ def purchase_approve(request,id):
 def supplier_approve(request,id):
     try:
         draft = PurchaseDraft.objects.get(id=id)
+        supplier = draft.supplier.id
         items = draft.items.all()
         status = PurchaseStatus.objects.get(id=3)
         purch = draft.order
-        if not purch.cancel and purch.status.id==2:
-            data = {'ref':id,
-                    'items':items,
-                    'order':draft,
-                    'purchase':purch}
-            serializer = PurchasesSerializer(data)
-            purchase.status = status
-            url = env('BASE_URL')+'/supplier/approve/'
-            response = requests.post(url,json=serializer.data)
-            if response.status_code == 201:
-                purch.save()
-                messages.add_message(request,messages.SUCCESS,'Data sent for approve')
-            else:
-                messages.add_message(request,messages.ERROR,'Data not accepted')
-            return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch})
-        else:
+        if purch.cancel or purch.status.id>5 or purch.status.id<2:
             messages.add_message(request,messages.WARNING,'cancelled order or data not valid at the moment')
-            return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purch},status=401)
-            
+            return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purch},status=401)
+        data = {'ref':id,
+                'items':items,
+                'order':draft,
+                'purchase':purch}
+        serializer = PurchasesSerializer(data)
+        purchase.status = status
+        url = env('BASE_URL')+f'/supplier/{supplier}/approve/'
+        response = requests.post(url,json=serializer.data)
+        if response.status_code == 201:
+            purch.save()
+            messages.add_message(request,messages.SUCCESS,'Data sent for approve')
+        else:
+            messages.add_message(request,messages.ERROR,'Data not accepted')
+        return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purch})
     except PurchaseDraft.DoesNotExist:
         return render(request,'404.html',{},status=404)
     except PurchaseOrder.DoesNotExist:
@@ -308,15 +313,14 @@ def purchase_api(request):
         draft = PurchaseDraft.objects.get(id=ref)
         status = PurchaseStatus.objects.get(id=2)
         purchase = PurchaseOrder.objects.get(id=draft)
-        if purchase.status.id == 1:
-            purchase.status = status
-            purchase.save()
-            n = Notifications.objects.create(title='Purchase Approval',
-            message=f'Purchase order {ref} approved by Purchase team',link = reverse_lazy('purchase',args=[ref]),tag='success')
-            n.user.add(User.objects.get(user_type=3))
-            return Response({'data':'successfully updated'},status=201)
-        else:
+        if purchase.status.id != 1:
             return Response({'error':'invalid operation'},status=400)
+        purchase.status = status
+        purchase.save()
+        n = Notifications.objects.create(title='Purchase Approval',
+        message=f'Purchase order {ref} approved by Purchase team',link = reverse_lazy('purchase',args=[ref]),tag='success')
+        n.user.add(User.objects.get(user_type=3))
+        return Response({'data':'successfully updated'},status=201)
     except PurchaseDraft.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)
     except PurchaseOrder.DoesNotExist:
@@ -334,21 +338,20 @@ def supplier_api(request):
         draft = PurchaseDraft.objects.get(id=ref)
         status = PurchaseStatus.objects.get(id=status)
         purchase = PurchaseOrder.objects.get(id=draft)
-        if not purchase.cancel:
-            if int(status.id) == 6:
-                items = PurchaseItems.objects.filter(purchase=draft)
-                for i in items:
-                    i.item.on_hand += i.quantity
-                    i.item.save()
-            purchase.status = status
-            purchase.save()
-            n = Notifications.objects.create(title='Supplier Update',
-            message=f'Purchase order {ref} status update: {status.status}',link = reverse_lazy('purchase',args=[ref]),
-            tag='success')
-            n.user.add(User.objects.get(user_type=3))
-            return Response({'data':'successfully updated'},status=201)
-        else:
+        if purchase.cancel:
             return Response({'error':'order is already cancelled'},status=401)
+        if int(status.id) == 6:
+            items = PurchaseItems.objects.filter(purchase=draft)
+            for i in items:
+                i.item.on_hand += i.quantity
+                i.item.save()
+        purchase.status = status
+        purchase.save()
+        n = Notifications.objects.create(title=f'Supplier Update: {status.status.title()}',
+        message=f'Purchase order {ref} status update: {status.status}',link = reverse_lazy('purchase',args=[ref]),
+        tag='success')
+        n.user.add(User.objects.get(user_type=3))
+        return Response({'data':'successfully updated'},status=201)
     except PurchaseDraft.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)
     except PurchaseOrder.DoesNotExist:
@@ -366,27 +369,26 @@ def recieve_api(request):
         ref = data['ref']
         status = data['status']
         draft = PurchaseDraft.objects.get(id=ref)
-        if draft.order.status.id == 6 and not draft.order.cancel:
-            status = ReceiveStatus.objects.get(id=status)
-            if status.id == 1:
-                PurchaseReceive.objects.create(status=status,ref=draft)
-            elif status.id == 2:
-                delivered = datetime.now()
-                p = PurchaseReceive.objects.get(ref=draft)
-                p.delivered_date = delivered
-                p.status = status
-                p.save()    
-            elif status.id == 3:
-                p = PurchaseReceive.objects.get(ref=draft)
-                p.status = status
-                p.save()         
-            n = Notifications.objects.create(title=f'Supplier Update {status.status}',
-            message=f'Purchase order {ref} status update: {status.status}',link = reverse_lazy('recieved'),
-            tag='success')
-            n.user.add(User.objects.get(user_type=3))
-            return Response({'data':'successfully updated'},status=201)
-        else:
+        if draft.order.status.id != 6 or draft.order.cancel:
             return Response({'error':'order is either cancelled or not dispached yet'},status=401)
+        status = ReceiveStatus.objects.get(id=status)
+        if status.id == 1:
+            PurchaseReceive.objects.create(status=status,ref=draft)
+        elif status.id == 2:
+            delivered = datetime.now()
+            p = PurchaseReceive.objects.get(ref=draft)
+            p.delivered_date = delivered
+            p.status = status
+            p.save()    
+        elif status.id == 3:
+            p = PurchaseReceive.objects.get(ref=draft)
+            p.status = status
+            p.save()         
+        n = Notifications.objects.create(title=f'Supplier Update {status.status.title()}',
+        message=f'Purchase order {ref} status update: {status.status}',link = reverse_lazy('recieved'),
+        tag='success')
+        n.user.add(User.objects.get(user_type=3))
+        return Response({'data':'successfully updated'},status=201)
     except PurchaseDraft.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)
     except PurchaseOrder.DoesNotExist:

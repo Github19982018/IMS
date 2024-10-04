@@ -131,7 +131,7 @@ class PurchaseTests(TestCase):
         req.user = self.specialist
         req.w = self.warehouse.id
         res = views.purchase(req,id=self.draft.id)
-        self.assertEqual(res.status_code,201)
+        self.assertEqual(res.status_code,400)
         
     def test_cancel_purchase_fake_id(self):
         res = self.client.get(reverse('cancel_purchase',args=[7867]))
@@ -162,17 +162,18 @@ class PurchaseTests(TestCase):
     def test_purchase_approve_with_status_draft_and_order(self):
         self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,warehouse=self.warehouse,contact_phone=3242)
         res = self.client.get(reverse('purchase_approve',args=[self.draft.id]))
-        self.assertEqual(res.status_code,302)
+        self.assertEqual(res.status_code,302) #no onnection
+        self.assertEqual(res.status_code,201) #with onnection
         
     def test_purchase_approve_status_not_draft(self):
         self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=PurchaseStatus.objects.get(id=2),warehouse=self.warehouse,contact_phone=3242)
         res = self.client.get(reverse('purchase_approve',args=[self.draft.id]))
-        self.assertEqual(res.status_code,401)
+        self.assertEqual(res.status_code,201)
         
     def test_purchase_approve_cancelled(self):
         self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,cancel=True,warehouse=self.warehouse,contact_phone=3242)
         res = self.client.post(reverse('purchase_approve',args=[self.draft.id]))
-        self.assertEqual(res.status_code,401)    
+        self.assertEqual(res.status_code,302)    
         
     def test_supplier_approve_fake_id(self):
         res = self.client.get(reverse('supplier_approve',args=[7867]))
@@ -190,7 +191,7 @@ class PurchaseTests(TestCase):
     def test_supplier_approve_status_purchase_approved(self):
         self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=PurchaseStatus.objects.get(id=2),warehouse=self.warehouse,contact_phone=3242)
         res = self.client.get(reverse('supplier_approve',args=[self.draft.id]))
-        self.assertEqual(res.status_code,302)
+        self.assertEqual(res.status_code,200)
         
     def test_supplier_approve_cancelled(self):
         self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,cancel=True,warehouse=self.warehouse,contact_phone=3242)

@@ -73,7 +73,7 @@
                   <td>{{i.id.supplier}}</td>
                   <td>{{i.updated}}</td>
                   <td>
-                    {{i.total_amount}}
+                    ₹{{i.total_amount}}
                   </td>
                   <td><span class="badge {%if i.cancel %}bg-dark {%elif i.status.id == 1%}bg-secondary{%elif i.status.id == 2%}bg-info{%elif i.status.id == 3%}bg-warning{%elif i.status.id == 4%}bg-danger{%elif i.status.id == 5%}bg-success {%elif i.status.id == 6%}bg-primary{%elif i.status.id == 7 %}bg-dark{%endif%}">{%if i.cancel %}cancelled {%else%}{{i.status.status}}{%endif%}</span></td>
                 </tr>
