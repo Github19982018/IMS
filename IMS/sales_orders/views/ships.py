@@ -127,7 +127,21 @@ def cancel_ship(request,id):
     except Shipment.DoesNotExist:
         return render(request,'404.html',{})
     
-    
+def shipped(sales,shipment):
+    packages = shipment.package.all()
+    items = sales.items.all()
+    data = {'ref':shipment.id,
+            'shipment':shipment,
+            'packages':packages,
+            'items':items}
+    url = env('BASE_URL')+'/sales/ships/approve/'
+    shipment.status = ShipStatus.objects.get(id=SENT_TO_FLEET)
+    shipment.save()
+    serializer = ShipSerializer(data)
+    try:
+        requests.post(url,json=serializer.data)
+    except requests.exceptions.ConnectionError:
+        raise(ConnectionError)
 
 @user_passes_test(specialilst_check)
 def create_ship(request,id):
@@ -135,19 +149,8 @@ def create_ship(request,id):
         sales = Sales.objects.get(id=id)
         shipment = Shipment.objects.get(sales=sales)
         if sales.status.id == SALE_PACKED and shipment.status.id == READY_TO_SHIP:
-            packages = shipment.package.all()
-            items = sales.items.all()
-            data = {'ref':shipment.id,
-                    'shipment':shipment,
-                    'packages':packages,
-                    'items':items}
-            url = env('BASE_URL')+'/sales/ships/approve/'
-            shipment.status = ShipStatus.objects.get(id=SENT_TO_FLEET)
-            shipment.save()
-            serializer = ShipSerializer(data)
-            requests.post(url,json=serializer.data)
+            shipped()
             messages.add_message(request,messages.SUCCESS,'Successfully send for approval')
-            return redirect(ship,id=id)
         elif sales.status.id >= SALE_SHIPPED:
             messages.add_message(request,messages.WARNING,'Already shiped!')
         elif sales.status.id < SALE_PACKED:
@@ -159,11 +162,9 @@ def create_ship(request,id):
         return render(request,'404.html',{})
     except Shipment.DoesNotExist:
         return render(request,'404.html',{})
-    except requests.exceptions.ConnectionError:
+    except ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
         return redirect(ship,id=id)
-
-
 
 
 
@@ -187,11 +188,7 @@ def ship_api(request):
         elif int(status.id) == CUSTOMER_RECEIVED:
             sales.status = SalesStatus.objects.get(id=SALE_DELIVERED)
         else:
-            n = Notifications.objects.create(title='Sales team Update Error',
-            message=f'Ship order {data['ref']} update error ',link = reverse_lazy('get_ship',args=[data['ref']]),
-            tag='danger')
-            n.user.add(User.objects.get(user_type=3))
-            return Response({'data':'cant be updated'},status=403)
+           notification_error(data['ref'])
         draft.save()
         sales.save()
         n = Notifications.objects.create(title='Sales team Update',
@@ -205,7 +202,21 @@ def ship_api(request):
             return HttpResponse({f'error':'invalid data: status:{status}'},status=404)
         
     
+def payed(sale,status):
+    sale.status = status
+    sale.save()
+    n = Notifications.objects.create(title='Sales team Update',
+    message=f'Sales order {sale.id} status update: Payed by customer',link = reverse_lazy('get_sale',args=[sale.id]),
+    tag='success')
+    n.user.add(User.objects.get(user_type=3))
+    return Response({'data':'successfully updated'},status=201)
 
+def notification_error(id):
+    n = Notifications.objects.create(title='Sales team Update Error',
+    message=f'Sales order {id} Update error',link = reverse_lazy('get_sale',args=[id]),
+    tag='danger')
+    n.user.add(User.objects.get(user_type=3))
+    return Response({'error':'invalid status'},status=403)
 
 @login_not_required
 @api_view(['POST'])
@@ -218,19 +229,9 @@ def sales_api(request):
         sale = draft.sales
         status = SalesStatus.objects.get(id=status)
         if int(status.id) == PAYED:
-            sale.status = status
-            sale.save()
-            n = Notifications.objects.create(title='Sales team Update',
-            message=f'Sales order {data['ref']} status update: Payed by customer',link = reverse_lazy('get_sale',args=[sale.id]),
-            tag='success')
-            n.user.add(User.objects.get(user_type=3))
-            return Response({'data':'successfully updated'},status=201)
+            return payed(sale,status)
         else:
-            n = Notifications.objects.create(title='Sales team Update Error',
-            message=f'Sales order {data['ref']} Update error',link = reverse_lazy('get_sale',args=[sale.id]),
-            tag='danger')
-            n.user.add(User.objects.get(user_type=3))
-            return Response({'error':'invalid status'},status=403)
+            return notification_error(sale.id)
     except Shipment.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)
     except SalesStatus.DoesNotExist:
