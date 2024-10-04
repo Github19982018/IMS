@@ -46,9 +46,9 @@ def date_filter(date,queryset):
     year = datetime.now().year
     month = datetime.now().month
     if date=='today':
-        queryset = queryset.filter(updated__day=day,updated__month=month,updated__year=year)
+        queryset = queryset.filter(updated__day=day)
     if date == 'month':
-        queryset = queryset.filter(updated__month=month,updated__year=year)
+        queryset = queryset.filter(updated__month=month)
     elif date == 'year':
         queryset = queryset.filter(updated__year=year)
     return queryset
@@ -69,77 +69,82 @@ def get_package(request,id):
     except Package.DoesNotExist:
         return render(request,'404.html',{},status=404)
 
+def edit_package_post(request,p):
+    try:
+        customer = request.POST.get('customer')
+        ship = request.POST.get('ship_address')
+        quantity = request.POST.getlist('quantity')
+        item = request.POST.getlist('item')
+        for i in range(len(item)):
+            sale = PackageItems.objects.get(id=item[i])
+            sale.quantity = quantity[i]
+            sale.save()
+        p.customer = Customer.objects.get(id=customer)
+        p.shipping_address = ship
+        approved = package_approve(request,p.id)
+        if approved:
+            p.save()
+    except PackageItems.DoesNotExist:
+        return  render(request,'404.html',{},status=404)
+    except Customer.DoesNotExist:
+        messages.add_message(request,messages.ERROR,'Invalid customer')
+    except ConnectionError:
+        messages.add_message(request,messages.ERROR,'Cant connect to the server')
+    return render(request,'sales_orders/package.html',{'package':p,'items':p.items.all(), 'sales':p.sales})
 
 def edit_package(request,id):
     try:
         p = Package.objects.get(id=id)
         if request.method == 'POST':
-            customer = request.POST.get('customer')
-            ship = request.POST.get('ship_address')
-            quantity = request.POST.getlist('quantity')
-            item = request.POST.getlist('item')
-            for i in range(len(item)):
-                sale = PackageItems.objects.get(id=item[i])
-                sale.quantity = quantity[i]
-                sale.save()
-            try:
-                p.customer = Customer.objects.get(id=customer)
-                p.shipping_address = ship
-                approved = package_approve(request,p.id)
-                if approved:
-                    p.save()
-            except Customer.DoesNotExist:
-                messages.add_message(request,messages.ERROR,'Invalid customer')
-            except ConnectionError:
-                messages.add_message(request,messages.ERROR,'Cant connect to the server')
-            return render(request,'sales_orders/package.html',{'package':p,'items':p.items.all(), 'sales':p.sales})
+            return edit_package_post(request,p)
         else:
             ship_methods = ShipMethod.objects.all()
             customers = Customer.objects.all()
             return render(request,'sales_orders/edit_package.html',{'number':p.id,'items':p.items.all(),'package' :p,'ship_methods':ship_methods,'customers':customers,'sales':p.sales})
     except Package.DoesNotExist:
         return  render(request,'404.html',{},status=404)
-    except PackageItems.DoesNotExist:
-        return  render(request,'404.html',{},status=404)
     
+    
+def get_draft(request,sale):
+    ship_methods = ShipMethod.objects.all()
+    customers = Customer.objects.all()
+    items = SalesItems.objects.filter(sales=sale)
+    return render(request,'sales_orders/package_draft.html',{'items':items, 'sales':sale,'ship_methods':ship_methods,'customers':customers,'created_date':datetime.now()})
 
+def post_draft(request,sale):
+    customer = request.POST.get('customer')
+    ship = request.POST.get('ship_address')
+    quantity = request.POST.getlist('quantity')
+    item = request.POST.getlist('item')
+    package_list = []
+    items = Inventory.objects.filter(id__in=item)
+    if not items:
+        return render(request,'404.html',status=404)
+    p = Package.objects.create(sales=sale,customer=Customer.objects.get(id=customer),shipping_address=ship,created_at=datetime.now(),status=PackageStatus.objects.get(id=1))
+    for i in range(len(items)):
+        package_list.append(PackItems(
+            package = p,
+            item = items[i],
+            quantity = quantity[i],
+            units = items[i].units
+        ))
+    PackageItems.objects.bulk_create(package_list)
+    return render(request,'sales_orders/package.html',{'package':p,'items':p.items.all(), 'sales':sale,'created_date':datetime.now()})
     
 @user_passes_test(specialilst_check)
 def package_draft(request,id):
     try:
         sale = Sales.objects.get(id=id)
         if request.method == 'POST':
-            customer = request.POST.get('customer')
-            ship = request.POST.get('ship_address')
-            quantity = request.POST.getlist('quantity')
-            item = request.POST.getlist('item')
-            package_list = []
-            items = Inventory.objects.filter(id__in=item)
-            if items:
-                try:
-                    p = Package.objects.create(sales=sale,customer=Customer.objects.get(id=customer),shipping_address=ship,created_at=datetime.now(),status=PackageStatus.objects.get(id=1))
-                except Customer.DoesNotExist: 
-                   return HttpResponse('invalid data input')      
-                for i in range(len(items)):
-                    package_list.append(PackItems(
-                        package = p,
-                        item = items[i],
-                        quantity = quantity[i],
-                        units = items[i].units
-                    ))
-                PackageItems.objects.bulk_create(package_list)
-                return render(request,'sales_orders/package.html',{'package':p,'items':p.items.all(), 'sales':sale,'created_date':datetime.now()})
-            else:
-               return render(request,'404.html',status=404)
+           return post_draft(request,sale)
         elif sale.status.id == SALE_DRAFT:
-            ship_methods = ShipMethod.objects.all()
-            customers = Customer.objects.all()
-            items = SalesItems.objects.filter(sales=sale)
-            return render(request,'sales_orders/package_draft.html',{'items':items, 'sales':sale,'ship_methods':ship_methods,'customers':customers,'created_date':datetime.now()})
+            return get_draft(request,sale)
         else:
             return render(request,'404.html',{},status=400)
     except Sales.DoesNotExist:
         return  render(request,'404.html',{},status=404)
+    except Customer.DoesNotExist: 
+        return HttpResponse('invalid data input')      
 
 @user_passes_test(specialilst_check)
 def package(request,id):
@@ -147,41 +152,39 @@ def package(request,id):
         package = Package.objects.get(id=id)
         try:
             package_approve(request,package.id)
-        except ConnectionError:
+        except requests.exceptions.ConnectionError:
             messages.add_message(request,messages.ERROR,'Cant connect to the server')
         sales = package.sales
         items = SalesItems.objects.filter(sales=sales)
         return render(request,'sales_orders/package.html',{'package':package,'items':items, 'sales':sales})
     except Package.DoesNotExist:
         return render(request,'404.html',{})  
-    
-@user_passes_test(specialilst_check)
-def package_approve(request,id):
-    try:
-        package = Package.objects.get(id=id)
-        if package.status.id <= PACKAGE_PACKED:
-            items = package.sales.items.all()
-            data = {
-                'ref':id,
-                'items':items,
-                'package': package
-            }  
-            url = env('BASE_URL')+'/sales/packages/approve/'
-            data = PackSerializer(data)
-            res = requests.post(url,json=data.data)
-            if res.status_code == 201:
-                messages.add_message(request,messages.SUCCESS,'Package send to sales team')
-                return True
-            else:
-                messages.add_message(request,messages.ERROR,'Package cant successfully send error occured')
-            messages.add_message(request,messages.WARNING,'Invalid package')
-            return False
     except Sales.DoesNotExist:
         messages.add_message(request,messages.ERROR,'Invalid data input')
     except SalesItems.DoesNotExist:
         messages.add_message(request,messages.ERROR,'Invalid data input')
-    except requests.exceptions.ConnectionError:
-        raise(ConnectionError)
+    
+@user_passes_test(specialilst_check)
+def package_approve(request,id):
+    package = Package.objects.get(id=id)
+    if package.status.id <= PACKAGE_PACKED:
+        items = package.sales.items.all()
+        data = {
+            'ref':id,
+            'items':items,
+            'package': package
+        }  
+        url = env('BASE_URL')+'/sales/packages/approve/'
+        data = PackSerializer(data)
+        res = requests.post(url,json=data.data)
+        if res.status_code == 201:
+            messages.add_message(request,messages.SUCCESS,'Package send to sales team')
+            return True
+        else:
+            messages.add_message(request,messages.ERROR,'Package cant successfully send error occured')
+        messages.add_message(request,messages.WARNING,'Invalid package')
+        return False
+    
   
 @user_passes_test(specialilst_check)  
 def delete_package(request,id):
@@ -206,6 +209,31 @@ def delete_package(request,id):
         messages.error(request,"Cant connect to the server!")
         return redirect(get_package,id=id)
     
+def packed(package):
+    sales = package.sales
+    items = sales.items.all()
+    for i in items:
+        i.item.on_hand -= i.quantity
+        i.item.save()
+    package.status = PackageStatus.objects.get(id=PACKAGE_PACKED)
+    sales.status = SalesStatus.objects.get(id=SALE_PACKED)
+    n = Notifications.objects.create(title='Sales team Update: Packed',
+    message=f'Package {package.id} status update: Item packed',link = reverse_lazy('get_package',args=[package.id]),
+    tag='success')
+    n.user.add(User.objects.get(user_type=3))
+    package.save()
+    sales.save()
+    return Response({'data':'successfully updated'},status=201)
+    
+def ready_to_ship(package):
+    package.status = PackageStatus.objects.get(id=PACKAGE_READY_SHIP)
+    package.packed_at = datetime.now()
+    n = Notifications.objects.create(title='Sales team Update: Ready to ship',
+    message=f'Package {package.id} status update: Package ready to ship',link = reverse_lazy('get_package',args=[package.id]),
+    tag='success')
+    n.user.add(User.objects.get(user_type=3))
+    package.save()
+    return Response({'data':'successfully updated'},status=201)
 
 @login_not_required
 @api_view(["POST"])
@@ -214,30 +242,12 @@ def package_api(request):
         data =  request.data
         package = Package.objects.get(id=data['ref'])
         status = PackageStatus.objects.get(id=data['status'])
-        sales = package.sales
-        items = sales.items.all()
         if package.status.id == PACKAGE_DRAFT and status.id == PACKAGE_PACKED:
-            for i in items:
-                i.item.on_hand -= i.quantity
-                i.item.save()
-            package.status = PackageStatus.objects.get(id=PACKAGE_PACKED)
-            sales.status = SalesStatus.objects.get(id=SALE_PACKED)
-            n = Notifications.objects.create(title='Sales team Update: Packed',
-            message=f'Package {data['ref']} status update: Item packed',link = reverse_lazy('get_package',args=[data['ref']]),
-            tag='success')
-            n.user.add(User.objects.get(user_type=3))
+            return packed(package)
         elif package.status.id == PACKAGE_PACKED and status.id == PACKAGE_READY_SHIP:
-            package.status = PackageStatus.objects.get(id=PACKAGE_READY_SHIP)
-            package.packed_at = datetime.now()
-            n = Notifications.objects.create(title='Sales team Update: Ready to ship',
-            message=f'Package {data['ref']} status update: Package ready to ship',link = reverse_lazy('get_package',args=[data['ref']]),
-            tag='success')
-            n.user.add(User.objects.get(user_type=3))
+            return ready_to_ship(package)
         else:
             return Response({'error':'invalid operation'},status=400)
-        package.save()
-        sales.save()
-        return Response({'data':'successfully updated'},status=201)
     except Package.DoesNotExist:
         return Response({'error':'order does not exist'},status=404)
     except PackageStatus.DoesNotExist:
