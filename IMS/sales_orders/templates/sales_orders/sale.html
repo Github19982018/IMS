@@ -34,7 +34,7 @@
           <div class="progress-marker"></div>
         </li>
         <li class="progress-step {% if sales.status.id > 1 %}is-complete {% elif sales.status.id == 1 %}is-active {% endif %} ">
-            <a href="{%if sales.package.last%}{%url 'package' sales.package.last.id%}{%endif%}" {% if sales.status.id < 2 %}style='pointer-events:none;color:black;'{%endif%}>Awaiting packing</a>
+            <a href="{%if sales.package.last%}{%url 'get_package' sales.package.last.id%}{%endif%}" {% if sales.status.id < 2 %}style='pointer-events:none;color:black;'{%endif%}>Awaiting packing</a>
           <div class="progress-marker"></div>
         </li>
         <li class="progress-step {% if sales.status.id > 2 %}is-complete {% elif sales.status.id == 2 %}is-active {% endif %}">
@@ -142,15 +142,15 @@
                   <!-- End Table with stripped rows -->
                 <div class="row">
                 <p class="col-2">Subtotal</p>
-                <p class="col-3">$2354626</p>
+                <p class="col-3">₹{{sales.total_amount}}</p>
               </div>
                 <div class="row">
                 <p class="col-2">Shipping</p>
-                <p class="col-3">$0.00</p>
+                <p class="col-3">₹0.00</p>
               </div>
                 <div class="row">
                 <h4 class="col-2">Total</h4>
-                <h4 class="col-4">{{sales.total_amount}}</h4>
+                <h4 class="col-4">₹{{sales.total_amount}}</h4>
             </div>
             </div>
             

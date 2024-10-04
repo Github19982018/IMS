@@ -103,6 +103,8 @@ def edit_package(request,id):
             return render(request,'sales_orders/edit_package.html',{'number':p.id,'items':p.items.all(),'package' :p,'ship_methods':ship_methods,'customers':customers,'sales':p.sales})
     except Package.DoesNotExist:
         return  render(request,'404.html',{},status=404)
+    except PackageItems.DoesNotExist:
+        return  render(request,'404.html',{},status=404)
     
 
     
