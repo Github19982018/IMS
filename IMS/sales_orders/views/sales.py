@@ -74,7 +74,7 @@ def get_sales(request,id):
 
 @user_passes_test(specialilst_check)
 def draft_sales(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
         id_list =  request.POST.getlist('item') 
         items = Inventory.objects.filter(id__in=id_list)
         if items:
@@ -92,13 +92,13 @@ def draft_sales(request):
 def save_items(request):
     if request.method == 'POST':
         warehouse = Warehouse.objects.get(id=request.w)
-        sale = Sales.objects.create(warehouse=warehouse,customer=Customer.objects.first(),status=SalesStatus.objects.get(id=1))
         quantity = request.POST.getlist('quantity')
         item = request.POST.getlist('item')
         sales_list = []
         items = Inventory.objects.filter(id__in=item)
         if not items:
             return render(request,'404.html',status=404)   
+        sale = Sales.objects.create(warehouse=warehouse,customer=Customer.objects.first(),status=SalesStatus.objects.get(id=1))
         total = 0
         for i in range(len(items)):
             sales_list.append(SaleItems(
@@ -222,8 +222,7 @@ def cancel_ships(sale):
     if res.status_code != 201:
         cancel_error(id,'cant be cancelled try again later')
         raise(AssertionError)
-    sh.status = ShipStatus.objects.get(status='cancelled')
-    sh.save()
+    sh.update(cancel=True)
 
 @user_passes_test(specialilst_check)
 def sales_cancel(sale):

@@ -9,7 +9,7 @@
     <li class="active breadcrumb-item"><a href="{% url 'sale' sales.id %}">Sales Order #{{sales.id}}</a></li>
   </ol>
 </nav>
-  <form action="{% url 'sale' sales.id %}"  method="post">
+  <form action="{% url 'edit_sale' sales.id %}"  method="post">
     <section class="section">
       <div class="row">
         <div class="col-lg-12">
@@ -39,7 +39,7 @@
                     <td>{{i.item.name}}</td>
                     <td>{{i.item.sku}}</td>
                     <td id="price">{{i.price}}</td>
-                    <td>{{i.item.units}}</td>
+                    <td>{{i.units}}</td>
                     <td><input type="text" hidden name="item" value="{{i.id}}">
                       <input type="number" value={{i.quantity}} name="quantity"></td>
                     <td id="total"></td>
