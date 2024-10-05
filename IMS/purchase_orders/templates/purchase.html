@@ -77,11 +77,11 @@
           <div class="card-body">
 
             <!-- Vertical Form -->
-            <div class="col-12">
-              <label class=" col-form-label">Supplier</label>
+            <div class="col-12" id="supplier" >
+              <label class=" col-form-label ">Supplier</label>
               <div class="col-lg-6">
-                <form action="">
-                  <select class="form-select" name="supplier" id="supplier"  onchange="this.form.submit();">
+                <form action="#supplier">
+                  <select class="form-select" name="supplier"   onchange="this.form.submit();">
                   {% for i in suppliers %}
                   <option value="{{i.id}}" {% if supplier.id == i.id %}selected
                   {% endif %}>{{i.name}}</option>
