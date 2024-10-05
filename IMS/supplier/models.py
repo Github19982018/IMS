@@ -12,8 +12,9 @@ class Supplier_rating(models.Model):
     consistency = models.SmallIntegerField(choices=CHOICES)
     cost = models.SmallIntegerField(choices=CHOICES)
     def total_rating(self):
-        return (self.competency + self.commitment + self.communication +self.transaction + self.consistency + self.cost)/6
-    
+        rate =  (self.competency + self.commitment + self.communication +self.transaction + self.consistency + self.cost)/6
+        return round(rate,1)
+        
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
     contact_person = models.CharField(max_length=100)
