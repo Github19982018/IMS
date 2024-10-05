@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from sales_orders.models import Sales, SalesItems,Shipment,Package
+from sales_orders.models import Sales, PackItems,Shipment,Package
 
 from django.db.models import fields
 
@@ -11,8 +11,8 @@ class PackageSerializer(serializers.ModelSerializer):
 
 class ItemsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SalesItems
-        fields = ['item','price','quantity','units','discount']
+        model = PackItems
+        fields = ['item','quantity','units',]
         depth = 2
         
 class SaleSerializer(serializers.ModelSerializer):

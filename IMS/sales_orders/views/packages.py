@@ -84,9 +84,10 @@ def edit_package_post(request,p):
             sale.save()
         p.customer = Customer.objects.get(id=customer)
         p.shipping_address = ship
-        approved = package_approve(request,p.id)
-        if approved:
-            p.save()
+        if p.status.id > PACKAGE_DRAFT:
+            approved = package_approve(request,p.id)
+            if approved:
+                p.save()
     except PackageItems.DoesNotExist:
         return  render(request,'404.html',{},status=404)
     except Customer.DoesNotExist:
@@ -171,7 +172,7 @@ def package(request,id):
 def package_approve(request,id):
     package = Package.objects.get(id=id)
     if package.status.id <= PACKAGE_PACKED:
-        items = package.sales.items.all()
+        items = package.items.all()
         data = {
             'ref':id,
             'items':items,
