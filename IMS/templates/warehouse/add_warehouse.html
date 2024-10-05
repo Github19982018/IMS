@@ -15,7 +15,7 @@
             </li>
 
             <li class="nav-item">
-                <button class="nav-link {%if edit %}active{%endif%}" data-bs-toggle="tab" data-bs-target="#warehouse-edit">Edit warehouse</button>
+                <button class="nav-link {%if edit %}active{%endif%}" data-bs-toggle="tab" data-bs-target="#warehouse-edit">Add warehouse</button>
             </li>
 
             </ul>
@@ -62,7 +62,7 @@
                 <div class="row mb-3">
                 <label for="username" class="col-md-4 col-lg-3 col-form-label">Warehouse name</label>
                 <div class="col-md-8 col-lg-9">
-                    <input name="name" user_type="text" class="form-control" id="username" value={{form.name.value}}>
+                    <input name="name" user_type="text" class="form-control" id="username">
                 </div>
                 </div>
                 
@@ -70,27 +70,27 @@
                 <div class="row mb-3">
                     <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
                     <div class="col-md-8 col-lg-9">
-                    <input name="address" user_type="text" class="form-control" id="Address" value="{{form.address.value}}">
+                    <input name="address" user_type="text" class="form-control" id="Address" >
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Contact Person</label>
                     <div class="col-md-8 col-lg-9">
-                    <input name="contact_person" user_type="text" class="form-control" id="Phone" value="{{form.contact_person.value}}">
+                    <input name="contact_person" user_type="text" class="form-control" id="Phone">
                     </div>
                 </div>
                 <div class="row mb-3">
                     <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
                     <div class="col-md-8 col-lg-9">
-                    <input name="contact_phone" user_type="text" class="form-control" id="Phone" value="{{form.contact_phone.value}}">
+                    <input name="contact_phone" user_type="text" class="form-control" id="Phone">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <label for="Email" class="col-md-4 col-lg-3 col-form-label">Email</label>
                     <div class="col-md-8 col-lg-9">
-                    <input name="email" user_type="email" class="form-control" id="Email" value="{{form.email.value}}">
+                    <input name="email" user_type="email" class="form-control" id="Email">
                     </div>
                 </div>
 
@@ -98,7 +98,7 @@
                 {{form.errors}}
 
                 <div class="text-center">
-                    <button user_type="submit" class="btn btn-primary">Save Changes</button>
+                    <button user_type="submit" class="btn btn-primary">Save</button>
                 </div>
 
                 </form><!-- End warehouse Edit Form -->

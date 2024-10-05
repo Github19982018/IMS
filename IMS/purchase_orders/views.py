@@ -22,37 +22,34 @@ from django.db import IntegrityError
 env = environ.Env()
 environ.Env.read_env()
 
-
+def date_filter(date,queryset):
+    day = datetime.now().day
+    year = datetime.now().year
+    month = datetime.now().month
+    week = datetime.now().isocalendar()[1]
+    if date=='today':
+        queryset = queryset.filter(updated__day=day)
+    if date == 'month':
+        queryset = queryset.filter(updated__month=month)
+    elif date == 'year':
+        queryset = queryset.filter(updated__year=year)
+    elif date == 'week':
+        queryset = queryset.filter(updated__week=week)
+    return queryset
 
 # Create your views here.
 def view_purchases(request):
     date = request.GET.get('date','month')
     orderby = request.GET.get('orderby','id')
     purchases = PurchaseOrder.objects.filter(warehouse=request.w).order_by(orderby)
-    day = datetime.now().day
-    year = datetime.now().year
-    month = datetime.now().month
-    if date=='today':
-        purchases = purchases.filter(updated__day=day,updated__month=month,updated__year=year)
-    if date == 'month':
-        purchases = purchases.filter(updated__month=month,updated__year=year)
-    elif date == 'year':
-        purchases = purchases.filter(updated__year=year)
+    date_filter(date,purchases)
     return render(request,'purchases.html',{'purchases':purchases})
 
 def view_recieved(request):
     date = request.GET.get('date','month')
     orderby = request.GET.get('orderby','id')
     recieved = PurchaseReceive.objects.filter(ref__order__warehouse=request.w).order_by(orderby)
-    day = datetime.now().day
-    year = datetime.now().year
-    month = datetime.now().month
-    if date=='today':
-        recieved = recieved.filter(updated__day=day,updated__month=month,updated__year=year)
-    if date == 'month':
-        recieved = recieved.filter(updated__month=month,updated__year=year)
-    elif date == 'year':
-        recieved = recieved.filter(updated__year=year)
+    date_filter(date,recieved)
     return render(request,'recieved.html',{'recieved':recieved})
 
 # def get_purchase(request,id):
@@ -93,7 +90,7 @@ def make_purchase(request,id):
             PurchaseItems.objects.create(purchase = purchase,
                     item = i,
                     price = i.selling_price,
-                    quantity = 1,
+                    quantity = i.reorder_point,
                     units = i.units)
             return redirect(draft_purchase,id=purchase.id)
         else:
@@ -205,7 +202,6 @@ def cancel_purchase(request, id):
                 recieve.first().recieve.cancel = True    
                 recieve.save()
         purch.cancel = True
-        items.delete()
         purch.save()
         return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
