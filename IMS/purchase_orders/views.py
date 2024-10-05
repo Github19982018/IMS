@@ -30,7 +30,7 @@ def date_filter(date,queryset):
     if date=='today':
         queryset = queryset.filter(updated__day=day)
     if date == 'month':
-        queryset = queryset.filter(updated__month=month,)
+        queryset = queryset.filter(updated__month=month)
     elif date == 'year':
         queryset = queryset.filter(updated__year=year)
     elif date == 'week':
@@ -42,14 +42,14 @@ def view_purchases(request):
     date = request.GET.get('date','month')
     orderby = request.GET.get('orderby','id')
     purchases = PurchaseOrder.objects.filter(warehouse=request.w).order_by(orderby)
-    purchases = date_filter(date,purchases)
+    date_filter(date,purchases)
     return render(request,'purchases.html',{'purchases':purchases})
 
 def view_recieved(request):
     date = request.GET.get('date','month')
     orderby = request.GET.get('orderby','id')
     recieved = PurchaseReceive.objects.filter(ref__order__warehouse=request.w).order_by(orderby)
-    recieved = date_filter(date,recieved)
+    date_filter(date,recieved)
     return render(request,'recieved.html',{'recieved':recieved})
 
 # def get_purchase(request,id):
@@ -202,7 +202,6 @@ def cancel_purchase(request, id):
                 recieve.first().recieve.cancel = True    
                 recieve.save()
         purch.cancel = True
-        items.delete()
         purch.save()
         return redirect('purchase',id=id)
     except requests.exceptions.ConnectionError:
