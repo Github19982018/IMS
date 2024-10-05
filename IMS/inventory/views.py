@@ -61,7 +61,7 @@ def add_inventory(request):
         supplier = Supplier.objects.all()
         warehouses = Warehouse.objects.all()
         form = InventoryForm()
-        return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouses':warehouses})
+        return render(request,'inventory/additem.html',{'form':form,'supplier':supplier,'warehouses':warehouses})
 
 @user_passes_test(specialilst_check)
 def update_inventory(request,id):
