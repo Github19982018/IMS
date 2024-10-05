@@ -78,7 +78,7 @@ class ShipStatus(models.Model):
 class Shipment(models.Model):
     tracking_number = models.PositiveBigIntegerField(editable=False)
     created_at = models.DateTimeField(default=datetime.now)
-    sales = models.OneToOneField(to=Sales,on_delete=models.CASCADE,related_name='shipment')
+    sales = models.ForeignKey(to=Sales,on_delete=models.CASCADE,related_name='shipment')
     ship_method = models.ForeignKey(to=ShipMethod,on_delete=models.PROTECT)
     customer = models.ForeignKey(to=Customer,on_delete=models.PROTECT)
     shipment_address = models.CharField(max_length=200)
