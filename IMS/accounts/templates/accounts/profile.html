@@ -22,12 +22,12 @@
             <!-- Bordered Tabs -->
             <ul class="nav nav-tabs nav-tabs-bordered">
 
-              <li class="nav-item">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
+              <li class="nav-item"> 
+                <button class="nav-link {% if panel == 'view' %}active{%endif%}" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
               </li>
 
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Profile</button>
+                <button class="nav-link {% if panel == 'edit' %}active{%endif%}" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Profile</button>
               </li>
 <!-- 
               <li class="nav-item">
@@ -35,13 +35,13 @@
               </li> -->
 
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
+                <button class="nav-link {% if panel == 'password' %}active{%endif%}" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
               </li>
 
             </ul>
             <div class="tab-content pt-2">
 
-              <div class="tab-pane fade show active profile-overview" id="profile-overview">
+              <div class="tab-pane fade {% if panel == 'view' %}show active{%endif%} profile-overview" id="profile-overview">
                 <h5 class="card-title">Profile Details</h5>
 
                 <div class="row">
@@ -71,7 +71,7 @@
 
               </div>
 
-              <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+              <div class="tab-pane fade {% if panel == 'edit' %}show active{%endif%} profile-edit pt-3" id="profile-edit">
 
                 <!-- Profile Edit Form -->
                 <form method="post" action="{%url 'profile'%}" enctype="multipart/form-data">
@@ -183,14 +183,14 @@
 
               <!-- </div>  -->
 
-              <div class="tab-pane fade pt-3" id="profile-change-password">
+              <div class="tab-pane fade pt-3 {% if panel == 'password' %}show active{%endif%}" id="profile-change-password">
                 <!-- Change Password Form -->
                 <form method="post" action="{% url 'change_password'%}">
                     {%csrf_token%}
                   <div class="row mb-3">
                     <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Current Password</label>
                     <div class="col-md-8 col-lg-9">
-                      <input name="old_password" user_type="password" class="form-control" id="currentPassword">
+                      <input name="old_password" type="password" user_type="password" class="form-control" id="currentPassword">
                     </div>
                   </div>
 

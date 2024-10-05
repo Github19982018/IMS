@@ -67,6 +67,7 @@ def logins(request):
 
 def profile(request):
     if request.method == 'POST':
+        panel = 'edit'
         user_form = Updateform(request.POST,request.FILES, instance=request.user)
         if user_form.is_valid():
             user_form.save()
@@ -74,17 +75,17 @@ def profile(request):
             return redirect(profile)
         else:
             messages.error(request,'Error in input data')
-            print(user_form.errors)
     else:
+        panel = 'view'
         user_form = Updateform(instance=request.user)
-    return render(request,'accounts/profile.html',{'USER':request.user,'userform':user_form})
+    return render(request,'accounts/profile.html',{'USER':request.user,'userform':user_form, 'panel':panel})
 
 
 
 def change_password(request):
+    panel = 'password'
     if request.method == 'POST':
         form = PasswordChangeForm(request.user,request.POST)
-        print(form.errors)
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request,user)
@@ -95,7 +96,7 @@ def change_password(request):
     else:
         form =PasswordChangeForm(request.user)
 
-    return render(request,'accounts/profile.html',{'USER':request.user,'form':form})
+    return render(request,'accounts/profile.html',{'USER':request.user,'form':form, 'panel':panel})
 
         
         
