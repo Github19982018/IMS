@@ -15,11 +15,11 @@
             <li class="nav-item">
                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#warehouse-overview">Item</button>
             </li>
-
+        {%if employee.role == 'specialist'%}
             <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#warehouse-edit">Edit Item</button>
+                <button class="nav-link " data-bs-toggle="tab" data-bs-target="#warehouse-edit">Edit Item</button>
             </li>
-
+        {%endif%}
             </ul>
             <div class="tab-content pt-2">
 

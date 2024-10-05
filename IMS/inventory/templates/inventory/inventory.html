@@ -84,8 +84,8 @@
                   {% for i in inventory %}
                   <tr>
                     <td><input type="checkbox" name="item" id="" value="{{i.id}}" ></td>
-                    <td><img src="{%if i.photo%} {{i.photo.url}} {%endif%}" alt="{{i.name}} image " width="50" height="50"></td>
-                    <td><a class="bi bi-pen" href="{% url 'updateinventory' i.id %}">{{i.name}} </a></td>
+                    <td><a href="{% url 'inventory' i.id %}"><img src="{%if i.photo%} {{i.photo.url}} {%endif%}" alt="{{i.name}} image " width="50" height="50"></a></td>
+                    <td><a href="{% url 'updateinventory' i.id %}">{{i.name}} </a></td>
                     <td>{{i.sku}}</td>
                     <td>{{i.dimensions}}</td>
                     <td>₹{{i.purchasing_price}}</td>

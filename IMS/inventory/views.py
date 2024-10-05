@@ -65,21 +65,32 @@ def add_inventory(request):
 
 @user_passes_test(specialilst_check)
 def update_inventory(request,id):
-    i = Inventory.objects.get(pk=id)
-    if request.method == "POST":
-        f = InventoryForm(request.POST, request.FILES, instance=i)
-        if f.is_valid():
-            f.updated = datetime.now()
-            f.save()
-            return redirect(view_inventory)
+    try:
+        i = Inventory.objects.get(pk=id)
+        if request.method == "POST":
+            f = InventoryForm(request.POST, request.FILES, instance=i)
+            if f.is_valid():
+                f.updated = datetime.now()
+                f.save()
+                return redirect(view_inventory)
+            else:
+                return HttpResponseRedirect('')
         else:
-            return HttpResponseRedirect('')
-    else:
+            return inventory(request,id)
+    except Inventory.DoesNotExist:
+        return render(request,'404.html')
+    
+        
+def inventory(request,id):
+    try:
+        i = Inventory.objects.get(pk=id)
         supplier = Supplier.objects.all()
         warehouses = Warehouse.objects.all()
         form = InventoryForm(instance=i)
         return render(request,'inventory/item.html',{'form':form,'supplier':supplier,'warehouses':warehouses})
-
+    except Inventory.DoesNotExist:
+        return render(request,'404.html')
+    
 # def  add_inventory(request):
 #     # photo = models.FilePathField(unique=True,null=True,blank=True)
 #     name = request
