@@ -86,25 +86,26 @@ def dashboard(request):
     # else:
     #     p_last.updated.hour = float('inf')
     #     s_last.updated.hour = float('inf')
-    if date == 'today':
-        if purchases:
-            start = min(purchases.last().updated.hour,sales.last().updated.hour)
-            end = max(purchases[0].updated.hour,sales[0].updated.hour)
+    if purchases:
+       
+        if date == 'today':
+                start = min(purchases.last().updated.hour,sales.last().updated.hour)
+                end = max(purchases[0].updated.hour,sales[0].updated.hour)
+                report_date = [i for i in range(start,end+1,1)]
+        elif date=='month':
+            start = min(purchases.last().updated.day,sales.last().updated.day)
+            end = max(purchases[0].updated.day,sales[0].updated.day)
             report_date = [i for i in range(start,end+1,1)]
-        else:
-            report_date =[0]
-    elif date=='month':
-        start = min(purchases.last().updated.day,sales.last().updated.day)
-        end = max(purchases[0].updated.day,sales[0].updated.day)
-        report_date = [i for i in range(start,end+1,1)]
-    elif date=='year':
-        start = min(purchases.last().updated.month,sales.last().updated.month)
-        end = max(purchases[0].updated.month,sales[0].updated.month)
-        report_date = [i for i in range(start,end+1,1)]
-    elif date=='week':
-        start = min(purchases.last().updated.weekday(),sales.last().updated.weekday())
-        end = max(purchases[0].updated.weekday(),sales[0].updated.weekday())
-        report_date = [i for i in range(start,end+1,1)]
+        elif date=='year':
+            start = min(purchases.last().updated.month,sales.last().updated.month)
+            end = max(purchases[0].updated.month,sales[0].updated.month)
+            report_date = [i for i in range(start,end+1,1)]
+        elif date=='week':
+            start = min(purchases.last().updated.weekday(),sales.last().updated.weekday())
+            end = max(purchases[0].updated.weekday(),sales[0].updated.weekday())
+            report_date = [i for i in range(start,end+1,1)]
+    else:
+         report_date =[0]
     # total_sales = [i for i in range(3,56,2)]
     report_date = json.dumps(report_date)
     recent_sales = sales[:4]
