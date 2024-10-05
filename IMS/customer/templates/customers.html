@@ -12,9 +12,9 @@
                 Name
               </th>
               <th>Address</th>
-              <th>Since</th>
               <th>Phone</th>
-              <th>Rating</th>
+              <th>Company</th>
+              <th>Email</th>
             </tr>
           </thead>
           <tbody>
@@ -22,9 +22,9 @@
           <tr> 
           <td><a href={{i.id}}>{{i.name}}</a></td>
           <td>{{i.address}}</td>
-          <td>{{i.since}}</td>
           <td>{{i.phone}}</td>
-          <td>{{i.rating.total_rating}}</td>
+          <td>{{i.company}}</td>
+          <td>{{i.email}}</td>
         </tr>
           {% endfor %}
           </tbody>

@@ -15,6 +15,10 @@
                 <h5 class="card-title"><b>{{customer.name}}</b></h5>
 
                   <div class="row">
+                    <div class="col-4 label ">Company:</div>
+                    <div class="col-8"><b>{{customer.company}}</b></div>
+                  </div>
+                  <div class="row">
                     <div class="col-4 label ">Address:</div>
                     <div class="col-8"><b>{{customer.address}}</b></div>
                   </div>
@@ -23,12 +27,8 @@
                     <div class="col-8"><b>{{customer.phone}}</b></div>
                   </div>
                   <div class="row">
-                    <div class="col-4 label ">Contact person:</div>
-                    <div class="col-8"><b>{{customer.contact_person}}</b></div>
-                  </div>
-                  <div class="row">
-                    <div class="col-4 label ">Partners since:</div>
-                    <div class="col-8"><b>{{customer.since}}</b></div>
+                    <div class="col-4 label ">Contact Email:</div>
+                    <div class="col-8"><b>{{customer.email}}</b></div>
                   </div>
             </div>
           </div>
@@ -50,7 +50,7 @@
                         <tbody>
                           {% for i in orders %}
                           <tr>
-                            <td><a href="#">{{i.id}}</a></td>
+                            <td><a href="{%url 'sale' i.id%}">{{i.id}}</a></td>
                             <td>{{i.created_date}}</td>
                             <td>₹{{i.total_amount}}</td>
                             <td>{{i.status}}</td>
@@ -61,7 +61,7 @@
                 </div>
             </div>
       </div>
-  {%if employee.role == 'specialist'%}
+  <!-- {%if employee.role == 'specialist'%}
       <section>
         <h5><b>customer Evaluation</b></h5>
         <div class="card p-2">
@@ -134,5 +134,5 @@
                 </form>
             </div>
           </section>
-  {%endif%}
+  {%endif%} -->
   {% endblock %}
