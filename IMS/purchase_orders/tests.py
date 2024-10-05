@@ -162,7 +162,7 @@ class PurchaseTests(TestCase):
     def test_purchase_approve_with_status_draft_and_order(self):
         self.order = PurchaseOrder.objects.create(id=self.draft,total_amount=2343,created_date=datetime.datetime.now(),ship_method=ShipMethod.objects.first(),status=self.purchase_status,warehouse=self.warehouse,contact_phone=3242)
         res = self.client.get(reverse('purchase_approve',args=[self.draft.id]))
-        self.assertEqual(res.status_code,302) #no onnection
+        # self.assertEqual(res.status_code,302) #no onnection
         self.assertEqual(res.status_code,201) #with onnection
         
     def test_purchase_approve_status_not_draft(self):
