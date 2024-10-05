@@ -161,8 +161,8 @@
                       <td>{{i.item.name}}</td>
                       <td>{{i.item.sku}}</td>
                       <td>{{i.item.weight}}</td>
-                      <td>{{i.item.dimension}}</td>
-                      <td>{{i.units}}</td>
+                      <td>{{i.item.dimensions}}</td>
+                      <td>{{i.item.units}}</td>
                       <td>{{i.quantity}}</td>
                     </tr>
                       {% endfor %}
@@ -185,6 +185,7 @@
 <script src="{% static 'assets/js/ship.js' %}"
     defer 
     data-status="{{ship.status.status}}"
-    data-id="{{ship.status.id}}">
+    data-id="{{ship.status.id}}"
+    data-cancel="{{purchase.cancel}}>
   </script>
 {% endblock %}

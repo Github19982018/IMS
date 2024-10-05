@@ -85,6 +85,7 @@ class Shipment(models.Model):
     shipment_date = models.DateTimeField(null=True)
     status = models.ForeignKey(null=True,to=ShipStatus,on_delete=models.PROTECT)
     updated = models.DateTimeField(default=datetime.now)
+    cancel = models.BooleanField(default=False)
     
     def save(self, *args, **kwargs):
         if not self.id:

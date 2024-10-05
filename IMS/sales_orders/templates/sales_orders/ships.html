@@ -76,7 +76,7 @@
                   <td>
                     <a href="{%url 'get_sale' i.sales.id %}" class="text-primary">{{i.sales.id}}</a>
                   </td>
-                  <td><span class="badge {%if i.status.id == 0%}bg-info{%elif i.status.id == 1%}bg-secondary{%elif i.status.id == 2%}bg-primary{%elif i.status.id == 3%}bg-success{%elif i.status.id == 4%}bg-danger{%elif i.status.id == 5%}bg-dark{%endif%}">{{i.status.status}}</span></td>
+                  <td><span class="badge {%if i.cancel%}bg-dark{%elif i.status.id == 0%}bg-info{%elif i.status.id == 1%}bg-secondary{%elif i.status.id == 2%}bg-primary{%elif i.status.id == 3%}bg-success{%elif i.status.id == 4%}bg-danger{%elif i.status.id == 5%}bg-dark{%endif%}">{{i.status.status}}</span></td>
                 </tr>
                 {% endfor %}
                 
