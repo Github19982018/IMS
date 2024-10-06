@@ -178,7 +178,8 @@ def package_approve(request,id):
             'items':items,
             'package': package
         }  
-        url = env('BASE_URL')+'/sales/packages/approve/'
+        warehouse = request.w
+        url = env('BASE_URL')+f'{warehouse}/sales/packages/approve/'
         data = PackSerializer(data)
         res = requests.post(url,json=data.data)
         if res.status_code == 201:
@@ -199,7 +200,8 @@ def delete_package(request,id):
             messages.success(request,f"package {id} deleted successfully")
             return redirect('packages')
         elif package.status.id <= PACKAGE_READY_SHIP:
-            url = env('BASE_URL')+'/sales/packages/cancel/'
+            warehouse = request.w
+            url = env('BASE_URL')+f'{warehouse}/sales/packages/cancel/'
             requests.post(url,json={'ref':[package.id]})
             package.delete()
             messages.success(request,f"package {id} deleted successfully")

@@ -189,7 +189,8 @@ def cancel_sales(request,id):
             n.user.add(User.objects.get(user_type=3))
             return redirect('sales')
         else:
-            thread = threading.Thread(target=sales_cancel,args=[sale])
+            warehouse = request.w
+            thread = threading.Thread(target=sales_cancel,args=[sale,warehouse])
             thread.start()
             messages.info(request,f"Sales order {id} is set for cancel will be updated on completion")
             return HttpResponseRedirect(request.META['HTTP_REFERER'])
@@ -204,20 +205,20 @@ def cancel_error(id,message):
     n.user.add(User.objects.get(user_type=3))
     return
 
-def cancel_packages(sale):
+def cancel_packages(sale,warehouse):
     p = sale.package.all()
-    url = env('BASE_URL')+'/sales/packages/cancel/'
+    url = env('BASE_URL')+f'{warehouse}/sales/packages/cancel/'
     res = requests.post(url,json={'ref':list(p.values_list('id',flat=True))})
     if res.status_code != 201:
         cancel_error(id,'cant be cancelled try again later')
         raise(AssertionError)
     p.delete()
     
-def cancel_ships(sale):
+def cancel_ships(sale,warehouse):
     sh = Shipment.objects.filter(sales=sale)
     if not sh:
         return
-    url = env('BASE_URL')+'/sales/ships/cancel/'
+    url = env('BASE_URL')+ f'{warehouse}/sales/ships/cancel/'
     res = requests.post(url,json={'ref':[sh.id]})
     if res.status_code != 201:
         cancel_error(id,'cant be cancelled try again later')
@@ -225,12 +226,12 @@ def cancel_ships(sale):
     sh.update(cancel=True)
 
 @user_passes_test(specialilst_check)
-def sales_cancel(sale):
+def sales_cancel(sale,warehouse):
     try:
         if sale.status.id >= SALE_SHIPPED :
             return cancel_error(id,'cant be cancelled invalid order')   
-        cancel_packages(sale)
-        cancel_ships(sale)
+        cancel_packages(sale,warehouse)
+        cancel_ships(sale,warehouse)
         if sale.status > SALE_PACKED:
             items = sale.items.all()
             for i in items:

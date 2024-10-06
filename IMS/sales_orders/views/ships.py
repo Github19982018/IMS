@@ -121,7 +121,8 @@ def cancel_ship(request,id):
         sh = Shipment.objects.get(id=id)
         if sh.status.id < CUSTOMER_RECEIVED and not sh.cancel:
             sh.status = ShipStatus.objects.get(status='cancelled')
-            url = env('BASE_URL')+'/sales/ships/cancel/'
+            warehouse = request.w
+            url = env('BASE_URL')+f'{warehouse}/sales/ships/cancel/'
             requests.post(url,json={'ref':sh.id})
             sh.sales.status = SalesStatus.objects.get(id=SALE_PACKED)
             packages = sh.package.all()
@@ -136,14 +137,14 @@ def cancel_ship(request,id):
     except Shipment.DoesNotExist:
         return render(request,'404.html',{})
     
-def shipped(sales,shipment):
+def shipped(sales,shipment,warehouse):
     packages = shipment.package.all()
     items = sales.items.all()
     data = {'ref':shipment.id,
             'shipment':shipment,
             'packages':packages,
             'items':items}
-    url = env('BASE_URL')+'/sales/ships/approve/'
+    url = env('BASE_URL')+f'{warehouse}/sales/ships/approve/'
     shipment.status = ShipStatus.objects.get(id=SENT_TO_FLEET)
     shipment.save()
     serializer = ShipSerializer(data)
@@ -157,17 +158,18 @@ def create_ship(request,id):
     try:
         sales = Sales.objects.get(id=id)
         shipment = Shipment.objects.get(sales=sales)
+        warehouse = request.w
         if shipment.cancel: 
             messages.add_message(request,messages.SUCCESS,'cancelled order')
         elif sales.status.id == SALE_PACKED and shipment.status.id == READY_TO_SHIP:
-            shipped(sales,shipment)
+            shipped(sales,shipment,warehouse)
             messages.add_message(request,messages.SUCCESS,'Successfully send for approval')
         elif sales.status.id >= SALE_SHIPPED:
             messages.add_message(request,messages.WARNING,'Already shiped!')
         elif sales.status.id < SALE_PACKED:
             messages.add_message(request,messages.WARNING,'No packages to be shipped!')   
         elif shipment.status.id > READY_TO_SHIP:
-            shipped(sales,shipment)
+            shipped(sales,shipment,warehouse)
             messages.add_message(request,messages.WARNING,'Sent shipment for update')   
         return redirect(ship,id=id)
     except Sales.DoesNotExist:

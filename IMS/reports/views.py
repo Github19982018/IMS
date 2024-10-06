@@ -6,7 +6,11 @@ from sales_orders.models import SalesItems,Sales,SalesStatus,Shipment,Package,Pa
 from inventory.models import Inventory
 from customer.models import Customer
 from supplier.models import Supplier
+from django.db import connection
 from core.utils import manager_check,user_passes_test
+
+from django.db import connection
+cursor = connection.cursor()
 
 def reports(request):
     return render(request,'reports.html',{})
@@ -32,6 +36,8 @@ def sales(request):
 
 @user_passes_test(manager_check)
 def inventory(request):
+    cursor.execute( """select sum(quantity) from purchase_orders_purchaseitems pi join purchase_orders_purchasedraft pd on pi.purchase_id=pd.id join purchase_orders_purchaseorder po on pd.id=po.id_id where po.status_id=6 and po.cancel=false and po.warehouse_id=%s; """,(request.w,))
+    ((to_receive,),) = cursor.fetchall()
     # inventory = Inventory.objects.values('name').filter(purchase__order__status=1).annotate(ordered=Sum('on_hand')) 
     # return render(request,'report_inventory.html',{'inventory':inventory})
     return render(request,'404.html',{'inventory':inventory})

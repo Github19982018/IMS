@@ -103,10 +103,10 @@ def make_purchase(request,id):
 def draft_purchase(request,id):
     try:
         purchase = PurchaseDraft.objects.get(id=id)
-        draft = PurchaseItems.objects.filter(purchase=id)
+        items = PurchaseItems.objects.filter(purchase=id)
         order = PurchaseOrder.objects.filter(id=purchase) 
         if request.method == 'POST':
-            if not draft or (order and (order.first().cancel or order.first().status.id>=6)):
+            if not items or (order and (order.first().cancel or order.first().status.id>=6)):
                 return HttpResponseRedirect(request.path_info)
             quantity = request.POST.getlist('quantity')
             item = request.POST.getlist('item')
@@ -116,20 +116,20 @@ def draft_purchase(request,id):
                 sale.save()
             return HttpResponseRedirect(request.path_info)
         suppliers = Supplier.objects.all()
-        if not draft or (order and (order.first().cancel or order.first().status.id>=6)):
+        if not items or (order and (order.first().cancel or order.first().status.id>=6)):
             return render(request,'404.html',{},status=404)
         ship_method = ShipMethod.objects.all()
         supplier = ''
         s = request.GET.get('supplier')
         if s:
             supplier = Supplier.objects.get(id=s)
-        elif draft.first().item.preferred_supplier:
-            supplier = draft.first().item.preferred_supplier
+        elif items.first().item.preferred_supplier:
+            supplier = items.first().item.preferred_supplier
         else:
             supplier = suppliers.first()
         purchase.supplier = supplier
         purchase.save()
-        return render(request,'purchase.html',{'number':id,'items':draft,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
+        return render(request,'purchase.html',{'number':id,'items':items,'suppliers':suppliers,'ship_method':ship_method,'supplier':supplier,'date':datetime.today()})
     except KeyError:
         return render(request,'404.html',{})
     except PurchaseDraft.DoesNotExist:
@@ -183,7 +183,6 @@ def cancel_purchase(request, id):
         draft = PurchaseDraft.objects.get(id=id)
         purch = draft.order
         supplier = draft.supplier.id
-        items = draft.items.all()
         id_val = purch.status.id
         recieve = PurchaseReceive.objects.filter(ref=draft)
         if recieve and recieve.first().status.id >= 2:
@@ -193,11 +192,12 @@ def cancel_purchase(request, id):
             draft.delete()
             return redirect('purchases')
         elif id_val == 2:
-            url = env('BASE_URL')+'/purchases/cancel/'
+            warehouse = request.w
+            url = env('BASE_URL')+f'{warehouse}/purchases/cancel/'
             requests.post(url,json={'ref':id})
         elif id_val > 2:
             url = env('BASE_URL')+f'/supplier/{supplier}/cancel/'
-            requests.post(url,json={'ref':id})
+            requests.post(url,json={'ref':id,'warehouse':request.w})
             if recieve:
                 recieve.first().recieve.cancel = True    
                 recieve.save()
@@ -248,7 +248,8 @@ def purchase_approve(request,id):
                 'purchase':purch}
         serializer = PurchasesSerializer(data)
         # json = JSONRenderer().render(serializer.data)
-        url = env('BASE_URL')+'/purchases/approve/'
+        warehouse = request.w
+        url = env('BASE_URL')+f'{warehouse}/purchases/approve/'
         response = requests.post(url,json=serializer.data)
         if response.status_code == 201:
             purch.save()
