@@ -41,7 +41,7 @@
                     <td id="price">{{i.selling_price}}</td>
                     <td>{{i.units}}</td>
                     <td><input type="text" hidden name="item" value="{{i.id}}">
-                      <input type="number" value="1" name="quantity"></td>
+                      <input type="number" value="1" min="1" max="{{i.on_hand}}" name="quantity"></td>
                     <td id="total"></td>
                     </tr>
                     {% endfor %}

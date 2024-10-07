@@ -87,36 +87,46 @@ def draft_sales(request):
             return redirect('inventories')
     else:
         return render(request,'404.html',status=405)
+    
+def create_sales_items(sale,items,quantity):
+    sales_list = []
+    total = 0
+    for i in range(len(items)):
+        sales_list.append(SaleItems(
+            sales = sale,
+            item = items[i],
+            price = items[i].selling_price,
+            quantity = quantity[i],
+            units = items[i].units
+        ))
+        if 0 > quantity[i] > items[i].on_hand:
+            raise(ValueError)
+        total += float(quantity[i])*float(items[i].selling_price)
+    return sales_list,total
+
 
 @user_passes_test(specialilst_check)
 def save_items(request):
-    if request.method == 'POST':
+    try:
+        if request.method != 'POST':
+            return render(request,'404.html',status=405)
         warehouse = Warehouse.objects.get(id=request.w)
         quantity = request.POST.getlist('quantity')
         item = request.POST.getlist('item')
-        sales_list = []
         items = Inventory.objects.filter(id__in=item)
         if not items:
             return render(request,'404.html',status=404)   
         sale = Sales.objects.create(warehouse=warehouse,customer=Customer.objects.first(),status=SalesStatus.objects.get(id=1))
-        total = 0
-        for i in range(len(items)):
-            sales_list.append(SaleItems(
-                sales = sale,
-                item = items[i],
-                price = items[i].selling_price,
-                quantity = quantity[i],
-                units = items[i].units
-            ))
-            total += float(quantity[i])*float(items[i].selling_price)
+        sales_list,total = create_sales_items(sale,items,quantity)
         sale.status = SalesStatus.objects.get(status='draft')
         sale.total_amount = total
-        sale.save()
         draft = SalesItems.objects.bulk_create(sales_list)
+        sale.save()
         # return sales(request,sale.id)
         return sales(request=request,id=sale.id)
-    else:
-        return render(request,'404.html',status=405)
+    except ValueError:
+        messages.add_message(request,messages.WARNING,'invalid value')
+        return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
         

@@ -84,7 +84,7 @@
                      <td>{{i.units}}</td>
                     <!-- <td>{{i.quantity}}</td>  -->
                     <td><input type="text" hidden name="item" value="{{i.item.id}}">
-                      <input type="number" value="{{i.quantity}}" name="quantity"></td>
+                      <input type="number" min="1" max="{{i.item.on_hand}}" value="{{i.quantity}}" name="quantity"></td>
                     </tr>
                     {% endfor %}
                 </tbody>
