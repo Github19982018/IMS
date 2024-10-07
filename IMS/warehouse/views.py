@@ -31,7 +31,10 @@ def add_warehouse(request):
 
 @user_passes_test(manager_check)
 def update_warehouse(request,id):
-    i = Warehouse.objects.get(pk=id)
+    try:
+        i = Warehouse.objects.get(pk=id)
+    except Warehouse.DoesNotExist:
+        return render(request,'404.html',status=404)
     edit = False
     if request.method == "POST":
         form = WarehouseForm(request.POST,instance=i)

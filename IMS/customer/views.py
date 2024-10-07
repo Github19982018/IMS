@@ -11,11 +11,17 @@ def view_customers(request):
     return render(request,'customers.html',{'customers':customers})
 
 def get_customer(request,id):
-    customer = Customer.objects.get(id=id)
+    try:
+        customer = Customer.objects.get(id=id)
+    except Customer.DoesNotExist:
+        return render(request,'404.html',status=404)
     orders = Sales.objects.filter(customer=customer)[:4]
     return render(request,'Customer.html',{'customer':customer,'orders':orders})
     
 def customer_orders(request,id):
-    customer = Customer.objects.get(id=id)
+    try:
+        customer = Customer.objects.get(id=id)
+    except Customer.DoesNotExist:
+        return render(request,'404.html',status=404)
     orders = Sales.objects.filter(customer=customer)
     return render(request,'sales_orders/sales.html',{'sales':orders})

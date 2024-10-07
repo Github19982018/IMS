@@ -27,7 +27,10 @@ def view_suppliers(request):
     return render(request,'suppliers.html',{'suppliers':suppliers})
 
 def supplier(request,id):
-    supplier = Supplier.objects.get(id=id)
+    try:
+        supplier = Supplier.objects.get(id=id)
+    except Supplier.DoesNotExist:
+        return render(request,'404.html',status=404)
     orders = PurchaseDraft.objects.filter(supplier=supplier)[:4]
     if request.method == 'POST' and specialilst_check:
         supplier_rating(request.POST,supplier)
@@ -37,7 +40,10 @@ def supplier(request,id):
     
     
 def supplier_orders(request,id):
-    supplier = Supplier.objects.get(id=id)
+    try:
+        supplier = Supplier.objects.get(id=id)
+    except Supplier.DoesNotExist:
+        return render(request,'404.html',status=404)
     purchases = PurchaseOrder.objects.filter(id__supplier=supplier)
     return render(request,'purchases.html',{'purchases':purchases})
 

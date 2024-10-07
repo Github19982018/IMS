@@ -79,19 +79,11 @@ def dashboard(request):
     total_purchases = [int(i.total_amount) if i.total_amount is not None else None for i in purchases ]
     total_sales = [int(i.total_amount) if i.total_amount is not None else None for i in sales ]
     report_date = []
-    # global p_last,s_last
-    # if purchases.last():
-    #     p_last = purchases.last() 
-    #     s_last = sales.last()
-    # else:
-    #     p_last.updated.hour = float('inf')
-    #     s_last.updated.hour = float('inf')
-    if purchases:
-       
+    if purchases:     
         if date == 'today':
-                start = min(purchases.last().updated.hour,sales.last().updated.hour)
-                end = max(purchases[0].updated.hour,sales[0].updated.hour)
-                report_date = [i for i in range(start,end+1,1)]
+            start = min(purchases.last().updated.hour,sales.last().updated.hour)
+            end = max(purchases[0].updated.hour,sales[0].updated.hour)
+            report_date = [i for i in range(start,end+1,1)]
         elif date=='month':
             start = min(purchases.last().updated.day,sales.last().updated.day)
             end = max(purchases[0].updated.day,sales[0].updated.day)
@@ -106,13 +98,10 @@ def dashboard(request):
             report_date = [i for i in range(start,end+1,1)]
     else:
          report_date =[0]
-    # total_sales = [i for i in range(3,56,2)]
     report_date = json.dumps(report_date)
     recent_sales = sales[:4]
     top_selling = SalesItems.objects.raw("""SELECT *,(sum(quantity*price)) as amount from sales_orders_salesitems si join sales_orders_sales s on si.sales_id=s.id where s.warehouse_id=%s group by item_id ORDER BY amount desc LIMIT 5 ;""",(request.w,))
     stock = json.dumps({'Low Stock':low_stock, 'No Stock':no_stock,'In Stock':in_stock})
-    # total_purchases = json.dumps(total_purchases)
-    # stock=[43,56,22]
     sales = json.dumps({'Packed':packed,'shipped':shipped,'draft':draft})
     return render(request,'dashboard.html',{'sales_activity':{'pack':pack or 0,'ship':ship or 0,'deliver':deliver or 0},'sales':sales,
                                             'inventory':{'on_hand':on_hand or 0,'recieve':to_receive or 0,
