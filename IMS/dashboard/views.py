@@ -7,6 +7,7 @@ from django.db.models import Sum,Q
 from datetime import datetime,timedelta
 from purchase_orders.models import PurchaseOrder,PurchaseStatus,PurchaseItems,PurchaseDraft
 from django.db import connection
+from core.utils import user_passes_test,manager_check
 cursor = connection.cursor()
 
 READY_TO_SHIP = 0
@@ -43,6 +44,7 @@ def date_filter(date,queryset):
         queryset = queryset.filter(updated__week=week)
     return queryset
 # Create your views here.
+@user_passes_test(manager_check)
 def dashboard(request):
     date = request.GET.get('date','month')
     warehouse = Warehouse.objects.get(id=request.w) or Warehouse.objects.first()
