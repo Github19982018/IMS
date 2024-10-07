@@ -214,6 +214,13 @@ def delete_package(request,id):
     except requests.ConnectionError:
         messages.error(request,"Cant connect to the server!")
         return redirect(get_package,id=id)
+
+def replenish(item):
+    if item.on_hand <= item.reorder_point:
+        n = Notifications.objects.create(title='Low quantity',
+        message=f'Item {item.id} reached reorder point. Click to replinish the item',link = reverse_lazy('make_purchase',args=[item.id]),
+        tag='warning')
+        n.user.add(User.objects.get(user_type=3))
     
 def packed(package):
     sales = package.sales
@@ -221,6 +228,7 @@ def packed(package):
     for i in items:
         i.item.on_hand -= i.quantity
         i.item.save()
+        replenish(i.item.id)
     package.status = PackageStatus.objects.get(id=PACKAGE_PACKED)
     sales.status = SalesStatus.objects.get(id=SALE_PACKED)
     n = Notifications.objects.create(title='Sales team Update: Packed',
