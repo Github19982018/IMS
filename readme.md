@@ -13,5 +13,5 @@ IMS is an Inventory Management System which provides low-level stock control and
 <img src="IMS/static/assets/img/purchaseorder1.png">
 </figure>
 <h2>Notifications</figcaption>
-<img src="IMS/static/assets/img/notifications-ships.png">
+<img src="IMS/static/assets/img/notifications.png">
 </figure>
