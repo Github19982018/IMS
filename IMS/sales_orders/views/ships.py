@@ -122,7 +122,7 @@ def cancel_ship(request,id):
         if sh.status.id < CUSTOMER_RECEIVED and not sh.cancel:
             sh.status = ShipStatus.objects.get(status='cancelled')
             warehouse = request.w
-            url = env('BASE_URL')+f'{warehouse}/sales/ships/cancel/'
+            url = env('BASE_URL')+f'/{warehouse}/sales/ships/cancel/'
             requests.post(url,json={'ref':sh.id})
             sh.sales.status = SalesStatus.objects.get(id=SALE_PACKED)
             packages = sh.package.all()
@@ -144,7 +144,7 @@ def shipped(sales,shipment,warehouse):
             'shipment':shipment,
             'packages':packages,
             'items':items}
-    url = env('BASE_URL')+f'{warehouse}/sales/ships/approve/'
+    url = env('BASE_URL')+f'/{warehouse}/sales/ships/approve/'
     shipment.status = ShipStatus.objects.get(id=SENT_TO_FLEET)
     shipment.save()
     serializer = ShipSerializer(data)

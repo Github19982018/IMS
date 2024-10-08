@@ -217,7 +217,7 @@ def cancel_error(id,message):
 
 def cancel_packages(sale,warehouse):
     p = sale.package.all()
-    url = env('BASE_URL')+f'{warehouse}/sales/packages/cancel/'
+    url = env('BASE_URL')+f'/{warehouse}/sales/packages/cancel/'
     res = requests.post(url,json={'ref':list(p.values_list('id',flat=True))})
     if res.status_code != 201:
         cancel_error(id,'cant be cancelled try again later')
@@ -228,7 +228,7 @@ def cancel_ships(sale,warehouse):
     sh = Shipment.objects.filter(sales=sale)
     if not sh:
         return
-    url = env('BASE_URL')+ f'{warehouse}/sales/ships/cancel/'
+    url = env('BASE_URL')+ f'/{warehouse}/sales/ships/cancel/'
     res = requests.post(url,json={'ref':[sh.id]})
     if res.status_code != 201:
         cancel_error(id,'cant be cancelled try again later')
