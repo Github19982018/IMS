@@ -214,7 +214,7 @@ def cancel_purchase(request, id):
             return redirect('purchases')
         elif id_val == PURCHASE_APPROVE:
             warehouse = request.w
-            url = env('BASE_URL')+f'{warehouse}/purchases/cancel/'
+            url = env('BASE_URL')+f'/{warehouse}/purchases/cancel/'
             requests.post(url,json={'ref':id})
         elif id_val > PURCHASE_APPROVE:
             url = env('BASE_URL')+f'/supplier/{supplier}/cancel/'
@@ -270,7 +270,7 @@ def purchase_approve(request,id):
         serializer = PurchasesSerializer(data)
         # json = JSONRenderer().render(serializer.data)
         warehouse = request.w
-        url = env('BASE_URL')+f'{warehouse}/purchases/approve/'
+        url = env('BASE_URL')+f'/{warehouse}/purchases/approve/'
         response = requests.post(url,json=serializer.data)
         if response.status_code == 201:
             purch.save()

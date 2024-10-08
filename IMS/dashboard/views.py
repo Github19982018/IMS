@@ -81,7 +81,7 @@ def dashboard(request):
     total_purchases = [int(i.total_amount) if i.total_amount is not None else 0 for i in purchases ]
     total_sales = [int(i.total_amount) if i.total_amount is not None else 0 for i in sales ]
     report_date = []
-    if purchases:     
+    if purchases and sales:     
         if date == 'today':
             start = min(purchases.last().updated.hour,sales.last().updated.hour)
             end = max(purchases[0].updated.hour,sales[0].updated.hour)
@@ -97,6 +97,40 @@ def dashboard(request):
         elif date=='week':
             start = min(purchases.last().updated.weekday(),sales.last().updated.weekday())
             end = max(purchases[0].updated.weekday(),sales[0].updated.weekday())
+            report_date = [i for i in range(start,end+1,1)]
+    elif not purchases:
+        if date == 'today':
+            start = sales.last().updated.hour
+            end = sales[0].updated.hour
+            report_date = [i for i in range(start,end+1,1)]
+        elif date=='month':
+            start = sales.last().updated.day
+            end = sales[0].updated.day
+            report_date = [i for i in range(start,end+1,1)]
+        elif date=='year':
+            start = sales.last().updated.month
+            end = sales[0].updated.month
+            report_date = [i for i in range(start,end+1,1)]
+        elif date=='week':
+            start = sales.last().updated.weekday()
+            end = sales[0].updated.weekday()
+            report_date = [i for i in range(start,end+1,1)]
+    elif not sales:
+        if date == 'today':
+            start = purchases.last().updated.hour
+            end = purchases[0].updated.hour
+            report_date = [i for i in range(start,end+1,1)]
+        elif date=='month':
+            start = purchases.last().updated.day
+            end = purchases[0].updated.day
+            report_date = [i for i in range(start,end+1,1)]
+        elif date=='year':
+            start = purchases.last().updated.month
+            end = purchases[0].updated.month
+            report_date = [i for i in range(start,end+1,1)]
+        elif date=='week':
+            start = purchases.last().updated.weekday()
+            end = purchases[0].updated.weekday()
             report_date = [i for i in range(start,end+1,1)]
     else:
          report_date =[0]
