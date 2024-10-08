@@ -78,8 +78,8 @@ def dashboard(request):
     sales=date_filter(date,sales)
     purchases = PurchaseOrder.objects.filter(warehouse=warehouse).order_by('-updated')
     purchases=date_filter(date,purchases)
-    total_purchases = [int(i.total_amount) if i.total_amount is not None else None for i in purchases ]
-    total_sales = [int(i.total_amount) if i.total_amount is not None else None for i in sales ]
+    total_purchases = [int(i.total_amount) if i.total_amount is not None else 0 for i in purchases ]
+    total_sales = [int(i.total_amount) if i.total_amount is not None else 0 for i in sales ]
     report_date = []
     if purchases:     
         if date == 'today':

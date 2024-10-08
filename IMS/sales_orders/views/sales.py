@@ -99,7 +99,7 @@ def create_sales_items(sale,items,quantity):
             quantity = quantity[i],
             units = items[i].units
         ))
-        if 0 > quantity[i] > items[i].on_hand:
+        if 0 > int(quantity[i]) > items[i].on_hand:
             raise(ValueError)
         total += float(quantity[i])*float(items[i].selling_price)
     return sales_list,total

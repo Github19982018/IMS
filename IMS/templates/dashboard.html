@@ -410,15 +410,26 @@
                 data-purchases="{{total_purchases|safe}}"
                 data-x="{{reports_y|safe}}">
                   const data = document.currentScript.dataset;
-                  const sales=data.data
-                  const purchases=data.purchases
+                  const sales=JSON.parse(data.data) 
+                  const purchases=JSON.parse(data.purchases) 
                   const x = JSON.parse(data.x)
-                  console.log(x)
+                  console.log(sales,purchases,x)
                   document.addEventListener("DOMContentLoaded", () => {
                     echarts.init(document.querySelector("#reports")).setOption({
   xAxis: {
     data: x
   },
+  title: {text:'Sales and Purchases'},
+  tooltip:{
+    trigger: 'axis'
+  },
+  toolbox:{
+    feature:{
+      saveAsImage: {}
+    }
+  }
+
+  ,
   legend: {
           top: '5%',
           left: 'center',
@@ -429,16 +440,16 @@
   
   series: [
     {
+      name: 'Sales',
       data: sales,
       type: 'line',
-      stack: 'x',
-      areaStyle: {}
+      stack: 'total',
     },
     {
+      name:'Purchases',
       data: purchases,
       type: 'line',
-      stack: 'x',
-      areaStyle: {}
+      stack: 'total',
     }
   ]
 });

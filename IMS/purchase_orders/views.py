@@ -113,7 +113,8 @@ def draft_purchase(request,id):
             for i in range(len(item)):
                 sale = PurchaseItems.objects.get(id=item[i])
                 sale.quantity = quantity[i]
-                sale.save()
+                if int(quantity[i]) > 0:
+                    sale.save()
             return HttpResponseRedirect(request.path_info)
         suppliers = Supplier.objects.all()
         if not items or (order and (order.first().cancel or order.first().status.id>=6)):
@@ -163,7 +164,7 @@ def purchase(request,id):
                 purchase_approve(request=request,id=id)
             if purchase[0].status.id  > 2:
                 supplier_approve(request=request,id=id)
-            return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()},status=201)
+            return redirect('purchase',id=id)
         elif purchase :
             return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()},status=200)
         else:

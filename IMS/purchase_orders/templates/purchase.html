@@ -42,7 +42,7 @@
                       <td>₹{{i.price}}</td>
                       <td>{{i.units}}</td>
                       <td><input type="text" hidden name="item" value="{{i.id}}">
-                        <input type="number" value="{{i.quantity}}" name="quantity" onchange="document.querySelector('#form1').submit()"></td>
+                        <input type="number" value="{{i.quantity}}" min="1" name="quantity" onchange="document.querySelector('#form1').submit()"></td>
                       <td>₹{{i.total_price}}</td>
                       </tr>
                       {% endfor %}
