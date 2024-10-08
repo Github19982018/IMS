@@ -71,9 +71,10 @@ def get_ship(request,id):
         sh = Shipment.objects.get(id=id)
         sale = sh.sales
         packages = sh.package.all()
-        items = [items.items for items in packages]
+        items = []
+        for i in packages:
+            items += i.items.all() 
         return render(request,'sales_orders/ship.html',{'number':id, 'sales':sale,'ship':sh, 'packages':packages, 'items':items})
-
     except Shipment.DoesNotExist:
         return render(request,'404.html',{})
     
@@ -84,6 +85,7 @@ def ship_object_create(sale,packages):
     sh = Shipment.objects.create(status=status, sales=sale,tracking_number=track,ship_method=sale.ship_method,customer=sale.customer,shipment_address=sale.ship_address)
     # ship.sales.add(sales)
     packages.update(ship=sh)
+    return sh
 
 def ship(request,id):
     try:
@@ -98,9 +100,8 @@ def ship(request,id):
                     if sh.cancel or sh.status.id == SHIP_CANCELLED: 
                         ship_object_create(sale,packages)
                 else:            
-                    ship_object_create(sale,packages)
-                items = sale.items.all()
-                return render(request,'sales_orders/ship.html',{'number':id, 'sales':sale,'ship':sh, 'packages':packages, 'items':items})
+                    sh = ship_object_create(sale,packages)
+                return redirect('get_ship',sh.id)
         # items = sales.items
         if request.method == "GET":
             if shiplist:
@@ -137,16 +138,17 @@ def cancel_ship(request,id):
     except Shipment.DoesNotExist:
         return render(request,'404.html',{})
     
-def shipped(sales,shipment,warehouse):
+def shipped(shipment,warehouse):
     packages = shipment.package.all()
-    items = sales.items.all()
+    items = shipment.sales.items.all()
     data = {'ref':shipment.id,
             'shipment':shipment,
             'packages':packages,
             'items':items}
     url = env('BASE_URL')+f'/{warehouse}/sales/ships/approve/'
-    shipment.status = ShipStatus.objects.get(id=SENT_TO_FLEET)
-    shipment.save()
+    if shipment.status.id <= READY_TO_SHIP:
+        shipment.status = ShipStatus.objects.get(id=SENT_TO_FLEET)
+        shipment.save()
     serializer = ShipSerializer(data)
     try:
         requests.post(url,json=serializer.data)
@@ -161,17 +163,18 @@ def create_ship(request,id):
         warehouse = request.w
         if shipment.cancel: 
             messages.add_message(request,messages.SUCCESS,'cancelled order')
-        elif sales.status.id == SALE_PACKED and shipment.status.id == READY_TO_SHIP:
-            shipped(sales,shipment,warehouse)
-            messages.add_message(request,messages.SUCCESS,'Successfully send for approval')
+        elif sales.status.id == SALE_PACKED:
+            if shipment.status.id == READY_TO_SHIP:
+                shipped(shipment,warehouse)
+                messages.add_message(request,messages.SUCCESS,'Successfully send for approval')
+            elif shipment.status.id > READY_TO_SHIP:
+                shipped(shipment,warehouse)
+                messages.add_message(request,messages.WARNING,'Sent shipment for update')   
         elif sales.status.id >= SALE_SHIPPED:
             messages.add_message(request,messages.WARNING,'Already shiped!')
         elif sales.status.id < SALE_PACKED:
             messages.add_message(request,messages.WARNING,'No packages to be shipped!')   
-        elif shipment.status.id > READY_TO_SHIP:
-            shipped(sales,shipment,warehouse)
-            messages.add_message(request,messages.WARNING,'Sent shipment for update')   
-        return redirect(ship,id=id)
+        return redirect('get_ship',id=id)
     except Sales.DoesNotExist:
         return render(request,'404.html',{})
     except Shipment.DoesNotExist:
@@ -244,7 +247,7 @@ def sales_api(request):
         status = data['status']
         draft = Shipment.objects.get(id=id)
         sale = draft.sales
-        if int(status.id) == PAYED:
+        if int(status) == PAYED:
             return payed(sale)
         else:
             return notification_error(sale.id)

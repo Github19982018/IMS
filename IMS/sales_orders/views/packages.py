@@ -94,7 +94,7 @@ def edit_package_post(request,p):
         messages.add_message(request,messages.ERROR,'Invalid customer')
     except ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
-    return render(request,'sales_orders/package.html',{'package':p,'items':p.items.all(), 'sales':p.sales})
+    return redirect('get_package',id=p.id)
 
 def edit_package(request,id):
     try:
@@ -133,7 +133,7 @@ def post_draft(request,sale):
             units = items[i].units
         ))
     PackageItems.objects.bulk_create(package_list)
-    return render(request,'sales_orders/package.html',{'package':p,'items':p.items.all(), 'sales':sale,'created_date':datetime.now()})
+    return redirect('get_package',p.id)
     
 @user_passes_test(specialilst_check)
 def package_draft(request,id):
@@ -158,15 +158,9 @@ def package(request,id):
             package_approve(request,package.id)
         except requests.exceptions.ConnectionError:
             messages.add_message(request,messages.ERROR,'Cant connect to the server')
-        sales = package.sales
-        items = SalesItems.objects.filter(sales=sales)
-        return render(request,'sales_orders/package.html',{'package':package,'items':items, 'sales':sales})
+        return redirect('get_package',package.id,permanent=True)
     except Package.DoesNotExist:
         return render(request,'404.html',{})  
-    except Sales.DoesNotExist:
-        messages.add_message(request,messages.ERROR,'Invalid data input')
-    except SalesItems.DoesNotExist:
-        messages.add_message(request,messages.ERROR,'Invalid data input')
     
 @user_passes_test(specialilst_check)
 def package_approve(request,id):
@@ -201,7 +195,7 @@ def delete_package(request,id):
             return redirect('packages')
         elif package.status.id <= PACKAGE_READY_SHIP:
             warehouse = request.w
-            url = env('BASE_URL')+f'/{warehouse}/sales/packages/cancel/'
+            url = env('BASE_URL')+f'{warehouse}/sales/packages/cancel/'
             requests.post(url,json={'ref':[package.id]})
             package.delete()
             messages.success(request,f"package {id} deleted successfully")
@@ -228,7 +222,7 @@ def packed(package):
     for i in items:
         i.item.on_hand -= i.quantity
         i.item.save()
-        replenish(i.item.id)
+        replenish(i.item)
     package.status = PackageStatus.objects.get(id=PACKAGE_PACKED)
     sales.status = SalesStatus.objects.get(id=SALE_PACKED)
     n = Notifications.objects.create(title='Sales team Update: Packed',

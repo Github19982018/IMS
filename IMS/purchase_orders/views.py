@@ -52,10 +52,15 @@ def view_recieved(request):
     date_filter(date,recieved)
     return render(request,'recieved.html',{'recieved':recieved})
 
-# def get_purchase(request,id):
-#     draft = Purchase_items.objects.get(pk=id)
-#     purchase = Purchase.objects.get(id=draft)
-#     return render(request,'purchase_next.html',{'number':id,'items':[draft], 'purchase':purchase})
+def get_purchase(request,id):
+    try:
+        draft = PurchaseDraft.objects.get(id=id)
+        items = PurchaseItems.objects.filter(purchase=draft)
+        purchase = PurchaseOrder.objects.get(id=draft)
+        return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase})
+    except PurchaseDraft.DoesNotExist:
+        return render(request,'404.html',{},status=404)
+        
 
 # making purchase from inventory
 # @user_passes_test(specialilst_check)
@@ -156,7 +161,7 @@ def purchase(request,id):
             status = PurchaseStatus.objects.get(status='draft')
             if not purchase:
                 purchase = PurchaseOrder.objects.create(id=draft,created_date=datetime.now() ,warehouse=Warehouse.objects.get(id=request.w),bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,status=status,total_amount=total)
-                return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase},status=201)
+                return redirect('get_purchase',id=draft.id)
             if purchase.first().cancel:
                 return render(request,'404.html',status=400)
             purchase.update(bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,total_amount=total)
@@ -164,9 +169,9 @@ def purchase(request,id):
                 purchase_approve(request=request,id=id)
             if purchase[0].status.id  > 2:
                 supplier_approve(request=request,id=id)
-            return redirect('purchase',id=id)
+            return redirect('get_purchase',id=id)
         elif purchase :
-            return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purchase.first()},status=200)
+            return redirect('get_purchase',id=draft.id)
         else:
             return render(request,'404.html',{},status=404)
     except PurchaseDraft.DoesNotExist:
@@ -188,7 +193,7 @@ def cancel_purchase(request, id):
         recieve = PurchaseReceive.objects.filter(ref=draft)
         if recieve and recieve.first().status.id >= 2:
             messages.add_message(request,messages.ERROR,'Cant cancel the order')
-            return redirect('purchase',id=id)
+            return redirect('get_purchase',id=id)
         if id_val == 1:
             draft.delete()
             return redirect('purchases')
@@ -204,10 +209,10 @@ def cancel_purchase(request, id):
                 recieve.save()
         purch.cancel = True
         purch.save()
-        return redirect('purchase',id=id)
+        return redirect('get_purchase',id=id)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
-        return redirect('purchase',id=id)
+        return redirect('get_purchase',id=id)
     except PurchaseDraft.DoesNotExist:
         return render(request,'404.html',{},status=404)
     except PurchaseOrder.DoesNotExist:
@@ -257,7 +262,7 @@ def purchase_approve(request,id):
             messages.add_message(request,messages.SUCCESS,'Data sent for approve')
         else:
             messages.add_message(request,messages.ERROR,'Invalid data or format')
-        return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purch},status=201)
+        return redirect('get_purchase',id=id)
     except PurchaseDraft.DoesNotExist:
         return render(request,'404.html',{},status=404)
     except PurchaseOrder.DoesNotExist:
@@ -302,7 +307,7 @@ def supplier_approve(request,id):
         return render(request,'404.html',{},status=404)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
-        return redirect(purchase,id)
+        return redirect(get_purchase,id)
     
 @login_not_required
 @api_view(['POST'])

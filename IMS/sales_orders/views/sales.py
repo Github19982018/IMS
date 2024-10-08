@@ -149,7 +149,7 @@ def sales(request,id):
                 sales.status = SalesStatus.objects.get(status='draft')
             sales.warehouse = Warehouse.objects.get(id=request.w)
             sales.save()
-            return render(request,'sales_orders/sale.html',{'number':id,'items':draft, 'sales':sales})
+            return redirect('get_sale',id=sales.id)
         else: 
             sales = Sales.objects.get(id=id)
             draft = SalesItems.objects.filter(sales=sales)
@@ -171,10 +171,10 @@ def edit_sales(request,id):
             quantity = request.POST.getlist('quantity')
             item = request.POST.getlist('item')
             for i in range(len(item)):
-                sale = SalesItems.objects.get(id=item[i])
-                sale.quantity = quantity[i]
-                sale.save()
-            return sales(request,id)
+                items = SalesItems.objects.get(id=item[i])
+                items.quantity = quantity[i]
+                items.save()
+            return redirect('get_sale',id=sale.id)
         else:
             ship_method = ShipMethod.objects.all()
             customers = Customer.objects.all()
@@ -203,7 +203,7 @@ def cancel_sales(request,id):
             thread = threading.Thread(target=sales_cancel,args=[sale,warehouse])
             thread.start()
             messages.info(request,f"Sales order {id} is set for cancel will be updated on completion")
-            return HttpResponseRedirect(request.META['HTTP_REFERER'])
+            return redirect('get_sale',id=sale.id)
     except Sales.DoesNotExist:
         messages.error(request,f"sales {id} can't be cancelled invalid order")
         return render(request,'404.html',{},status=404)
@@ -220,7 +220,7 @@ def cancel_packages(sale,warehouse):
     url = env('BASE_URL')+f'/{warehouse}/sales/packages/cancel/'
     res = requests.post(url,json={'ref':list(p.values_list('id',flat=True))})
     if res.status_code != 201:
-        cancel_error(id,'cant be cancelled try again later')
+        cancel_error(sale.id,'cant be cancelled try again later')
         raise(AssertionError)
     p.delete()
     
@@ -231,15 +231,14 @@ def cancel_ships(sale,warehouse):
     url = env('BASE_URL')+ f'/{warehouse}/sales/ships/cancel/'
     res = requests.post(url,json={'ref':[sh.id]})
     if res.status_code != 201:
-        cancel_error(id,'cant be cancelled try again later')
+        cancel_error(sale.id,'cant be cancelled try again later')
         raise(AssertionError)
     sh.update(cancel=True)
 
-@user_passes_test(specialilst_check)
 def sales_cancel(sale,warehouse):
     try:
         if sale.status.id >= SALE_SHIPPED :
-            return cancel_error(id,'cant be cancelled invalid order')   
+            return cancel_error(sale.id,'cant be cancelled invalid order')   
         cancel_packages(sale,warehouse)
         cancel_ships(sale,warehouse)
         if sale.status > SALE_PACKED:
@@ -250,7 +249,7 @@ def sales_cancel(sale,warehouse):
         sale.status = SalesStatus.objects.get(status='cancelled')
         sale.save()
         n = Notifications.objects.create(title='Sales team Update: Cancel Success',
-        message=f'sales {id} cancelled',link = reverse_lazy('get_sale',args=[id]),
+        message=f'sales {sale.id} cancelled',link = reverse_lazy('get_sale',args=[sale.id]),
         tag='success')
         n.user.add(User.objects.get(user_type=3))
     except requests.ConnectionError:
