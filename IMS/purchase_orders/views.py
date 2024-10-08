@@ -22,6 +22,21 @@ from django.db import IntegrityError
 env = environ.Env()
 environ.Env.read_env()
 
+
+
+DRAFT = 1
+PURCHASE_APPROVE = 2
+SUPPLIER_APPROVE = 3
+ORDER_PROCESSED = 4
+SHIPPED = 5
+DISPATCHED = 6
+RECIEVE_DRAFT = 1
+IN_TRANSIT = 2
+PAYED = 3
+
+
+
+
 def date_filter(date,queryset):
     day = datetime.now().day
     year = datetime.now().year
@@ -111,7 +126,7 @@ def draft_purchase(request,id):
         items = PurchaseItems.objects.filter(purchase=id)
         order = PurchaseOrder.objects.filter(id=purchase) 
         if request.method == 'POST':
-            if not items or (order and (order.first().cancel or order.first().status.id>=6)):
+            if not items or (order and (order.first().cancel or order.first().status.id>=DISPATCHED)):
                 return HttpResponseRedirect(request.path_info)
             quantity = request.POST.getlist('quantity')
             item = request.POST.getlist('item')
@@ -122,7 +137,7 @@ def draft_purchase(request,id):
                     sale.save()
             return HttpResponseRedirect(request.path_info)
         suppliers = Supplier.objects.all()
-        if not items or (order and (order.first().cancel or order.first().status.id>=6)):
+        if not items or (order and (order.first().cancel or order.first().status.id>=DISPATCHED)):
             return render(request,'404.html',{},status=404)
         ship_method = ShipMethod.objects.all()
         supplier = ''
@@ -165,9 +180,9 @@ def purchase(request,id):
             if purchase.first().cancel:
                 return render(request,'404.html',status=400)
             purchase.update(bill_address=bill,preferred_shipping_date=p_date ,ship_address=ship,contact_phone=supplier.phone,ship_method=ship_method,total_amount=total)
-            if purchase[0].status.id >= 2:
+            if purchase[0].status.id >= PURCHASE_APPROVE:
                 purchase_approve(request=request,id=id)
-            if purchase[0].status.id  > 2:
+            if purchase[0].status.id  > PURCHASE_APPROVE:
                 supplier_approve(request=request,id=id)
             return redirect('get_purchase',id=id)
         elif purchase :
@@ -191,17 +206,17 @@ def cancel_purchase(request, id):
         supplier = draft.supplier.id
         id_val = purch.status.id
         recieve = PurchaseReceive.objects.filter(ref=draft)
-        if recieve and recieve.first().status.id >= 2:
+        if recieve and recieve.first().status.id >= IN_TRANSIT:
             messages.add_message(request,messages.ERROR,'Cant cancel the order')
             return redirect('get_purchase',id=id)
-        if id_val == 1:
+        if id_val == DRAFT:
             draft.delete()
             return redirect('purchases')
-        elif id_val == 2:
+        elif id_val == PURCHASE_APPROVE:
             warehouse = request.w
             url = env('BASE_URL')+f'{warehouse}/purchases/cancel/'
             requests.post(url,json={'ref':id})
-        elif id_val > 2:
+        elif id_val > PURCHASE_APPROVE:
             url = env('BASE_URL')+f'/supplier/{supplier}/cancel/'
             requests.post(url,json={'ref':id,'warehouse':request.w})
             if recieve:
@@ -225,9 +240,9 @@ def approve(request,id):
     try:
         draft = PurchaseDraft.objects.get(id=id)
         purch = PurchaseOrder.objects.get(id=draft) 
-        if purch.status.id == 1:
+        if purch.status.id == DRAFT:
             return redirect(purchase_approve,id=id)
-        elif purch.status.id  == 2:
+        elif purch.status.id  == PURCHASE_APPROVE:
             return redirect(supplier_approve, id=id)
         else:
             return render(request,'404.html',{},status=400)
@@ -243,11 +258,11 @@ def purchase_approve(request,id):
         draft = PurchaseDraft.objects.get(id=id)
         items = draft.items.all()
         purch = draft.order
-        if purch.status.id >= 3:
-            return redirect(purchase,id)
+        if purch.status.id >= SUPPLIER_APPROVE:
+            return redirect(get_purchase,id=id)
         if purch.cancel:
             messages.add_message(request,messages.WARNING,'already cancelled')
-            return redirect(purchase,id)
+            return redirect(get_purchase,id=id)
         data = {'ref':id,
                 'items':items,
                 'order':draft,
@@ -271,7 +286,7 @@ def purchase_approve(request,id):
         return render(request,'404.html',{},status=404)
     except requests.exceptions.ConnectionError:
         messages.add_message(request,messages.ERROR,'Cant connect to the server')
-        return redirect(purchase,id)
+        return redirect(get_purchase,id)
     
     
 @user_passes_test(specialilst_check)
@@ -282,7 +297,7 @@ def supplier_approve(request,id):
         items = draft.items.all()
         status = PurchaseStatus.objects.get(id=3)
         purch = draft.order
-        if purch.cancel or purch.status.id>5 or purch.status.id<2:
+        if purch.cancel or purch.status.id > SHIPPED or purch.status.id < PURCHASE_APPROVE:
             messages.add_message(request,messages.WARNING,'cancelled order or data not valid at the moment')
             return render(request,'purchase_next.html',{'number':id,'items':items, 'purchase':purch},status=401)
         data = {'ref':id,
@@ -318,7 +333,7 @@ def purchase_api(request):
         draft = PurchaseDraft.objects.get(id=ref)
         status = PurchaseStatus.objects.get(id=2)
         purchase = PurchaseOrder.objects.get(id=draft)
-        if purchase.status.id != 1:
+        if purchase.status.id != DRAFT:
             return Response({'error':'invalid operation'},status=400)
         purchase.status = status
         purchase.save()
@@ -345,7 +360,7 @@ def supplier_api(request):
         purchase = PurchaseOrder.objects.get(id=draft)
         if purchase.cancel:
             return Response({'error':'order is already cancelled'},status=401)
-        if int(status.id) == 6:
+        if int(status.id) == DISPATCHED:
             items = PurchaseItems.objects.filter(purchase=draft)
             for i in items:
                 i.item.on_hand += i.quantity
@@ -374,18 +389,18 @@ def recieve_api(request):
         ref = data['ref']
         status = data['status']
         draft = PurchaseDraft.objects.get(id=ref)
-        if draft.order.status.id != 6 or draft.order.cancel:
+        if draft.order.status.id != DISPATCHED or draft.order.cancel:
             return Response({'error':'order is either cancelled or not dispached yet'},status=401)
         status = ReceiveStatus.objects.get(id=status)
-        if status.id == 1:
+        if status.id == RECIEVE_DRAFT:
             PurchaseReceive.objects.create(status=status,ref=draft)
-        elif status.id == 2:
+        elif status.id == IN_TRANSIT:
             delivered = datetime.now()
             p = PurchaseReceive.objects.get(ref=draft)
             p.delivered_date = delivered
             p.status = status
             p.save()    
-        elif status.id == 3:
+        elif status.id == PAYED:
             p = PurchaseReceive.objects.get(ref=draft)
             p.status = status
             p.save()         
