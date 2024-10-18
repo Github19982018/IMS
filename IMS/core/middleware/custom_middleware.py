@@ -51,7 +51,7 @@ class Warehouse_middleware:
                 seen.update(seen=True)
 
             else:
-                response.context_data = {'warehouses':warehouses, 'w':int(self.warehouse), 'employee':user_data, 'notifications':notifications, 'ncount':count}
+                response.context_data = {'warehouses':warehouses,'w':int(self.warehouse), 'employee':user_data, 'notifications':notifications, 'ncount':count}
 
         except AttributeError:
             pass
