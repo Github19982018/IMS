@@ -18,7 +18,6 @@ def get_warehouse(request,id):
 
 @user_passes_test(manager_check)
 def add_warehouse(request):
-    edit = True
     if request.method == "POST":
         form = WarehouseForm(request.POST)
         if form.is_valid():
@@ -26,7 +25,7 @@ def add_warehouse(request):
             return redirect(view_warehouse)
     else:
         form = WarehouseForm()
-    return render(request,'warehouse/add_warehouse.html',{'form':form,'edit':edit})
+    return render(request,'warehouse/add_warehouse.html',{'form':form,'edit':True})
     
 
 @user_passes_test(manager_check)
@@ -35,13 +34,13 @@ def update_warehouse(request,id):
         i = Warehouse.objects.get(pk=id)
     except Warehouse.DoesNotExist:
         return render(request,'404.html',status=404)
-    edit = False
     if request.method == "POST":
+        edit = True
         form = WarehouseForm(request.POST,instance=i)
         if form.is_valid():
             form.save()
             return redirect(view_warehouse)
-        edit = True
     else:
+        edit = False
         form = WarehouseForm(instance=i)
     return render(request,'warehouse/warehouse.html',{'form':form,'edit':edit})

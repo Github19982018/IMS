@@ -28,9 +28,6 @@ def view_inventory(request):
     inventory = date_filter(date,inventory)
     return render(request,'inventory/inventory.html',{'inventory':inventory})
 
-def get_inventory(request,id):
-    inventory = Inventory.objects.get(pk=id)
-    return HttpResponse(inventory)
 
 @user_passes_test(specialilst_check)
 def add_inventory(request):
@@ -53,18 +50,18 @@ def add_inventory(request):
 def update_inventory(request,id):
     try:
         i = Inventory.objects.get(pk=id)
-        if request.method == "POST":
-            f = InventoryForm(request.POST, request.FILES, instance=i)
-            if f.is_valid():
-                f.updated = datetime.now()
-                f.save()
-                return redirect(view_inventory)
-            else:
-                return HttpResponseRedirect('')
-        else:
-            return inventory(request,id)
     except Inventory.DoesNotExist:
         return render(request,'404.html')
+    if request.method == "POST":
+        f = InventoryForm(request.POST, request.FILES, instance=i)
+        if f.is_valid():
+            f.updated = datetime.now()
+            f.save()
+            return redirect(view_inventory)
+        else:
+            return HttpResponseRedirect('')
+    else:
+        return inventory(request,id)
     
         
 def inventory(request,id):
