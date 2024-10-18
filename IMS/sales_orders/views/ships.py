@@ -77,7 +77,7 @@ def ship(request,id):
     try:
         sale = Sales.objects.get(id=id)
         shiplist = Shipment.objects.filter(sales=sale)
-        if request.method == 'POST' and specialilst_check: 
+        if request.method == 'POST' and specialilst_check(request.user): 
             if sale.status.id == SALE_PACKED:
                 pack = request.POST.getlist('package')
                 packages = Package.objects.filter(id__in=pack)

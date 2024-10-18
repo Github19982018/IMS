@@ -143,7 +143,7 @@ def purchase(request,id):
         draft = PurchaseDraft.objects.get(id=id)
         items = draft.items.all()
         purchase = PurchaseOrder.objects.filter(id=draft)
-        if specialilst_check and request.method == 'POST':
+        if specialilst_check(request.user) and request.method == 'POST':
             total = 0
             for i in items:
                 total += i.total_price
