@@ -7,7 +7,7 @@ from inventory.models import Inventory
 from customer.models import Customer
 from supplier.models import Supplier
 from django.db import connection
-from core.utils import manager_check,user_passes_test
+from core.utils import manager_check,user_passes_test,date_filter
 
 from django.db import connection
 cursor = connection.cursor()

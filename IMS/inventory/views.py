@@ -5,27 +5,13 @@ from inventory.models import Inventory,Supplier
 from warehouse.models import Warehouse
 from inventory.forms import InventoryForm
 # Create your views here.
-from core.utils import specialilst_check,user_passes_test
+from core.utils import specialilst_check,user_passes_test,date_filter
 
 def error_response_handler(request, exception=None):
     return HttpResponse('eror', status=404)
 
 ""
 
-def date_filter(date,queryset):
-    day = datetime.now().day
-    year = datetime.now().year
-    month = datetime.now().month
-    week = datetime.now().isocalendar()[1]
-    if date=='today':
-        queryset = queryset.filter(updated__day=day,updated__month=month,updated__year=year)
-    if date == 'month':
-        queryset = queryset.filter(updated__month=month,updated__year=year)
-    elif date == 'year':
-        queryset = queryset.filter(updated__year=year)
-    elif date == 'week':
-        queryset = queryset.filter(updated__week=week)
-    return queryset
 
 
 def view_inventory(request):

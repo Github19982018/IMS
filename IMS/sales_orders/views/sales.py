@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 import requests
 from django.contrib import messages
-from core.utils import specialilst_check,user_passes_test
+from core.utils import specialilst_check,user_passes_test,date_filter
 import environ
 from django.contrib.auth.decorators import login_not_required
 from core.models import Notifications,User
@@ -40,20 +40,6 @@ PACKAGE_PACKED = 2
 PACKAGE_READY_SHIP = 3
 PACKAGE_SHIPPED = 4
 
-def date_filter(date,queryset):
-    day = datetime.now().day
-    year = datetime.now().year
-    month = datetime.now().month
-    week = datetime.now().isocalendar()[1]
-    if date=='today':
-        queryset = queryset.filter(updated__day=day)
-    if date == 'month':
-        queryset = queryset.filter(updated__month=month)
-    elif date == 'year':
-        queryset = queryset.filter(updated__year=year)
-    elif date == 'week':
-        queryset = queryset.filter(updated__week=week)
-    return queryset
 
 # Create your views here.
 def view_sales(request):

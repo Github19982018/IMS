@@ -4,7 +4,7 @@ from sales_orders.models import Package,PackageStatus,Sales,SalesStatus,Shipment
 from inventory.models import Inventory,Warehouse
 from django.db.models.lookups import GreaterThan,LessThan
 from django.db.models import Sum,Q
-from datetime import datetime,timedelta
+from core.utils import date_filter
 from purchase_orders.models import PurchaseOrder,PurchaseStatus,PurchaseItems,PurchaseDraft
 from django.db import connection
 from core.utils import user_passes_test,manager_check
@@ -29,20 +29,6 @@ PACKAGE_PACKED = 2
 PACKAGE_READY_SHIP = 3
 PACKAGE_SHIPPED = 4
 
-def date_filter(date,queryset):
-    day = datetime.now().day
-    year = datetime.now().year
-    month = datetime.now().month
-    week = datetime.now().isocalendar()[1]
-    if date=='today':
-        queryset = queryset.filter(updated__day=day)
-    if date == 'month':
-        queryset = queryset.filter(updated__month=month)
-    elif date == 'year':
-        queryset = queryset.filter(updated__year=year)
-    elif date == 'week':
-        queryset = queryset.filter(updated__week=week)
-    return queryset
 # Create your views here.
 @user_passes_test(manager_check)
 def dashboard(request):
