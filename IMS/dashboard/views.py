@@ -34,7 +34,7 @@ PACKAGE_SHIPPED = 4
 def dashboard(request):
     date = request.GET.get('date','month')
     warehouse = Warehouse.objects.get(id=request.w) or Warehouse.objects.first()
-    pack = Package.objects.filter(status=PackageStatus.objects.get(id=PACKAGE_DRAFT))
+    pack = Package.objects.filter(warehouse=warehouse,status=PackageStatus.objects.get(id=PACKAGE_DRAFT))
     pack = date_filter(date,pack).count()
     ship = Sales.objects.filter(warehouse=warehouse,status=SalesStatus.objects.get(id=SALE_PACKED))
     ship = date_filter(date,ship).count()
